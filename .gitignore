@@ -11,8 +11,8 @@ env/
 .vscode/
 .cursor/
 
-# Generated figures (regenerate with orchestrators)
-figures/
+# Generated figures at repo root (regenerate with orchestrators)
+/figures/
 
 # Large NetMHC / IEDB artifacts — obtain separately (see data/README.md)
 data/netmhc/*.tsv
@@ -21,9 +21,6 @@ data/netmhc/iedb_*.json
 data/netmhc/netmhcpan_sig_lnc*.xls
 data/netmhc/netmhcpan_coding*.xls
 data/netmhc/predictions/**/netmhcpan*.xls
-
-# Keep small figure-sidecar CSVs
-!data/netmhc/figures/*.csv
 
 # OS
 .DS_Store
