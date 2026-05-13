@@ -35,6 +35,10 @@ from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
 
 ROOT = REPO_ROOT
 
+_SUP = ROOT / "supplement"
+if str(_SUP) not in sys.path:
+    sys.path.insert(0, str(_SUP))
+
 
 import argparse
 import shutil
