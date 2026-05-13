@@ -1,0 +1,3 @@
+proportional_whole
+bin_width_aa=5
+proportional_target_n=501

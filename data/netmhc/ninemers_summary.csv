@@ -1,0 +1,3 @@
+set,n_parent_mps,n_ninemers,deduplicated_unique_ninemers,ninemers_fasta
+significant_lncRNA_MP,501,17831,8786,C:\Users\stavz\Desktop\masters\UNDEFINED\data\netmhc\ninemers_sig_lnc.fasta
+coding_proportional_whole_MP,501,29380,27461,C:\Users\stavz\Desktop\masters\UNDEFINED\data\netmhc\ninemers_coding_proportional_whole.fasta

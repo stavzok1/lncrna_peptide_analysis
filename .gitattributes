@@ -1,0 +1,6 @@
+* text=auto
+*.xls binary
+*.tsv text eol=lf
+*.csv text eol=lf
+*.fasta text eol=lf
+*.faa text eol=lf
