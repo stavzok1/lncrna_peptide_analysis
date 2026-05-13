@@ -1,0 +1,94 @@
+"""
+NetMHC **supplement** figures: legacy wide-XLS cohort 5B–5E (IC50-from-BA), cohort SB sensitivity /
+combination grid, and TTN Fig 6 SB sweeps.
+
+Run ``generate_netmhc_figure_bundle.py`` first for canonical merged panels.
+
+Usage::
+
+    python generate_netmhc_supplement.py
+    python generate_netmhc_supplement.py --include-wide-xls-fig5 --strict
+"""
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+
+from repo_paths import NETMHC_DATA, NETMHC_FIGURES, REPO_ROOT, SUPPLEMENT_DIR
+
+SUP = SUPPLEMENT_DIR
+
+
+def run(script: str, args: list[str]) -> int:
+    cmd = [sys.executable, str(SUP / script), *args]
+    print("+", " ".join(cmd))
+    return subprocess.call(cmd, cwd=str(REPO_ROOT))
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--strict", action="store_true", help="Exit non-zero if any step fails.")
+    ap.add_argument(
+        "--include-wide-xls-fig5",
+        action="store_true",
+        help="Run wide-XLS 5B/5C/5E legacy cohort scripts (requires cohort ``*.xls`` under data/netmhc/).",
+    )
+    ap.add_argument(
+        "--skip-sensitivity",
+        action="store_true",
+        help="Skip cohort sensitivity, combination grid, and Fig 6 SB sensitivity.",
+    )
+    args = ap.parse_args()
+    failures: list[tuple[str, int]] = []
+
+    def step(script: str, extra: list[str]) -> None:
+        if run(script, extra) != 0:
+            failures.append((script, 1))
+
+    if args.include_wide_xls_fig5:
+        step("plot_figure5b_epitope_sharing_across_alleles.py", [])
+        step("plot_figure5b_epitope_sharing_across_alleles.py", ["--coding-control"])
+        step(
+            "plot_figure5b_epitope_sharing_across_alleles.py",
+            [
+                "--coding-control",
+                "--netmhc-xls",
+                str(NETMHC_DATA / "netmhcpan_coding_control.xls"),
+                "--out-png",
+                str(NETMHC_FIGURES / "fig5c_epitope_sharing_fragments_control.png"),
+                "--out-csv",
+                str(NETMHC_FIGURES / "fig5c_epitope_sharing_fragments_control.csv"),
+            ],
+        )
+        step("plot_figure5de_epitopes_per_allele.py", [])
+        step("plot_figure5de_epitopes_per_allele.py", ["--coding-control"])
+        step(
+            "plot_figure5de_epitopes_per_allele.py",
+            [
+                "--coding-control",
+                "--netmhc-xls",
+                str(NETMHC_DATA / "netmhcpan_coding_control.xls"),
+                "--out-png",
+                str(NETMHC_FIGURES / "fig5e_epitopes_per_allele_fragments_control.png"),
+                "--out-csv",
+                str(NETMHC_FIGURES / "fig5e_epitopes_per_allele_fragments_control.csv"),
+            ],
+        )
+
+    if not args.skip_sensitivity:
+        step("netmhc_sb_sensitivity_robustness.py", [])
+        step("plot_fig5_netmhc_sb_combination_grid.py", [])
+        step("plot_figure6_ttn_as1_sb_sensitivity.py", [])
+
+    if failures and args.strict:
+        print("Failures:", failures, file=sys.stderr)
+        sys.exit(1)
+    if failures:
+        print("Completed with failures:", failures)
+    else:
+        print("NetMHC supplement bundle done.")
+
+
+if __name__ == "__main__":
+    main()

@@ -13,13 +13,13 @@ Place these under `data/netmhc/` (paths match `generate_netmhc_figure_bundle.py`
 | `netmhcpan_coding_control_with_iedb.tsv` | Merged coding — length-matched control |
 | `netmhcpan_ttn_as1_108065.xls` | Wide NetMHCpan output for TTN-AS1 smPEP 108065 (also bundled here if small) |
 
-Optional **wide XLS** cohort panels: original `netmhcpan_sig_lnc.xls` and coding `*.xls` if you use `--include-wide-xls-fig5`.
+Optional **wide XLS** cohort panels: original `netmhcpan_sig_lnc.xls` and coding `*.xls` if you use **`python generate_netmhc_supplement.py --include-wide-xls-fig5`**.
 
 **Allele frequencies** for Figure 5A: default `data/netmhc/figures/fig5a_epitopes_vs_allele_frequency_ic50_sb.csv` (or `epitopes_vs_allele_frequency_ic50_sb.csv`). Regenerate from wide 5A if missing.
 
 ## Required for `python generate_catalog_figures.py`
 
-Repo includes `data/smprot_filtered_tcga_expr_genes.tsv`, `data/smprot_tcga_filtered_peptides.faa`, `data/known_proteins.fasta`, and gene lists. Optional: `data/smprot_all_filtered_peptides.faa` for `all_smprot_filtered` mode (see orchestrator docstring).
+Repo includes `data/smprot_filtered_tcga_expr_genes.tsv`, `data/smprot_tcga_filtered_peptides.faa`, `data/known_proteins.fasta`, and gene lists. Optional: `data/smprot_all_filtered_peptides.faa` for `all_smprot_filtered` mode (build with `python pipeline/export_tcga_filtered_peptides_fasta.py`, see orchestrator docstring).
 
 ## NetMHC prep and merge
 

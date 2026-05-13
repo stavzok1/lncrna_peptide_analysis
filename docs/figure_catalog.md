@@ -2,6 +2,8 @@
 
 Structured notes for selected manuscript-style figures: what they show, how they are generated, inputs and outputs, inferential procedures (if any), and limitations.
 
+**Script layout in this repository:** canonical figure code is under **`manuscript/`** (outputs default to **`figures/`** at repo root or `figures/<mode>/`). Supplement / sensitivity / legacy wide cohort code is under **`supplement/`**. Shared NetMHC merge + SB logic is under **`scripts/`** (`merge_netmhcpan_xls_with_iedb.py`, `netmhc_sb_core.py`). SmProt / TCGA prep utilities are under **`pipeline/`**. Orchestrators at repo root call into `manuscript/`. Table entries below list **basename** for readability; run as e.g. ``python manuscript/plot_tr_de_peptide_fractions_by_transition.py``.
+
 **Output root:** all scripts below write under **`figures/<peptide_mode>/`** at the repository root (`UNDEFINED/figures/`), where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**. Regenerate both modes in one go: **`python generate_catalog_figures.py`**.
 
 **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps in **separate** TCGA-matrix and all-filtered files, **3D** Tr log2FC heatmap). **Figure 4A** — TIS vs Ribo-seq p-values for Tr MPs (`plot_figure4a_tis_vs_ribo_tr_mps.py`). **3A–3B** default/alternate use **`figures/<mode>/`**; **3C–3D** and **4A** live under **`figures/`** at repo root.
@@ -100,11 +102,11 @@ EL **< 1%** by default, IC50 **< 150 nM** using the IEDB BA-IC50 column when pre
 | Cohort | Merged TSV | Manuscript **5C** output stem (default ``--out-dir``) |
 |--------|------------|--------------------------------------------------------|
 | **Proportional whole** (length-matched parents) | ``data/netmhc/netmhcpan_coding_proportional_whole_with_iedb.tsv`` | ``fig5abc_sb_immuno_proc_el_ic50`` (same run as 5A–5B) |
-| **Length-matched coding control** | ``data/netmhc/netmhcpan_coding_control_with_iedb.tsv`` | ``fig5abc_sb_immuno_proc_el_ic50_coding_control`` (``scripts/plot_fig5abc_netmhc_sb_triple.py --panels c``) |
+| **Length-matched coding control** | ``data/netmhc/netmhcpan_coding_control_with_iedb.tsv`` | ``fig5abc_sb_immuno_proc_el_ic50_coding_control`` (``manuscript/plot_fig5abc_netmhc_sb_triple.py --panels c``) |
 
 **5B** is **significant lncRNA only** (one canonical stem per run); the second coding cohort does not re-emit 5B.
 
-**Scripts:** ``scripts/plot_fig5abc_netmhc_sb_triple.py`` (5A–5C) and ``scripts/plot_fig5de_merged_iedb_sb_per_allele.py`` (5D–5E; run twice with ``--coding-tsv`` + ``--output-stem`` for proportional-whole vs random-fragment merged coding). Default plot metrics use **SB row instances** (``--fig5a-y-metric`` / ``--sharing-y-metric`` / ``--count-metric`` can switch to **unique**).
+**Scripts:** ``manuscript/plot_fig5abc_netmhc_sb_triple.py`` (5A–5C) and ``manuscript/plot_fig5de_merged_iedb_sb_per_allele.py`` (5D–5E; run twice with ``--coding-tsv`` + ``--output-stem`` for proportional-whole vs random-fragment merged coding). Default plot metrics use **SB row instances** (``--fig5a-y-metric`` / ``--sharing-y-metric`` / ``--count-metric`` can switch to **unique**).
 
 **Repo-root mirrors:** PNGs are written under ``data/netmhc/figures/`` and copied into **``figures/``** (same basename) unless ``--no-repo-mirror`` is passed.
 
@@ -118,21 +120,21 @@ EL **< 1%** by default, IC50 **< 150 nM** using the IEDB BA-IC50 column when pre
 | **5E** | **Yes** — proportional-whole merged coding | ``fig5de_merged_iedb_sb_proportional_whole_5e_coding_per_allele.png`` |
 | **5E** | **Yes** — random-fragment merged coding | ``fig5de_merged_iedb_sb_random_fragments_5e_coding_per_allele.png`` |
 
-**Wide XLS (legacy / supplement):** ``plot_figure5b_epitope_sharing_across_alleles.py`` cohort **5B / 5C** use **IC50-from-BA only** on ``*.xls``; they are **not** the manuscript default for those panels. ``generate_netmhc_figure_bundle.py`` runs them only with **`--include-wide-xls-fig5``** (also restores random-fragment wide **5C / 5E** companion paths under ``data/netmhc/figures/``).
+**Wide XLS (legacy / supplement):** ``supplement/plot_figure5b_epitope_sharing_across_alleles.py`` cohort **5B / 5C** use **IC50-from-BA only** on ``*.xls``; they are **not** the manuscript default for those panels. Run them via **`python generate_netmhc_supplement.py --include-wide-xls-fig5`** (also restores random-fragment wide **5C / 5E** companion paths under ``data/netmhc/figures/``).
 
 CSV companions for 5A–5C live alongside the PNGs under ``data/netmhc/figures/`` (not mirrored to ``figures/`` by default).
 
-**Orchestrator:** ``generate_netmhc_figure_bundle.py`` — default: wide **5A** only (IC50-from-BA); **merged** cohort **5B–5E** (canonical 5A–5C + second **5C**; **two** merged **5D–5E** stems for proportional-whole vs random-fragment coding); sensitivity / combination-grid helpers. Optional wide **5B–5E** via **`--include-wide-xls-fig5`**.
+**Orchestrator:** ``generate_netmhc_figure_bundle.py`` — default: wide **5A** only (IC50-from-BA); **merged** cohort **5B–5E** (canonical 5A–5C + second **5C**; **two** merged **5D–5E** stems for proportional-whole vs random-fragment coding). Supplement bundle: ``generate_netmhc_supplement.py`` (sensitivity, combination grid, legacy wide **5B–5E** with ``--include-wide-xls-fig5``). Optional wide **5B–5E** via **`generate_netmhc_supplement.py --include-wide-xls-fig5`**.
 
 **Figure 5 — sensitivity & robustness (IEDB+NetMHC SB):**
 
-- **`scripts/netmhc_sb_sensitivity_robustness.py`** — one-dimensional sweeps, leave-one-filter-out,
+- **`supplement/netmhc_sb_sensitivity_robustness.py`** — one-dimensional sweeps, leave-one-filter-out,
   main CSV + **`sb_threshold_sensitivity_robustness_fold_change_vs_baseline.csv`**.
   Default curves use **SB row instances**; ``--plot-metric unique`` restores unique-peptide y-axes.
 
 **Figure 5 — supplement (combination grid, cohort / not Fig 6):**
 
-- **`scripts/plot_fig5_netmhc_sb_combination_grid.py`** — Cartesian grid of SB thresholds,
+- **`supplement/plot_fig5_netmhc_sb_combination_grid.py`** — Cartesian grid of SB thresholds,
   fold-change table, 3×3 sharing grids, heatmap slice. Default folder:
   **`data/netmhc/figures/fig5_netmhc_sb_combinations/`**.
 
@@ -140,7 +142,7 @@ CSV companions for 5A–5C live alongside the PNGs under ``data/netmhc/figures/`
 > Per this catalog, **Figure 6 is reserved for TTN-AS1**; use the **`fig5_netmhc_sb_combinations`**
 > path going forward.
 
-**Optional clean tree:** ``python scripts/regenerate_manuscript_netmhc_figures.py`` (see ``docs/netmhc_figure_commands.md``) → ``figures/manuscript_netmhc/``. **Wide XLS–only** cohort scripts (IC50-from-BA on ``*.xls``) remain documented in ``docs/netmhc_figure_commands.md`` for diagnostics; they are not the manuscript SB default in this table.
+**Optional clean tree:** ``python supplement/regenerate_manuscript_netmhc_figures.py`` (see ``docs/netmhc_figure_commands.md``) → ``figures/manuscript_netmhc/``. **Wide XLS–only** cohort scripts (IC50-from-BA on ``*.xls``) remain documented in ``docs/netmhc_figure_commands.md`` for diagnostics; they are not the manuscript SB default in this table.
 
 ---
 
@@ -149,8 +151,8 @@ CSV companions for 5A–5C live alongside the PNGs under ``data/netmhc/figures/`
 **Scope:** one parent peptide (**TTN-AS1**, 79 aa; default sequence embedded unless
 `--parent-fasta` is passed) with NetMHCpan wide output **`data/netmhc/netmhcpan_ttn_as1_108065.xls`**.
 
-**Scripts:** canonical CLI entry **`scripts/manuscript_figure6_ttn_as1.py`** (forwards to
-`plot_figure6_ttn_as1_allele_coverage.py` at repo root).
+**Scripts:** canonical CLI entry **`manuscript/manuscript_figure6_ttn_as1.py`** (forwards to
+`manuscript/plot_figure6_ttn_as1_allele_coverage.py`).
 
 - **Default coverage metric:** **instances** — heatmap, histogram, and top coverage track use
   **total SB peptide×allele hits** overlapping each residue (`--coverage-output instances`, default).
@@ -172,14 +174,14 @@ CSV companions for 5A–5C live alongside the PNGs under ``data/netmhc/figures/`
 NetMHC rows to **`--iedb-csv`** on **`stable_key`** (with **`--iedb-parent-input-seq-id`**
 matching IEDB `input_seq_id`) and applies the **same one-pass SB bundle** as merged Fig 5
 (``--sb-mode`` + thresholds; **default IC50 cap 150 nM**). This is **not** a multi-threshold
-grid on the figure itself—use ``plot_figure6_ttn_as1_sb_sensitivity.py`` for NetMHC-only sweeps.
+grid on the figure itself—use ``supplement/plot_figure6_ttn_as1_sb_sensitivity.py`` for NetMHC-only sweeps.
 
 **SB definition (netmhc):** **`--sb-criterion ba_rank`** (default BA_rank ≤ 0.5 %) or
 `ic50` from `BA_score`; optional **`--require-el-rank`**.
 
 ### Figure 6 — sensitivity (TTN-AS1 SB sweeps)
 
-**Script:** `plot_figure6_ttn_as1_sb_sensitivity.py`
+**Script:** `supplement/plot_figure6_ttn_as1_sb_sensitivity.py`
 
 - Tables + fold-change vs default (BA_rank 0.5 %, no EL requirement) under
   **`data/netmhc/figures/fig6_ttn_as1_sensitivity/`**.
@@ -196,9 +198,11 @@ IEDB IC50—those belong to **Figure 5** merged-TSV scripts.
 | Goal | Entry point |
 |------|----------------|
 | Regenerate Fig 2–4A (SmProt catalog) | `generate_catalog_figures.py` |
-| Regenerate Fig 5–6 NetMHC bundle | `generate_netmhc_figure_bundle.py` |
+| Regenerate Fig 5–6 NetMHC **canonical** | `generate_netmhc_figure_bundle.py` |
+| NetMHC **supplement** (sensitivity, combo grid, legacy wide 5B–5E, Fig 6 SB sweeps) | `generate_netmhc_supplement.py` |
 | **Command cheat sheet (all figures / tests)** | **`docs/netmhc_figure_commands.md`** (NetMHC + catalog); SmProt catalog details also in sections above |
 | Merge NetMHC wide XLS + IEDB CSV | `scripts/merge_netmhcpan_xls_with_iedb.py` |
 | SB filter logic shared by scripts | `scripts/netmhc_sb_core.py` |
+| Full clean matrix under `figures/manuscript_netmhc/` | `supplement/regenerate_manuscript_netmhc_figures.py` |
 
 Project skill for agents: **`.cursor/skills/netmhc-manuscript-figures/SKILL.md`**.
