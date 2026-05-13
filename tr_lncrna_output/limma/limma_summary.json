@@ -1,0 +1,29 @@
+{
+  "method": "limma_eBayes_on_log2_expected_count_plus_1",
+  "FDR_max": 0.05,
+  "min_samples_per_cancer_gt": 100,
+  "expr_frac_min_union": 0.4,
+  "log2_threshold_for_count_ge_1": 1,
+  "min_samples_per_group": 10,
+  "n_tests_stage": 310659,
+  "n_tests_metastasis": 180441,
+  "n_sig_FDR_stage": 10830,
+  "n_sig_FDR_metastasis": 3838,
+  "n_unique_genes_sig_stage": 5269,
+  "n_unique_genes_sig_metastasis": 2847,
+  "n_unique_genes_sig_union": 5824,
+  "n_z_union_genes": 2086,
+  "n_overlap_z_union_limma_union": 1608,
+  "n_limma_z_intersection_genes": 1608,
+  "sig_by_transition_stage": {
+    "E_L": 7122,
+    "I_II": 2046,
+    "II_III": 1557,
+    "III_IV": 105
+  },
+  "sig_by_transition_metastasis": {
+    "M0l_M1L": 2,
+    "M0s_M0l": 3407,
+    "ME_M1L": 429
+  }
+}

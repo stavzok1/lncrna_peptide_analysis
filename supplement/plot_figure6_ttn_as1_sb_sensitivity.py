@@ -15,6 +15,8 @@ Outputs (default): ``data/netmhc/figures/fig6_ttn_as1_sensitivity/``
   - ``ttn_as1_sb_sensitivity.csv`` — one row per configuration.
   - ``ttn_as1_sb_sensitivity_fold_change_vs_baseline.csv`` — adds %% and fold vs default SB.
   - ``fig6_ttn_as1_sb_sensitivity_overview.png`` — line plots of key metrics vs cutoffs.
+    IC50 panels default to **no EL gate** (single curves, linear IC50 axis), matching the
+    historical figure; use ``--overview-dual-ic50-el-lines`` to overlay the +EL variant.
 """
 from __future__ import annotations
 
@@ -22,7 +24,7 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_REPO / "manuscript")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
@@ -94,7 +96,15 @@ def main() -> None:
         "--require-el-grid",
         type=str,
         default="0,1",
-        help="Comma-separated 0/1: whether to require EL_rank <= cutoff (1=yes).",
+        help="Comma-separated 0/1: whether to require EL_rank <= cutoff (1=yes). "
+        "Drives rows in the CSV; overview IC50 panels default to require_el_rank=False only "
+        "(see --overview-dual-ic50-el-lines).",
+    )
+    ap.add_argument(
+        "--overview-dual-ic50-el-lines",
+        action="store_true",
+        help="On the overview PNG only: plot two IC50 curves (no EL vs +EL_rank gate). "
+        "Default is a single curve (no EL), matching the historical figure layout.",
     )
     args = ap.parse_args()
 
@@ -186,7 +196,10 @@ def main() -> None:
     fc_path = args.out_dir / "ttn_as1_sb_sensitivity_fold_change_vs_baseline.csv"
     fc.to_csv(fc_path, index=False)
 
-    # Overview figure: BA_rank sweeps (no EL) and IC50 sweeps if present
+    # Overview figure: BA_rank sweeps (no EL vs +EL) and IC50 sweeps.  The CSV may contain
+    # duplicate IC50 x-values when --require-el-grid includes 1 (EL gate on).  By default the
+    # overview plots IC50 for require_el_rank=False only (single lines, linear x), matching the
+    # historical PNG; pass --overview-dual-ic50-el-lines for two IC50 curves + legend.
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
     br = out[(out["sb_criterion"] == "ba_rank") & (~out["require_el_rank"])].sort_values("ba_rank_pct_cutoff")
     if len(br):
@@ -202,14 +215,45 @@ def main() -> None:
         axes[0, 1].set_ylabel("Unique SB 9-mers")
         axes[0, 1].set_title("TTN-AS1: SB count vs BA_rank (+ EL_rank <= same cutoff)")
         axes[0, 1].grid(alpha=0.3)
-    ic = out[out["sb_criterion"] == "ic50_from_ba_score"].sort_values("ic50_nm_cutoff")
-    if len(ic):
-        axes[1, 0].plot(ic["ic50_nm_cutoff"], ic["n_unique_sb_9mers"], "o-", color=pal.OI_BLUISH_GREEN)
+    ic_base = out[out["sb_criterion"] == "ic50_from_ba_score"]
+    if len(ic_base):
+        if args.overview_dual_ic50_el_lines:
+            for req_el, sty, lab in (
+                (False, ("o", "-"), "IC50 SB, no EL gate"),
+                (True, ("^", "--"), "IC50 SB + EL_rank ≤ 0.5 %rank"),
+            ):
+                ic = ic_base.loc[ic_base["require_el_rank"] == req_el].sort_values("ic50_nm_cutoff")
+                if len(ic) == 0:
+                    continue
+                mk, ls = sty
+                axes[1, 0].plot(
+                    ic["ic50_nm_cutoff"],
+                    ic["n_unique_sb_9mers"],
+                    marker=mk,
+                    linestyle=ls,
+                    color=pal.OI_BLUISH_GREEN,
+                    label=lab,
+                )
+                axes[1, 1].plot(
+                    ic["ic50_nm_cutoff"],
+                    ic["frac_positions_with_any_sb_allele"],
+                    marker=mk,
+                    linestyle=ls,
+                    color=pal.OI_REDDISH_PURPLE,
+                    label=lab,
+                )
+            axes[1, 0].legend(fontsize=7, loc="best")
+            axes[1, 1].legend(fontsize=7, loc="best")
+        else:
+            ic = ic_base.loc[~ic_base["require_el_rank"]].sort_values("ic50_nm_cutoff")
+            if len(ic) == 0:
+                ic = ic_base.sort_values("ic50_nm_cutoff")
+            axes[1, 0].plot(ic["ic50_nm_cutoff"], ic["n_unique_sb_9mers"], "o-", color=pal.OI_BLUISH_GREEN)
+            axes[1, 1].plot(ic["ic50_nm_cutoff"], ic["frac_positions_with_any_sb_allele"], "s-", color=pal.OI_REDDISH_PURPLE)
         axes[1, 0].set_xlabel("IC50 cutoff (nM)")
         axes[1, 0].set_ylabel("Unique SB 9-mers")
         axes[1, 0].set_title("TTN-AS1: SB count vs IC50 (from BA_score)")
         axes[1, 0].grid(alpha=0.3)
-        axes[1, 1].plot(ic["ic50_nm_cutoff"], ic["frac_positions_with_any_sb_allele"], "s-", color=pal.OI_REDDISH_PURPLE)
         axes[1, 1].set_xlabel("IC50 cutoff (nM)")
         axes[1, 1].set_ylabel("Fraction positions with >=1 SB allele")
         axes[1, 1].set_ylim(0, 1.05)

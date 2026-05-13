@@ -8,6 +8,7 @@ That run **also** rewrites ``smprot_filtered.tsv`` to **only** rows that produce
 (FASTA success is part of the filter), then refreshes ``significant_lnc_peptides_full.tsv`` via
 ``smprot_gene_match.py``, and by default re-exports ``significant_lnc_peptides.faa`` and runs
 ``sync_significant_lnc_peptides_with_fasta.py`` (disable with ``--no-chain-significant-fasta``).
+With the chain enabled, ``--strict`` makes subprocess failures non-zero instead of warnings.
 
 Use ``--peptides-tsv data/significant_lnc_peptides_full.tsv`` to export only the significant list
 (writes ``data/significant_lnc_peptides.faa`` when ``--out-aa`` follows the default naming rule).
@@ -49,12 +50,13 @@ for _p in (str(_REPO), str(_REPO / "scripts")):
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
 
 ROOT = REPO_ROOT
+PIPELINE_DIR = ROOT / "pipeline"
 
+from orchestrate_subprocess import run_echo
 
 import argparse
 import gzip
 import json
-import subprocess
 import time
 import urllib.error
 import urllib.request
@@ -245,6 +247,14 @@ def main() -> None:
         action="store_true",
         help="When restricting smprot_filtered.tsv, skip re-export of significant_lnc_peptides.faa and sync.",
     )
+    ap.add_argument(
+        "--strict",
+        action="store_true",
+        help=(
+            "When chaining significant FASTA export and sync, exit non-zero if a subprocess fails "
+            "(default: warn and continue)."
+        ),
+    )
     args = ap.parse_args()
 
     pep_path = args.peptides_tsv if args.peptides_tsv is not None else TCGA_PEP
@@ -382,7 +392,7 @@ def main() -> None:
         if not args.no_chain_significant_fasta and SIG_PEPT_FULL.exists():
             sig_cmd = [
                 sys.executable,
-                str(ROOT / "export_tcga_filtered_peptides_fasta.py"),
+                str(PIPELINE_DIR / "export_tcga_filtered_peptides_fasta.py"),
                 "--peptides-tsv",
                 str(SIG_PEPT_FULL),
                 "--transcripts-fa",
@@ -394,15 +404,19 @@ def main() -> None:
                 sig_cmd.append("--ensembl-fallback")
             if args.dna:
                 sig_cmd.append("--dna")
-            print("+", " ".join(sig_cmd))
-            r1 = subprocess.run(sig_cmd, cwd=str(ROOT))
+            r1 = run_echo(sig_cmd, cwd=ROOT)
             if r1.returncode != 0:
-                print(f"Warning: significant FASTA export exited {r1.returncode}", file=sys.stderr)
-            sync_cmd = [sys.executable, str(ROOT / "sync_significant_lnc_peptides_with_fasta.py")]
-            print("+", " ".join(sync_cmd))
-            r2 = subprocess.run(sync_cmd, cwd=str(ROOT))
+                msg = f"significant FASTA export exited {r1.returncode}"
+                if args.strict:
+                    raise SystemExit(msg)
+                print(f"Warning: {msg}", file=sys.stderr)
+            sync_cmd = [sys.executable, str(PIPELINE_DIR / "sync_significant_lnc_peptides_with_fasta.py")]
+            r2 = run_echo(sync_cmd, cwd=ROOT)
             if r2.returncode != 0:
-                print(f"Warning: sync_significant_lnc_peptides_with_fasta.py exited {r2.returncode}", file=sys.stderr)
+                msg = f"sync_significant_lnc_peptides_with_fasta.py exited {r2.returncode}"
+                if args.strict:
+                    raise SystemExit(msg)
+                print(f"Warning: {msg}", file=sys.stderr)
 
 
 if __name__ == "__main__":

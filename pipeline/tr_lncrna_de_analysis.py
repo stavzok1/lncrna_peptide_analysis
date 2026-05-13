@@ -12,7 +12,7 @@ _REPO = Path(__file__).resolve().parent.parent
 for _p in (str(_REPO), str(_REPO / "scripts")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import REPO_ROOT, DATA
 
 ROOT = REPO_ROOT
 
@@ -25,9 +25,8 @@ import pandas as pd
 
 import figure_palettes as pal
 
-DATA = Path(__file__).resolve().parent / "data"
-OUT = Path(__file__).resolve().parent / "tr_lncrna_output"
-OUT.mkdir(exist_ok=True)
+OUT = ROOT / "tr_lncrna_output"
+OUT.mkdir(parents=True, exist_ok=True)
 
 META_STAGE = ["sample_id", "cancer_type", "ajcc_t", "ajcc_m", "stage"]
 META_META = ["sample_id", "cancer_type", "stage", "M_stage"]

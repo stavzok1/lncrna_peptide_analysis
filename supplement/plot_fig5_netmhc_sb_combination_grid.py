@@ -33,10 +33,6 @@ import argparse
 import itertools
 from dataclasses import replace
 
-_SCRIPTS = _ROOT / "scripts"
-for _p in (str(_ROOT), str(_SCRIPTS)):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
 import figure_palettes as pal  # noqa: E402
 
 import matplotlib.pyplot as plt

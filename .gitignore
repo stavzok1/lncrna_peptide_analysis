@@ -11,11 +11,21 @@ env/
 .vscode/
 .cursor/
 
-# Generated figures at repo root (regenerate with orchestrators)
-/figures/
+# Canonical manuscript / catalog PNGs + sidecars live under figures/ and are
+# intended to be committed (~few–tens of MiB). Regenerate with orchestrators
+# and commit updates when panels change.
+
+# Large raw / expression tables — ship on Zenodo only (see docs/ZENODO.md)
+data/SmProt2.txt
+data/primary_exp_*_final.csv
+# TCGA lncRNA matrices used for Fig 1B / DE (often > GitHub 100 MiB per file)
+data/primary_exp_stage_lncRNA.csv
+data/primary_exp_metastasis_lncRNA.csv
 
 # Large NetMHC / IEDB artifacts — obtain separately (see data/README.md)
-data/netmhc/*.tsv
+# Recursive: subfolders (e.g. merge_rebuild_verify/) are not matched by a single '*'.
+data/netmhc/**/*.tsv
+data/netmhc/merge_rebuild_verify/
 data/netmhc/iedb_*.csv
 data/netmhc/iedb_*.json
 data/netmhc/netmhcpan_sig_lnc*.xls

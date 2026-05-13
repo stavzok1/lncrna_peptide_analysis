@@ -3,6 +3,10 @@ Scatter: allele population frequency (x) vs **SB epitopes** or unique 9-mers (y)
 **strong binders** by predicted IC50 < threshold (default 150 nM). Default **y** is **SB epitopes per allele**
 (prediction rows per allele with IC50 < cutoff; each row is one 9-mer × allele); use ``--y-metric unique`` for distinct 9-mers per allele.
 
+**Scope:** **Supplement / legacy** wide-XLS cohort **5A** (IC50-from-BA only). The **manuscript** Figure **5A**
+uses ``manuscript/plot_fig5abc_netmhc_sb_triple.py`` on merged ``*_with_iedb.tsv`` (IEDB + EL + IC50 SB gates).
+Orchestrator: ``python generate_netmhc_supplement.py --include-wide-xls-fig5``.
+
 NetMHCpan-4.2 wide XLS (``-xls 1 -BA 1``) does **not** print a literal ``IC50_nM`` column; it
 prints ``BA_score`` in (0, 1) and ``BA_rank``. Those come from the **same binding-affinity
 (BA) head** as the IC50-ranked predictions; the BA score is the usual **log-scale affinity
@@ -38,7 +42,7 @@ _REPO = Path(__file__).resolve().parent.parent
 for _p in (str(_REPO), str(_REPO / "scripts")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES, NETMHC_HLA27_ALLELE_FREQ_CSV
 import argparse
 import math
 import re
@@ -55,6 +59,7 @@ import figure_palettes as pal
 NET = NETMHC_DATA
 FIGS = NETMHC_FIGURES
 REPO_FIGURES = FIGURES
+_BUNDLED_HLA27_FREQ = NETMHC_HLA27_ALLELE_FREQ_CSV
 _DEFAULT_ALLELE_FREQ_CSV = FIGS / "fig5a_epitopes_vs_allele_frequency_ic50_sb.csv"
 _ALT_ALLELE_FREQ_CSV = FIGS / "epitopes_vs_allele_frequency_ic50_sb.csv"
 
@@ -195,7 +200,7 @@ def main() -> None:
 
     freq_path = args.freq_file
     if freq_path is None:
-        for candidate in (_DEFAULT_ALLELE_FREQ_CSV, _ALT_ALLELE_FREQ_CSV):
+        for candidate in (_BUNDLED_HLA27_FREQ, _DEFAULT_ALLELE_FREQ_CSV, _ALT_ALLELE_FREQ_CSV):
             if candidate.is_file():
                 freq_path = candidate
                 break

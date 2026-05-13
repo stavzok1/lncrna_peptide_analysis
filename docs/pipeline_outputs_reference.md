@@ -82,8 +82,9 @@ This document lists **useful** CSV/TSV/TXT outputs from the UNDEFINED lncRNA / S
 
 | File | Description |
 |------|-------------|
-| **`hla_european27_class1.txt`** | **27** class I alleles (one per line) for NetMHCpan `-a file:...`. Example panel — replace with your paper’s exact list if needed. |
-| **`README_netmhc.md`** | WSL install steps, significant-peptide FASTA export, prep command, example `netMHCpan` invocation, proteome note. |
+| **`hla_european27_class1.txt`** | **27** class I alleles (one per line, **LF**). Shells expand this to a **comma-separated** `-a` argument (do **not** pass the file path as a single allele). Replace with your paper’s list if needed. |
+| **`README_netmhc.md`** | WSL install, FASTA prep, **§5** full `netMHCpan` examples (including proportional-whole). |
+| **Shell parameter summary** | **`docs/iedb_tools_api.md`** → *Appendix: cohort wide XLS — local NetMHCpan-4.2* (same defaults as `run_netmhcpan42_example.sh` / `run_netmhcpan_ttn_as1_108065.sh`). |
 | **`sig_peptides_missing_from_fasta.tsv`** | Optional (**`data/netmhc/`**): written by **`prepare_netmhc_tr_vs_coding_epitopes.py`** if the analyzed TSV still lists `smPEP_ID`s absent from the FASTA (should be empty after **`sync_significant_lnc_peptides_with_fasta.py`**). |
 | **`sig_parent_micropeptides.csv`**, **`coding_control_parent_micropeptides.csv`**, **`ninemers_sig_lnc.fasta`**, **`ninemers_coding_control.fasta`**, **`ninemers_summary.csv`** | Produced by **`prepare_netmhc_tr_vs_coding_epitopes.py`**: all significant lncRNA peptides vs length-matched substrings from **`data/known_proteins.fasta`** (override with `--coding-fa`); sliding **9-mer** FASTA for local NetMHCpan-4.1. |
 

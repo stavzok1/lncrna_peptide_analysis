@@ -40,7 +40,7 @@ _REPO = Path(__file__).resolve().parent.parent
 for _p in (str(_REPO), str(_REPO / "scripts")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES, NETMHC_HLA27_ALLELE_FREQ_CSV
 
 ROOT = REPO_ROOT
 
@@ -251,7 +251,9 @@ def main() -> None:
     ap.add_argument(
         "--allele-freq-csv",
         type=Path,
-        default=Path("data/netmhc/figures/fig5a_epitopes_vs_allele_frequency_ic50_sb.csv"),
+        default=NETMHC_HLA27_ALLELE_FREQ_CSV,
+        help="Allele × population frequency (columns: allele, allele_frequency). "
+        "Default: bundled European-27 reference under data/netmhc/.",
     )
     ap.add_argument("--out-dir", type=Path, default=Path("data/netmhc/figures"))
     ap.add_argument(

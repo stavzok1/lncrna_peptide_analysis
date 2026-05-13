@@ -14,9 +14,9 @@ Single reference for **orchestrators**, **manuscript figure scripts**, **data pr
 
 | Goal | Command |
 |------|---------|
-| **Figures 2–4A** (SmProt / TCGA catalog): `figures/tcga_matrix/`, `figures/all_smprot_filtered/`, shared `figures/` for 3C–3D + 4A | `python generate_catalog_figures.py` — add `--strict` to fail on missing optional inputs; `--only tcga_matrix` or `all_smprot_filtered` |
-| **Figures 5–6** (NetMHC **canonical**: wide **5A**, merged **5A–5E**, TTN Fig 6 coverage) | `python generate_netmhc_figure_bundle.py` — **`--strict`** for non-zero on failure; **`--skip-iedb-pipeline`** skips merged cohort steps |
-| **Figures 5–6** (NetMHC **supplement**: legacy wide 5B–5E, cohort sensitivity, SB combination grid, Fig 6 SB sweeps) | `python generate_netmhc_supplement.py` — **`--include-wide-xls-fig5`** for wide-XLS 5B/5C/5E; **`--skip-sensitivity`** to skip sensitivity / combo grid / Fig 6 sweeps |
+| **Figures 2–4A** (SmProt / TCGA catalog): Fig **1B** + `figures/tcga_matrix/`, `figures/all_smprot_filtered/`, shared `figures/` for 3C–3D + 4A | `python generate_catalog_figures.py` — add `--strict` to fail on missing optional inputs; `--only tcga_matrix` or `all_smprot_filtered` |
+| **Figures 5–6** (NetMHC **canonical**: merged **5A–5E**, TTN Fig 6 coverage) | `python generate_netmhc_figure_bundle.py` — **`--strict`** for non-zero on failure; **`--skip-iedb-pipeline`** skips merged cohort steps |
+| **Figures 5–6** (NetMHC **supplement**: legacy wide **5A–5E**, cohort sensitivity, SB combination grid, Fig 6 SB sweeps) | `python generate_netmhc_supplement.py` — **`--include-wide-xls-fig5`** for wide-XLS **5A–5E**; **`--skip-sensitivity`** to skip sensitivity / combo grid / Fig 6 sweeps |
 | **Clean matrix: Fig 5–6 + all SB modes + instances/unique + sensitivity** | `python supplement/regenerate_manuscript_netmhc_figures.py --clean --purge-repo-figures-netmhc --purge-data-netmhc-figures` — see script `--help` (`--dry-run`, skips, optional `--with-combination-grid`) |
 
 ### `figures/manuscript_netmhc/` layout (after regenerate script)
@@ -41,6 +41,7 @@ Same steps as `generate_catalog_figures.py`; override output roots with each scr
 
 | Figure | Script | Typical invocation |
 |--------|--------|--------------------|
+| **1B** | `manuscript/plot_figure1b_tsne_stage_lncrna.py` | `python manuscript/plot_figure1b_tsne_stage_lncrna.py` — needs `data/primary_exp_stage_lncRNA.csv` and **openTSNE** |
 | **2** | `manuscript/plot_tr_de_peptide_fractions_by_transition.py` | `python manuscript/plot_tr_de_peptide_fractions_by_transition.py --peptide-gene-set tcga_matrix` (or `all_smprot_filtered`) |
 | **3A** | `manuscript/plot_aa_frequency_tcga_vs_proteome.py` | `python manuscript/plot_aa_frequency_tcga_vs_proteome.py --peptide-set tcga_matrix` |
 | **3B** | `manuscript/plot_dipeptide_volcano_lnc_vs_proteome.py` | `python manuscript/plot_dipeptide_volcano_lnc_vs_proteome.py --peptide-set tcga_matrix` |
@@ -49,21 +50,21 @@ Same steps as `generate_catalog_figures.py`; override output roots with each scr
 
 ---
 
-## Figure 5 — cohort NetMHCpan (wide XLS; legacy / partial)
+## Figure 5 — cohort NetMHCpan (wide XLS; **supplement** / legacy)
 
-Default PNG/CSV under `data/netmhc/figures/` (some scripts also mirror copies into repo-root `figures/`; see each script). **Cohort epitope sharing (5B / 5C)** for the manuscript uses the **merged** pipeline in the next section, not these wide-XLS sharing plots.
+Default PNG/CSV under `data/netmhc/figures/` (some scripts also mirror copies into repo-root `figures/`; see each script). **Manuscript Figure 5** uses the **merged** pipeline (`plot_fig5abc_netmhc_sb_triple.py` / `plot_fig5de_merged_iedb_sb_per_allele.py`), not these wide-XLS cohort plots.
 
 | Panel | Script | Notes |
 |-------|--------|--------|
-| **5A** | `manuscript/plot_netmhc_epitopes_vs_hla_frequency.py` | Under `manuscript/`; `--help` for SB criterion and `--y-metric unique` |
-| **5B / 5C** | `manuscript/plot_fig5abc_netmhc_sb_triple.py` | **Manuscript default:** merged ``*_with_iedb.tsv``, ``sb_mode=full`` (see `scripts/netmhc_sb_core.py`). Two **5C** stems: proportional-whole + ``coding_control`` merged TSVs (second run: ``--panels c``). Legacy wide: ``supplement/plot_figure5b_epitope_sharing_across_alleles.py`` (IC50-from-BA only) |
-| **5D / 5E** | `supplement/plot_figure5de_epitopes_per_allele.py` | **Legacy / supplement:** IC50-from-BA on wide XLS. Manuscript default: ``manuscript/plot_fig5de_merged_iedb_sb_per_allele.py`` (two ``--output-stem`` values for proportional-whole vs fragment merged coding) |
+| **5A** | `manuscript/plot_netmhc_epitopes_vs_hla_frequency.py` | **Supplement** (orchestrated by `generate_netmhc_supplement.py --include-wide-xls-fig5`); IC50-from-BA on wide `*.xls`; default freq table `data/netmhc/hla_european27_allele_frequencies.csv` |
+| **5B / 5C** | `supplement/plot_figure5b_epitope_sharing_across_alleles.py` | IC50-from-BA on wide XLS only |
+| **5D / 5E** | `supplement/plot_figure5de_epitopes_per_allele.py` | IC50-from-BA on wide XLS |
 
 ---
 
-## Figure 5 — merged `*_with_iedb.tsv` (IEDB + NetMHC SB)
+## Figure 5 — merged `*_with_iedb.tsv` (**manuscript** default)
 
-Requires merged long TSVs from `scripts/merge_netmhcpan_xls_with_iedb.py` (see `data/netmhc/README_netmhc.md`).
+Requires merged long TSVs from `scripts/merge_netmhcpan_xls_with_iedb.py` (see `data/netmhc/README_netmhc.md`). **Fig 5A** in the merged bundle uses the same allele-frequency reference as wide 5A, but **SB counts come from merged rows** (IEDB + EL + IC50 gates), not from wide XLS alone.
 
 | Product | Script | Default output dir |
 |---------|--------|--------------------|
@@ -86,7 +87,8 @@ Requires merged long TSVs from `scripts/merge_netmhcpan_xls_with_iedb.py` (see `
 | IEDB-gated SB | `python manuscript/plot_figure6_ttn_as1_allele_coverage.py --gating iedb_sb --iedb-csv <path> --iedb-parent-input-seq-id <id>` (see `--help`; on PowerShell avoid `$PID` as a variable name) |
 | **TTN synthetic IEDB companion CSV** | `python supplement/build_ttn_iedb_companion_csv.py` |
 | **Fig 6 sensitivity** (NetMHC SB sweeps only) | `python supplement/plot_figure6_ttn_as1_sb_sensitivity.py` → `data/netmhc/figures/fig6_ttn_as1_sensitivity/` |
-| **Fig 6 from IEDB Tools API (NetMHCpan 4.1 BA+EL)** | `python supplement/fetch_ttn_mhci_iedb_api_netmhc41.py` (see `data/netmhc/predictions/ttn_as1_smpep108065_iedb_api_netmhc41/README.md`; add `--insecure` on Windows if TLS fails) then plot with `--netmhc-xls …/netmhcpan_ttn_as1_iedb_api_netmhc41.xls` |
+| **Fig 6 — local NetMHCpan (FASTA → XLS)** | WSL: `bash data/netmhc/run_netmhcpan_ttn_as1_108065.sh` → `data/netmhc/netmhcpan_ttn_as1_108065.xls`. Flags / install: **`data/netmhc/README_netmhc.md`** §5; one-page summary: **`docs/figure6_ttn_as1_parameters.md`** (*Local NetMHCpan*). Same layout under parent **`UNDEFINED/data/netmhc/`** if you run from the full tree. |
+| **Fig 6 from IEDB Tools API (NetMHCpan 4.1 BA+EL)** | `python supplement/fetch_ttn_mhci_iedb_api_netmhc41.py` — **POST fields / fetch CLI:** `docs/iedb_tools_api.md`. Default output dir `data/netmhc/predictions/ttn_as1_smpep108065_iedb_api_netmhc41/` (see `README.md` there). On Windows add `--insecure` if TLS fails. Then plot with `--netmhc-xls …/netmhcpan_ttn_as1_iedb_api_netmhc41.xls` (same Fig 6 script; see **`docs/figure6_ttn_as1_parameters.md`**) |
 
 ## Tests
 

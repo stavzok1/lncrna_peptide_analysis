@@ -12,18 +12,23 @@ Usage::
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 
-from repo_paths import NETMHC_DATA, NETMHC_FIGURES, REPO_ROOT, SUPPLEMENT_DIR
+from orchestrate_subprocess import call_echo
+from repo_paths import NETMHC_DATA, NETMHC_FIGURES, NETMHC_HLA27_ALLELE_FREQ_CSV, REPO_ROOT, SUPPLEMENT_DIR
 
 SUP = SUPPLEMENT_DIR
+MS = REPO_ROOT / "manuscript"
 
 
 def run(script: str, args: list[str]) -> int:
     cmd = [sys.executable, str(SUP / script), *args]
-    print("+", " ".join(cmd))
-    return subprocess.call(cmd, cwd=str(REPO_ROOT))
+    return call_echo(cmd, cwd=REPO_ROOT)
+
+
+def run_manuscript(script: str, args: list[str]) -> int:
+    cmd = [sys.executable, str(MS / script), *args]
+    return call_echo(cmd, cwd=REPO_ROOT)
 
 
 def main() -> None:
@@ -32,7 +37,7 @@ def main() -> None:
     ap.add_argument(
         "--include-wide-xls-fig5",
         action="store_true",
-        help="Run wide-XLS 5B/5C/5E legacy cohort scripts (requires cohort ``*.xls`` under data/netmhc/).",
+        help="Run legacy wide-XLS Fig 5A–5E (IC50-from-BA; requires cohort ``*.xls`` where referenced).",
     )
     ap.add_argument(
         "--skip-sensitivity",
@@ -46,7 +51,20 @@ def main() -> None:
         if run(script, extra) != 0:
             failures.append((script, 1))
 
+    def step_ms(script: str, extra: list[str]) -> None:
+        if run_manuscript(script, extra) != 0:
+            failures.append((script, 1))
+
     if args.include_wide_xls_fig5:
+        extra_5a: list[str] = []
+        if NETMHC_HLA27_ALLELE_FREQ_CSV.is_file():
+            extra_5a.extend(["--freq-file", str(NETMHC_HLA27_ALLELE_FREQ_CSV)])
+        else:
+            print(
+                "Warning: missing bundled HLA frequency CSV; wide 5A relies on script defaults / existing sidecars.",
+                flush=True,
+            )
+        step_ms("plot_netmhc_epitopes_vs_hla_frequency.py", extra_5a)
         step("plot_figure5b_epitope_sharing_across_alleles.py", [])
         step("plot_figure5b_epitope_sharing_across_alleles.py", ["--coding-control"])
         step(

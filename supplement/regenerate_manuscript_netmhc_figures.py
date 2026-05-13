@@ -30,7 +30,16 @@ _REPO = Path(__file__).resolve().parent.parent
 for _p in (str(_REPO), str(_REPO / "scripts")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES, MANUSCRIPT_DIR, SUPPLEMENT_DIR
+from repo_paths import (
+    REPO_ROOT,
+    DATA,
+    FIGURES,
+    NETMHC_DATA,
+    NETMHC_FIGURES,
+    NETMHC_HLA27_ALLELE_FREQ_CSV,
+    MANUSCRIPT_DIR,
+    SUPPLEMENT_DIR,
+)
 
 ROOT = REPO_ROOT
 MANUSCRIPT = MANUSCRIPT_DIR
@@ -47,6 +56,7 @@ FREQ_CSV_KEEP = frozenset(
     {
         "fig5a_epitopes_vs_allele_frequency_ic50_sb.csv",
         "epitopes_vs_allele_frequency_ic50_sb.csv",
+        "hla_european27_allele_frequencies.csv",
     }
 )
 
@@ -55,6 +65,8 @@ TTN_IEDB_PARENT_ID = "108065|TTN-AS1|synthetic"
 
 
 def resolve_freq_file() -> Path:
+    if NETMHC_HLA27_ALLELE_FREQ_CSV.is_file():
+        return NETMHC_HLA27_ALLELE_FREQ_CSV
     for name in (
         "fig5a_epitopes_vs_allele_frequency_ic50_sb.csv",
         "epitopes_vs_allele_frequency_ic50_sb.csv",
@@ -64,6 +76,7 @@ def resolve_freq_file() -> Path:
             return p
     raise FileNotFoundError(
         "No allele frequency table found. Need one of:\n"
+        f"  {NETMHC_HLA27_ALLELE_FREQ_CSV}\n"
         f"  {NETMHC_FIGURES / 'fig5a_epitopes_vs_allele_frequency_ic50_sb.csv'}\n"
         f"  {NETMHC_FIGURES / 'epitopes_vs_allele_frequency_ic50_sb.csv'}"
     )

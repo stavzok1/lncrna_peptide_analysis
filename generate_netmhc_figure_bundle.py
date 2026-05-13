@@ -1,10 +1,11 @@
 """
 Canonical NetMHC manuscript figures (outputs mirrored to repo ``figures/`` where applicable).
 
-Runs **wide 5A** (IC50-from-BA on cohort XLS), **merged 5A–5C / 5D–5E** (IEDB + NetMHC SB defaults),
-and **Figure 6** TTN-AS1 coverage (split panels + unique companion).
+Runs **merged 5A–5C / 5D–5E** (IEDB + NetMHC SB defaults on ``*_with_iedb.tsv``) and **Figure 6**
+TTN-AS1 coverage (split panels + unique companion). **Wide-XLS Fig 5A** (IC50-from-BA only) is
+**not** part of this bundle; use ``generate_netmhc_supplement.py --include-wide-xls-fig5``.
 
-Supplement jobs (wide 5B–5E legacy, cohort sensitivity, SB combination grid, Fig 6 SB sweeps) live
+Supplement jobs (wide 5A–5E legacy, cohort sensitivity, SB combination grid, Fig 6 SB sweeps) live
 under ``supplement/`` and are run via ``generate_netmhc_supplement.py``.
 
 Does **not** replace ``generate_catalog_figures.py`` (Figures 2–4A).
@@ -17,9 +18,9 @@ Usage::
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 
+from orchestrate_subprocess import call_echo
 from repo_paths import FIGURES, MANUSCRIPT_DIR, NETMHC_DATA, REPO_ROOT
 
 MS = MANUSCRIPT_DIR
@@ -27,8 +28,7 @@ MS = MANUSCRIPT_DIR
 
 def run(script: str, args: list[str]) -> int:
     cmd = [sys.executable, str(MS / script), *args]
-    print("+", " ".join(cmd))
-    return subprocess.call(cmd, cwd=str(REPO_ROOT))
+    return call_echo(cmd, cwd=REPO_ROOT)
 
 
 def main() -> None:
@@ -51,8 +51,6 @@ def main() -> None:
         code = run(script, extra)
         if code != 0:
             failures.append((script, code))
-
-    step("plot_netmhc_epitopes_vs_hla_frequency.py", [])
 
     if not args.skip_iedb_pipeline:
         step("plot_fig5abc_netmhc_sb_triple.py", [])

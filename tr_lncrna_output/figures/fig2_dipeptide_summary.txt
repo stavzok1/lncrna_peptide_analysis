@@ -1,0 +1,5 @@
+Proteome: 11,413,722 aa counted (standard AA), 11,393,300 overlapping dipeptides.
+lncRNA-MPs (all filtered FASTA): 111,337 aa, 108,731 dipeptides.
+Tr-lncRNA-MPs (GeneSymbol in canonical, 1608 genes): 13,288 aa, 12,973 dipeptides.
+Significant SmProt MPs (exportable FASTA): 21,839 aa, 21,338 dipeptides (501 parent sequences).
+Saved: C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\tr_lncrna_output\figures\fig2_dipeptide_mp_composition.png

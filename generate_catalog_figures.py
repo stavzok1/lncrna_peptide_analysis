@@ -1,10 +1,14 @@
 """
-Build catalog Figure 2 and Figure 3 outputs for both peptide modes:
+Build **Figure 1B** (t-SNE), then catalog **Figure 2** and **Figure 3** outputs for both peptide modes:
 
   - ``figures/tcga_matrix/`` — TCGA-matrix SmProt gene list / FASTA
   - ``figures/all_smprot_filtered/`` — full ``smprot_filtered.tsv`` genes / all-filtered FASTA
 
-Runs, in order for each mode:
+Runs **first**:
+
+  0. ``manuscript/plot_figure1b_tsne_stage_lncrna.py`` — Fig. 1B (requires ``data/primary_exp_stage_lncRNA.csv``; **openTSNE**).
+
+Then, **in order for each mode**:
 
   1. ``manuscript/plot_tr_de_peptide_fractions_by_transition.py --peptide-gene-set <mode>``
   2. ``manuscript/plot_aa_frequency_tcga_vs_proteome.py --peptide-set <mode>``
@@ -22,9 +26,9 @@ Then **once** (shared under ``figures/``):
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 
+from orchestrate_subprocess import call_echo
 from repo_paths import DATA, MANUSCRIPT_DIR, REPO_ROOT
 
 MS = MANUSCRIPT_DIR
@@ -33,8 +37,7 @@ ALL_FILTERED_FAA = DATA / "smprot_all_filtered_peptides.faa"
 
 def run_script(script: str, extra: list[str]) -> int:
     cmd = [sys.executable, str(MS / script), *extra]
-    print("+", " ".join(cmd))
-    return subprocess.call(cmd, cwd=str(REPO_ROOT))
+    return call_echo(cmd, cwd=REPO_ROOT)
 
 
 def main() -> None:
@@ -59,6 +62,11 @@ def main() -> None:
         modes = [args.only]
 
     failures: list[tuple[str, str, int]] = []
+
+    code_1b = run_script("plot_figure1b_tsne_stage_lncrna.py", [])
+    if code_1b != 0:
+        failures.append(("fig1b", "plot_figure1b_tsne_stage_lncrna.py", code_1b))
+
     for mode in modes:
         if mode == "all_smprot_filtered" and not ALL_FILTERED_FAA.exists():
             print(

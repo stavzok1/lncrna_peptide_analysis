@@ -30,7 +30,14 @@ _REPO = Path(__file__).resolve().parent.parent
 for _p in (str(_REPO), str(_REPO / "scripts")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import FIGURES, MANUSCRIPT_DIR, NETMHC_DATA, REPO_ROOT, SCRIPTS_DIR
+from repo_paths import (
+    FIGURES,
+    MANUSCRIPT_DIR,
+    NETMHC_DATA,
+    NETMHC_HLA27_ALLELE_FREQ_CSV,
+    REPO_ROOT,
+    SCRIPTS_DIR,
+)
 
 ROOT = REPO_ROOT
 
@@ -75,8 +82,8 @@ def main() -> None:
     ap.add_argument(
         "--allele-freq-csv",
         type=Path,
-        default=net / "figures" / "fig5a_epitopes_vs_allele_frequency_ic50_sb.csv",
-        help="Allele frequency table for Fig 5A (same as main manuscript pipeline).",
+        default=NETMHC_HLA27_ALLELE_FREQ_CSV,
+        help="Allele frequency table for Fig 5A (default: bundled European-27 reference).",
     )
     ap.add_argument(
         "--out-dir",
@@ -104,7 +111,7 @@ def main() -> None:
     if not args.sig_tsv.is_file():
         raise SystemExit(f"Missing {args.sig_tsv}")
     if not args.allele_freq_csv.is_file():
-        raise SystemExit(f"Missing {args.allele_freq_csv} (generate via wide-XLS Fig 5A pipeline if needed)")
+        raise SystemExit(f"Missing {args.allele_freq_csv}")
 
     py = sys.executable
     merge_py = SCRIPTS_DIR / "merge_netmhcpan_xls_with_iedb.py"

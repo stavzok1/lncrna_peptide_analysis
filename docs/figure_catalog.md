@@ -2,11 +2,21 @@
 
 Structured notes for selected manuscript-style figures: what they show, how they are generated, inputs and outputs, inferential procedures (if any), and limitations.
 
+**Parameter index:** for a table of *where* each figure’s thresholds and CLI are documented (including **`analysis_params.md`** deep notes for Fig 2 bar logic), see **`docs/analysis_params.md`** → *Where each figure’s parameters are documented*.
+
 **Script layout in this repository:** canonical figure code is under **`manuscript/`** (outputs default to **`figures/`** at repo root or `figures/<mode>/`). Supplement / sensitivity / legacy wide cohort code is under **`supplement/`**. Shared NetMHC merge + SB logic is under **`scripts/`** (`merge_netmhcpan_xls_with_iedb.py`, `netmhc_sb_core.py`). SmProt / TCGA prep utilities are under **`pipeline/`**. Orchestrators at repo root call into `manuscript/`. Table entries below list **basename** for readability; run as e.g. ``python manuscript/plot_tr_de_peptide_fractions_by_transition.py``.
 
-**Output root:** all scripts below write under **`figures/<peptide_mode>/`** at the repository root (`UNDEFINED/figures/`), where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**. Regenerate both modes in one go: **`python generate_catalog_figures.py`**.
+**Output root:** catalog scripts below write under **`figures/<peptide_mode>/`** at the repository root (`paper-github/figures/`), where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**, except **Figure 1B** (t-SNE) which writes directly under **`figures/`**.
 
-**Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps in **separate** TCGA-matrix and all-filtered files, **3D** Tr log2FC heatmap). **Figure 4A** — TIS vs Ribo-seq p-values for Tr MPs (`plot_figure4a_tis_vs_ribo_tr_mps.py`). **3A–3B** default/alternate use **`figures/<mode>/`**; **3C–3D** and **4A** live under **`figures/`** at repo root.
+**Figure 1B** — t-SNE of TCGA primary samples on the lncRNA stage matrix (`plot_figure1b_tsne_stage_lncrna.py`). **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps in **separate** TCGA-matrix and all-filtered files, **3D** Tr log2FC heatmap). **Figure 4A** — TIS vs Ribo-seq p-values for Tr MPs (`plot_figure4a_tis_vs_ribo_tr_mps.py`). **3A–3B** default/alternate use **`figures/<mode>/`**; **3C–3D** and **4A** live under **`figures/`** at repo root.
+
+---
+
+## Figure 1B — t-SNE (TCGA primary, lncRNA stage matrix)
+
+**Paths:** `figures/fig1b_tsne_stage_lncrna_samples_*.png` (four panels: dims 1–2 and 3–4 × {cancer type, AJCC stage}).
+
+**Script:** `plot_figure1b_tsne_stage_lncrna.py` — input **`data/primary_exp_stage_lncRNA.csv`**; requires **openTSNE** (`pip install opentsne`). Same matrix columns as the limma / peptide-fraction pipeline.
 
 ---
 
@@ -78,12 +88,13 @@ top **N** combined-significance MPs (`--top-extreme-labels`, default 28).
 
 | ID | Short name | Script |
 |----|--------------|--------|
+| 1B | t-SNE (stage lncRNA matrix) | `plot_figure1b_tsne_stage_lncrna.py` |
 | 2 | Peptide fraction by cancer × transition | `plot_tr_de_peptide_fractions_by_transition.py` |
 | 3A | 1-mer AA vs proteome | `plot_aa_frequency_tcga_vs_proteome.py` |
 | 3B | Dipeptide volcano vs proteome | `plot_dipeptide_volcano_lnc_vs_proteome.py` |
 | 3C–3D | Dipeptide log2FC heatmaps (3C split files / 3D Tr) | `plot_figure3cd_dipeptide_log2fc_heatmaps.py` |
 | 4A | TIS vs Ribo-seq p scatter (TCGA filtered MPs) | `plot_figure4a_tis_vs_ribo_tr_mps.py` |
-| — | Both modes + 3C–3D + 4A (orchestrator) | `generate_catalog_figures.py` |
+| — | Fig 1B + both modes + 3C–3D + 4A (orchestrator) | `generate_catalog_figures.py` |
 
 ---
 
@@ -120,7 +131,7 @@ EL **< 1%** by default, IC50 **< 150 nM** using the IEDB BA-IC50 column when pre
 | **5E** | **Yes** — proportional-whole merged coding | ``fig5de_merged_iedb_sb_proportional_whole_5e_coding_per_allele.png`` |
 | **5E** | **Yes** — random-fragment merged coding | ``fig5de_merged_iedb_sb_random_fragments_5e_coding_per_allele.png`` |
 
-**Wide XLS (legacy / supplement):** ``supplement/plot_figure5b_epitope_sharing_across_alleles.py`` cohort **5B / 5C** use **IC50-from-BA only** on ``*.xls``; they are **not** the manuscript default for those panels. Run them via **`python generate_netmhc_supplement.py --include-wide-xls-fig5`** (also restores random-fragment wide **5C / 5E** companion paths under ``data/netmhc/figures/``).
+**Wide XLS (legacy / supplement):** ``manuscript/plot_netmhc_epitopes_vs_hla_frequency.py`` (**5A**, IC50-from-BA on ``netmhcpan_sig_lnc.xls``); ``supplement/plot_figure5b_epitope_sharing_across_alleles.py`` / ``plot_figure5de_epitopes_per_allele.py`` for **5B–5E** — **IC50-from-BA only** on ``*.xls``; **not** the manuscript default for merged panels. Run via **`python generate_netmhc_supplement.py --include-wide-xls-fig5`**.
 
 CSV companions for 5A–5C live alongside the PNGs under ``data/netmhc/figures/`` (not mirrored to ``figures/`` by default).
 

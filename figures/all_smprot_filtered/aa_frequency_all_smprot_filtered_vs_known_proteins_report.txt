@@ -1,0 +1,10 @@
+peptide_fasta: C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\data\smprot_all_filtered_peptides.faa
+proteome_fasta: C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\data\known_proteins.fasta
+n_aa_lnc_peptide_fasta: 118,091
+n_aa_known_proteins: 11,413,722
+per-residue test: Fisher exact (2×2), two-sided
+multiple testing: Benjamini-Hochberg FDR over 20 amino acids (reported in CSV)
+significance for x-axis '*': fdr p < 0.05
+n_significant_for_plot (fdr): 19
+csv: C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\figures\all_smprot_filtered\aa_frequency_all_smprot_filtered_vs_known_proteins_stats.csv
+figure: C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\figures\all_smprot_filtered\aa_frequency_all_smprot_filtered_vs_known_proteins.png

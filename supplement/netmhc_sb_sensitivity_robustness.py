@@ -14,6 +14,11 @@ Writes under ``data/netmhc/figures/`` by default:
   - ``sb_threshold_sensitivity_robustness.png`` — multi-panel figure.
 
 This is **catalog Figure 5** (cohort IEDB+NetMHC SB), not Figure 6 (TTN-AS1). See ``docs/figure_catalog.md``.
+
+**Processing sweep:** each point uses ``iedb_processing_score > proc_min`` (strict inequality; see
+``netmhc_sb_core.sb_mask_spec``). Raising ``proc_min`` tightens the gate; if no merged row has
+processing above the cutoff **while still passing** immuno, EL, and IC50 at baseline, the SB
+count is **0** and the line drops to the x-axis — that is expected, not a plotting bug.
 """
 
 from __future__ import annotations
@@ -33,10 +38,6 @@ ROOT = REPO_ROOT
 import argparse
 from dataclasses import replace
 
-_SCRIPTS = _ROOT / "scripts"
-for _p in (str(_ROOT), str(_SCRIPTS)):
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
 import figure_palettes as pal  # noqa: E402
 
 import matplotlib.pyplot as plt
@@ -192,7 +193,7 @@ def main() -> None:
 
     # Sensitivity sweeps (one dimension at a time)
     imm_sweep = [0.0, 0.05, 0.1, 0.15, 0.2, 0.3]
-    proc_sweep = [0.5, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5]
+    proc_sweep = [0.5, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5]  # proc_min: rows need iedb_processing_score **>** v (strict)
     el_sweep = [1.0, 2.0, 3.0, 5.0, 10.0, 20.0]
     ic50_sweep = [50.0, 100.0, 150.0, 250.0, 500.0, 1000.0, 5000.0]
 

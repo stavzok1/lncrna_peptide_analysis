@@ -186,6 +186,8 @@ Writes merged coding TSV ``data/netmhc/netmhcpan_coding_proportional_whole_with_
 
 ## 5. Run NetMHCpan-4.1 / 4.2 (CLI)
 
+**Quick reference (shell defaults used in `run_netmhcpan42_example.sh` / `run_netmhcpan_ttn_as1_108065.sh`):** `docs/iedb_tools_api.md` in the **`paper-github/`** bundle → section *Appendix: cohort wide XLS — local NetMHCpan-4.2*.
+
 ### 5a. Why the examples used `-BA` only
 
 In NetMHCpan-4.x, the **default** output is centred on **antigen presentation (EL)** style scores (`Score_EL`, `%Rank_EL`, binder labels, etc.). The **`-BA`** switch does **not** replace that: it **adds** predicted **binding affinity** columns (IC50-style) on top of the EL output. So “BA only” in a command line was never “BA instead of everything”—it was “turn on affinity as well.”

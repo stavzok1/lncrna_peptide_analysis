@@ -1,0 +1,57 @@
+{
+  "min_samples_per_cancer": 100,
+  "expr_frac_min_union": 0.4,
+  "log2_threshold_for_count_ge_1": 1.0,
+  "z_abs_min": 3.0,
+  "n_unique_stage": 1655,
+  "n_unique_metastasis": 1438,
+  "n_unique_union": 2086,
+  "n_rows_stage_detail": 4072,
+  "n_rows_metastasis_detail": 3517,
+  "stage_by_transition": {
+    "E_L": 809,
+    "III_IV": 720,
+    "II_III": 758,
+    "I_II": 815
+  },
+  "meta_by_transition": {
+    "M0l_M1L": 831,
+    "M0s_M0l": 906,
+    "ME_M1L": 858
+  },
+  "cancer_types_included_stage": [
+    "BLCA",
+    "BRCA",
+    "COAD",
+    "ESCA",
+    "HNSC",
+    "KIRC",
+    "KIRP",
+    "LIHC",
+    "LUAD",
+    "LUSC",
+    "PAAD",
+    "STAD",
+    "THCA"
+  ],
+  "cancer_types_included_metastasis": [
+    "BLCA",
+    "BRCA",
+    "CESC",
+    "COAD",
+    "ESCA",
+    "HNSC",
+    "KIRC",
+    "KIRP",
+    "LIHC",
+    "LUAD",
+    "LUSC",
+    "PRAD",
+    "STAD",
+    "TGCT",
+    "THCA"
+  ],
+  "n_overlap_stage_and_metastasis": 1007,
+  "n_stage_only": 648,
+  "n_metastasis_only": 431
+}

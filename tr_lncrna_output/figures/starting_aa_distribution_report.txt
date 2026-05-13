@@ -1,0 +1,35 @@
+Starting AA distribution (TCGA-filtered peptide FASTA + optional significant export FASTA)
+FASTA (filtered): C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\data\smprot_tcga_filtered_peptides.faa
+Peptides with standard AA at position 1 - all filtered: n=2606 (skipped non-standard/empty: 0)
+Peptides from GeneSymbol in canonical list (1608 genes): n=315 (skipped: 0)
+SmProt significant exportable (significant_lnc_peptides.faa): n=501 (skipped: 0)
+
+Chi-square homogeneity (20x3 contingency):
+  chi2 = 28.312, df = 38, p = 0.8738
+  Interpretation: small p suggests first-AA frequencies differ across columns.
+
+Goodness-of-fit to uniform (each set separately):
+  All filtered: chi2 = 4766.126, p = 0
+  Canonical subset: chi2 = 638.587, p = 3.574e-123
+  SmProt significant exportable: chi2 = 950.297, p = 2.137e-189
+
+Top 5 first AAs (filtered all):
+  M: n=619, 23.75%
+  L: n=601, 23.06%
+  V: n=255, 9.79%
+  I: n=247, 9.48%
+  R: n=161, 6.18%
+
+Top 5 first AAs (canonical subset):
+  M: n=87, 27.62%
+  L: n=68, 21.59%
+  I: n=32, 10.16%
+  V: n=24, 7.62%
+  K: n=20, 6.35%
+
+Top 5 first AAs (SmProt significant exportable):
+  M: n=123, 24.55%
+  L: n=116, 23.15%
+  V: n=55, 10.98%
+  I: n=47, 9.38%
+  K: n=28, 5.59%

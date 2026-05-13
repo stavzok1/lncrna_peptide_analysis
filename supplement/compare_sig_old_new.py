@@ -18,6 +18,7 @@ from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
 ROOT = REPO_ROOT
 
 
+import argparse
 import json
 
 import pandas as pd
@@ -100,6 +101,8 @@ def compare_sets(name: str, old: set[str], new: set[str]) -> dict:
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.parse_args()
     old_genes = load_gene_set(OLD_LNCS)
     new_genes = load_gene_set(NEW_LNCS)
 
