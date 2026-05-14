@@ -12,7 +12,9 @@ and a heatmap slice. It complements:
   - ``plot_fig5abc_netmhc_sb_triple.py`` — single chosen SB definition (5A–5C style).
   - ``scripts/netmhc_sb_sensitivity_robustness.py`` — one-at-a-time sweeps + LOO + fold-change.
 
-Default output folder: ``data/netmhc/figures/fig5_netmhc_sb_combinations/``.
+Default output folder: ``data/netmhc/figures/fig5_netmhc_sb_combinations/`` when run standalone;
+``generate_netmhc_fig5_fig6_supplement.py`` passes ``--out-dir`` to
+``figures/supplementary/netmhc_fig5_fig6_supplement/fig5_merged_cohort_cartesian_sb_grid/``.
 """
 
 from __future__ import annotations

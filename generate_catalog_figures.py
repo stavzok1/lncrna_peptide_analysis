@@ -1,12 +1,13 @@
 """
 Build **Figure 1B** (t-SNE), then catalog **Figure 2** and **Figure 3** outputs for both peptide modes:
 
-  - ``figures/tcga_matrix/`` — TCGA-matrix SmProt gene list / FASTA
-  - ``figures/all_smprot_filtered/`` — full ``smprot_filtered.tsv`` genes / all-filtered FASTA
+  - ``figures/supplementary/tcga_matrix/`` — TCGA-matrix SmProt gene list / FASTA (tables + PNGs;
+    canonical ``fig3a`` / ``fig3b`` / ``fig2b`` copies still mirrored under ``figures/``).
+  - ``figures/supplementary/all_smprot_filtered/`` — full ``smprot_filtered.tsv`` genes / all-filtered FASTA
 
 Runs **first**:
 
-  0. ``manuscript/plot_figure1b_tsne_stage_lncrna.py`` — Fig. 1B (requires ``data/primary_exp_stage_lncRNA.csv``; **openTSNE**).
+  0. ``manuscript/plot_figure1b_tsne_stage_lncrna.py`` — Fig. 1B (requires ``data/primary_exp_stage_lncRNA.csv``; default **2D sklearn t-SNE**, two PNGs).
 
 Then, **in order for each mode**:
 

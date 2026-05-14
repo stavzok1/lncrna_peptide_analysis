@@ -14,9 +14,9 @@ pooled sequences using Fisher's exact test on a 2×2 table (residue vs not-resid
 set). P-values are Benjamini-Hochberg adjusted across the 20 tests (default for stars);
 use ``--significance raw`` for uncorrected Fisher p < alpha on each residue.
 
-Writes figure + CSV + short report under ``figures/<peptide_set>/`` by default. For the
-default TCGA-matrix run (no ``--peptide-fa`` / no custom ``--out-dir``), a copy is also
-written to ``figures/fig3a.png``.
+Writes figure + CSV + short report under ``figures/supplementary/<peptide_set>/`` by default
+(TCGA-matrix vs all-filtered tables and plots). For the default TCGA-matrix run (no
+``--peptide-fa`` / no custom ``--out-dir``), a copy is also written to ``figures/fig3a.png``.
 """
 from __future__ import annotations
 
@@ -28,7 +28,15 @@ _MS = Path(__file__).resolve().parent
 for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import (
+    REPO_ROOT,
+    DATA,
+    FIGURES,
+    FIGURES_SUPPLEMENTARY_TCGA_MATRIX,
+    FIGURES_SUPPLEMENTARY_ALL_SMPROT_FILTERED,
+    NETMHC_DATA,
+    NETMHC_FIGURES,
+)
 from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
@@ -122,7 +130,7 @@ def main() -> None:
         "--out-dir",
         type=Path,
         default=None,
-        help="Output directory (default: figures/<peptide_set>/ under repo root when --peptide-fa is unset).",
+        help="Output directory (default: figures/supplementary/<peptide_set>/ when --peptide-fa is unset).",
     )
     ap.add_argument(
         "--alpha",
@@ -164,7 +172,11 @@ def main() -> None:
     if args.out_dir is not None:
         out_dir = args.out_dir
     elif args.peptide_fa is None:
-        out_dir = FIGURES / args.peptide_set
+        out_dir = (
+            FIGURES_SUPPLEMENTARY_TCGA_MATRIX
+            if args.peptide_set == "tcga_matrix"
+            else FIGURES_SUPPLEMENTARY_ALL_SMPROT_FILTERED
+        )
     else:
         out_dir = FIGURES / args.peptide_fa.stem
 

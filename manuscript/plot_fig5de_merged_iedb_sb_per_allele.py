@@ -9,18 +9,18 @@ immuno / processing / EL / IC50 settings without re-running the wide NetMHC ``*.
 Examples::
 
     # Full IEDB+EL+IC50 stack (defaults from netmhc_sb_core)
-    python scripts/plot_fig5de_merged_iedb_sb_per_allele.py --out-dir data/netmhc/figures
+    python manuscript/plot_fig5de_merged_iedb_sb_per_allele.py --out-dir data/netmhc/figures
 
     # Second coding cohort (distinct 5E/5D filenames; 5D is sig-lnc, duplicated across runs):
-    python scripts/plot_fig5de_merged_iedb_sb_per_allele.py \\
+    python manuscript/plot_fig5de_merged_iedb_sb_per_allele.py \\
         --coding-tsv data/netmhc/netmhcpan_coding_control_with_iedb.tsv \\
-        --output-stem fig5de_merged_iedb_sb_random_fragments
+        --output-stem figS5de_random_fragments --repo-mirror-dir figures/supplementary/netmhc/coding_fragments_random_sample
 
     # IC50 binding only (no IEDB immuno/proc/EL gates)
-    python scripts/plot_fig5de_merged_iedb_sb_per_allele.py --sb-mode ic50_only --output-stem fig5de_merged_ic50_only
+    python manuscript/plot_fig5de_merged_iedb_sb_per_allele.py --sb-mode ic50_only --output-stem fig5de_merged_ic50_only
 
     # Write all three SB modes into subfolders
-    python scripts/plot_fig5de_merged_iedb_sb_per_allele.py --write-all-sb-modes
+    python manuscript/plot_fig5de_merged_iedb_sb_per_allele.py --write-all-sb-modes
 """
 from __future__ import annotations
 
@@ -61,11 +61,11 @@ from netmhc_sb_core import (  # noqa: E402
 REPO_FIGURES = FIGURES
 
 
-def _mirror(*paths: Path) -> None:
-    REPO_FIGURES.mkdir(parents=True, exist_ok=True)
+def _mirror(dest_root: Path, *paths: Path) -> None:
+    dest_root.mkdir(parents=True, exist_ok=True)
     for p in paths:
         if p.is_file():
-            shutil.copy2(p, REPO_FIGURES / p.name)
+            shutil.copy2(p, dest_root / p.name)
 
 
 def _norm_display_allele(name: str) -> str:
@@ -211,7 +211,9 @@ def run_one(
         figures_root=REPO_FIGURES,
     )
     if not getattr(args, "no_repo_mirror", False):
+        mirror_root = getattr(args, "repo_mirror_dir", None) or FIGURES
         _mirror(
+            mirror_root,
             out_dir / f"{stem}_5d_sig_per_allele.png",
             out_dir / f"{stem}_5e_coding_per_allele.png",
         )
@@ -230,8 +232,9 @@ def main() -> None:
     ap.add_argument(
         "--output-stem",
         type=str,
-        default="fig5de_merged_iedb_sb_proportional_whole",
-        help="Filename prefix; use e.g. fig5de_merged_iedb_sb_random_fragments with the fragment merged TSV.",
+        default="fig5de_merged_whole",
+        help="Filename prefix; canonical proportional-whole coding: fig5de_merged_whole_*; "
+        "random-fragment merged coding supplement: e.g. figS5de_random_fragments.",
     )
     ap.add_argument(
         "--sb-mode",
@@ -258,7 +261,14 @@ def main() -> None:
     ap.add_argument(
         "--no-repo-mirror",
         action="store_true",
-        help="Do not copy 5D/5E PNGs into repo-root figures/.",
+        help="Do not copy 5D/5E PNGs into the repo figures tree.",
+    )
+    ap.add_argument(
+        "--repo-mirror-dir",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="Directory for mirrored PNG copies (default: repo figures/). Ignored with --no-repo-mirror.",
     )
     add_publication_args(ap)
     args = ap.parse_args()

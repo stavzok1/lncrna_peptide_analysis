@@ -61,11 +61,11 @@ from scipy.stats import spearmanr
 REPO_FIGURES = FIGURES
 
 
-def _mirror(*paths: Path) -> None:
-    REPO_FIGURES.mkdir(parents=True, exist_ok=True)
+def _mirror(dest_root: Path, *paths: Path) -> None:
+    dest_root.mkdir(parents=True, exist_ok=True)
     for p in paths:
         if p.is_file():
-            shutil.copy2(p, REPO_FIGURES / p.name)
+            shutil.copy2(p, dest_root / p.name)
 
 
 from netmhc_sb_core import (
@@ -318,8 +318,8 @@ def main() -> None:
     ap.add_argument(
         "--output-stem",
         type=str,
-        default="fig5abc_sb_immuno_proc_el_ic50",
-        help="Prefix for output CSV/PNG filenames under --out-dir.",
+        default="fig5_merged",
+        help="Prefix for output CSV/PNG filenames under --out-dir (canonical merged SB: fig5_merged_*5a–5c).",
     )
     ap.add_argument(
         "--n-panel-alleles",
@@ -348,7 +348,14 @@ def main() -> None:
     ap.add_argument(
         "--no-repo-mirror",
         action="store_true",
-        help="Do not copy 5A–5C PNGs into repo-root figures/.",
+        help="Do not copy mirrored PNGs into the repo figures tree.",
+    )
+    ap.add_argument(
+        "--repo-mirror-dir",
+        type=Path,
+        default=None,
+        metavar="DIR",
+        help="Directory for mirrored PNG copies (default: repo figures/). Ignored with --no-repo-mirror.",
     )
     add_publication_args(ap)
     args = ap.parse_args()
@@ -491,7 +498,8 @@ def main() -> None:
                 out_dir / f"{stem}_5b_epitope_sharing.png",
                 out_dir / f"{stem}_5c_epitope_sharing.png",
             ]
-        _mirror(*mirror_paths)
+        dest = args.repo_mirror_dir if args.repo_mirror_dir is not None else FIGURES
+        _mirror(dest, *mirror_paths)
 
     print(f"Wrote under {out_dir} prefix {stem}_* (panels={args.panels})")
     print(f"[stats] IC50 filter: {iedb_ic50_col or 'local BA_score (no IEDB IC50 column)'}")

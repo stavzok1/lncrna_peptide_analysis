@@ -6,17 +6,22 @@ This is the **single-peptide** NetMHCpan story for TTN-AS1. For **cohort-level**
 epitope interplay (significant lncRNA MPs vs coding control, optionally with IEDB filters),
 use the **Figure 5** NetMHC scripts documented in ``docs/figure_catalog.md``.
 
-**Sensitivity (SB definition sweeps)** for the same XLS and sequence:
-``plot_figure6_ttn_as1_sb_sensitivity.py`` → ``data/netmhc/figures/fig6_ttn_as1_sensitivity/`` (sensitivity stays under ``data/netmhc/figures/``).
+**Sensitivity / grids (supplement) for the same XLS and sequence:**
+
+- NetMHC-only SB sweeps: ``supplement/plot_figure6_ttn_as1_sb_sensitivity.py`` (default under ``data/netmhc/figures/fig6_ttn_as1_sensitivity/``; orchestrator mirrors under ``figures/supplementary/netmhc_fig5_fig6_supplement/fig6_ttn_wide_netmhc_sb_sweeps/``).
+- IEDB+NetMHC **1D + LOO** on the merged TTN table: ``supplement/netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py`` (orchestrator: ``fig6_ttn_merged_iedb_1d_sensitivity_loo/``).
+- IEDB+NetMHC **Cartesian** SB threshold grid on the merged TTN table: ``supplement/plot_fig6_ttn_merged_iedb_sb_combination_grid.py``.
 
 **Gating modes (``--gating``):**
 
-- ``netmhc`` (default): SB from **wide XLS only** — **BA_rank** and/or **IC50 from BA_score**
-  (plus optional **EL_rank**). No IEDB immunogenicity / processing.
-- ``iedb_sb``: same NetMHCpan predictions joined to an **IEDB peptide_table CSV** on
+- ``iedb_sb`` (**default**): NetMHCpan wide rows joined to an **IEDB peptide_table CSV** on
   ``stable_key`` (see ``--iedb-csv`` + ``--iedb-parent-input-seq-id``). SB uses **one**
-  threshold bundle from the CLI (``--sb-mode`` + imm/proc/EL/IC50); it is **not** a
-  multi-threshold sweep (see ``plot_figure6_ttn_as1_sb_sensitivity.py`` / ``netmhc_sb_sensitivity_robustness.py`` for sweeps). Default IC50 cap matches ``FIG5_IEDB_IC50_MAX_NM_DEFAULT`` (**150 nM**).
+  threshold bundle from the CLI (``--sb-mode`` + imm/proc/EL/IC50); **IC50 uses the merged IEDB
+  IC50 column when available** (else BA-derived fallback in ``sb_mask_spec``). Default IC50 cap
+  matches ``FIG5_IEDB_IC50_MAX_NM_DEFAULT`` (**150 nM**). This is **not** a multi-threshold figure by
+  itself—use the **supplement scripts above** for NetMHC-only sweeps, merged IEDB 1D+LOO, and merged IEDB Cartesian grids.
+- ``netmhc``: SB from **wide XLS only** — **BA_rank** and/or **IC50 from BA_score**
+  (plus optional **EL_rank**). No IEDB immunogenicity / processing.
 
 **Coverage outputs (``--coverage-output``):** default **``instances``** — **panels A–B**
 (sequence heatmap, histogram) use **distinct SB alleles per site**; **panel C** line plots
@@ -24,7 +29,11 @@ use **SB epitope instance hits** (track 1), **distinct SB alleles** (track 2), a
 **overlay** (track 3). **Panels D/E logos** remain **instance-weighted**. Optional **``unique``**
 or **``both``**; ``both`` writes **separate files** ``*_instances*`` and ``*_unique*`` (see
 ``-o`` stem). Use ``--also-write-unique`` when ``--coverage-output`` is ``instances`` to add
-the unique-only companion files (same A–C metrics as ``instances`` for this figure).
+the unique-only companion files (same A–C metrics as ``instances`` for this figure). **Repo
+orchestrators** default to **instances only** under ``figures/``; Fig 6 **unique** is opt-in
+(``--write-fig6-unique-supplement`` on ``generate_canonical_manuscript_figures.py``,
+``--include-fig6-unique-split`` on ``export_publication_figures.py``, ``--include-fig6-unique`` on
+``regenerate_all_figures.py``, or ``--also-write-unique`` on ``generate_netmhc_figure_bundle.py``).
 
 **Panel B (histogram + stats):** with **``instances``**, the histogram counts positions by
 **distinct SB alleles** per site (union across overlapping 9-mers). With **``unique``**, same

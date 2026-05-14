@@ -22,7 +22,8 @@ out of all such intersected genes.
 - **Bluish-green dashed line — Overall TCGA lncRNAs:** fraction of all matrix lncRNA
   columns with ≥1 peptide from the same table.
 
-Outputs (under ``figures/<peptide_gene_set>/`` by default, see ``--figures-dir``):
+Outputs (under ``figures/supplementary/<peptide_gene_set>/`` by default; override with
+``--figures-dir``):
 
   - ``peptide_fraction/*.png`` — one bar chart per analysis / transition / direction
   - ``tr_de_peptide_fraction_by_cancer.csv`` — long table for all panels
@@ -40,7 +41,7 @@ _MS = Path(__file__).resolve().parent
 for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import REPO_ROOT, DATA, FIGURES, FIGURES_SUPPLEMENTARY, NETMHC_DATA, NETMHC_FIGURES
 from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
@@ -304,12 +305,12 @@ def main() -> None:
         "--figures-dir",
         type=Path,
         default=None,
-        help="Parent directory for outputs (default: UNDEFINED/figures). PNGs go in <parent>/<peptide_gene_set>/peptide_fraction/.",
+        help="Parent directory for outputs (default: figures/supplementary). PNGs go in <parent>/<peptide_gene_set>/peptide_fraction/.",
     )
     add_publication_args(ap)
     args = ap.parse_args()
 
-    figures_parent = args.figures_dir if args.figures_dir is not None else FIGURES
+    figures_parent = args.figures_dir if args.figures_dir is not None else FIGURES_SUPPLEMENTARY
     suite_dir = figures_parent / args.peptide_gene_set
     figs = suite_dir / "peptide_fraction"
     out_csv_name = "tr_de_peptide_fraction_by_cancer.csv"

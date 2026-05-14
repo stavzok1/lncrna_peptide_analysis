@@ -5,14 +5,18 @@ Uses the same counting and smoothing as ``plot_dipeptide_mp_figure2.py`` (overla
 2-mers, standard 20 aa, U→C, ``freq_matrix`` with +0.5 over 400 cells, ``log2(mp/proteome)``).
 
 - **Figure 3C:** **two separate PNG files** when both FASTAs exist — (1) TCGA-matrix
-  filtered MPs vs proteome; (2) all SmProt-filtered MPs vs proteome. If the all-filtered
-  FASTA is missing, only the TCGA-matrix 3C file is written.
+  filtered MPs vs proteome (canonical path under ``figures/``); (2) all SmProt-filtered
+  MPs vs proteome under ``figures/supplementary/all_smprot_filtered/``. If the all-filtered
+  FASTA is missing, only the TCGA-matrix 3C file is written. Use ``--only-tcga-matrix-3c`` to
+  skip panel (2) even when the all-filtered FASTA exists.
 
-- **Figure 3D:** **Tr-lncRNA** MPs — same TCGA-matrix FASTA restricted to ``GeneSymbol``
+- **Figure 3D:** **Tr-lncRNA** MPs — same TCGA-matrix peptide set restricted to ``GeneSymbol``
   in ``data/canonical_significant_lncRNAs.txt`` (fallback: ``limma_z_intersection_genes.txt``)
   vs proteome.
 
-Default output directory: ``figures/`` at the repository root.
+Default output directory: ``figures/`` at the repository root for **Figure 3C (TCGA-matrix)**
+and **Figure 3D**. The **all-filtered Figure 3C** panel is written under
+``figures/supplementary/all_smprot_filtered/`` when using the default ``--out-dir``.
 """
 from __future__ import annotations
 
@@ -24,7 +28,7 @@ _MS = Path(__file__).resolve().parent
 for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS), str(_REPO / "supplement")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import REPO_ROOT, DATA, FIGURES, FIGURES_SUPPLEMENTARY_ALL_SMPROT_FILTERED, NETMHC_DATA, NETMHC_FIGURES
 from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
@@ -75,6 +79,11 @@ def main() -> None:
     ap.add_argument("--all-filtered-fa", type=Path, default=ALL_FILTERED_FAA)
     ap.add_argument("--proteome-fa", type=Path, default=PROTEOME_FA)
     ap.add_argument("--out-dir", type=Path, default=FIGURES, help="Directory for PNG outputs.")
+    ap.add_argument(
+        "--only-tcga-matrix-3c",
+        action="store_true",
+        help="Do not write the all-SmProt-filtered Figure 3C panel (only TCGA-matrix 3C).",
+    )
     add_publication_args(ap)
     args = ap.parse_args()
 
@@ -94,7 +103,7 @@ def main() -> None:
     log_tcga = dp.log2_ratio_mat(dp.freq_matrix(c_tcga_all), f_ref)
     log_tr = dp.log2_ratio_mat(dp.freq_matrix(c_tcga_tr), f_ref)
 
-    all_filtered_exists = args.all_filtered_fa.exists()
+    all_filtered_exists = (not args.only_tcga_matrix_3c) and args.all_filtered_fa.exists()
     log_all_filtered: np.ndarray | None = None
     aa_all = di_all = 0
     if all_filtered_exists:
@@ -144,7 +153,12 @@ def main() -> None:
             vmax=vmax_all_3c,
         )
         fig_all.tight_layout()
-        out_all = args.out_dir / "fig3c_dipeptide_log2fc_all_smprot_filtered_vs_proteome.png"
+        if args.out_dir.resolve() == FIGURES.resolve():
+            out_all_dir = FIGURES_SUPPLEMENTARY_ALL_SMPROT_FILTERED
+        else:
+            out_all_dir = args.out_dir
+        out_all_dir.mkdir(parents=True, exist_ok=True)
+        out_all = out_all_dir / "fig3c_dipeptide_log2fc_all_smprot_filtered_vs_proteome.png"
         save_figure_bundle(
             fig_all,
             out_all,
@@ -164,7 +178,7 @@ def main() -> None:
     plot_log2_panel(
         ax_d,
         log_tr,
-        "(D) Tr-lncRNA MPs (canonical genes, TCGA-matrix FASTA) vs proteome",
+        "Tr-lncRNA MPs (canonical genes, TCGA-matrix) vs proteome",
         f"{aa_tr:,} aa in MPs; {aa_ref:,} aa proteome; {len(tr_genes)} canonical genes",
         vmax=vmax_3d,
     )

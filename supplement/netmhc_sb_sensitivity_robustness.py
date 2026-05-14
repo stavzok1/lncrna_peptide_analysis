@@ -3,6 +3,10 @@
 Sensitivity (one-dimensional threshold sweeps) and robustness (leave-one-filter-out)
 for the combined SB definition on merged NetMHC + IEDB TSVs.
 
+**Contrast:** this script **varies one SB-related dimension at a time** (plus LOO) relative to a
+fixed baseline bundle. The **full multi-way Cartesian product** of immuno × processing × EL × IC50
+cutoffs (and sig/coding sharing panels) lives in ``plot_fig5_netmhc_sb_combination_grid.py`` instead.
+
 Baseline defaults match ``plot_fig5abc_netmhc_sb_triple.py`` / ``netmhc_sb_core.FIG5_IEDB_*`` and
 ``--sb-mode`` (``full`` / ``no_ic50`` / ``ic50_only``). Plots default to **SB epitopes × alleles**
 (merged-table row counts); use ``--plot-metric unique`` for unique-9-mer curves.
@@ -14,6 +18,7 @@ Writes under ``data/netmhc/figures/`` by default:
   - ``sb_threshold_sensitivity_robustness.png`` — multi-panel figure.
 
 This is **catalog Figure 5** (cohort IEDB+NetMHC SB), not Figure 6 (TTN-AS1). See ``docs/figure_catalog.md``.
+For TTN **Cartesian IEDB+NetMHC** grids, see ``plot_fig6_ttn_merged_iedb_sb_combination_grid.py``.
 
 **Processing sweep:** each point uses ``iedb_processing_score > proc_min`` (strict inequality; see
 ``netmhc_sb_core.sb_mask_spec``). Raising ``proc_min`` tightens the gate; if no merged row has

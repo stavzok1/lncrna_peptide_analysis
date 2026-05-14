@@ -70,7 +70,7 @@ Constants in `scripts/netmhc_sb_core.py`; argparse defaults in `plot_figure6_ttn
 | `--ic50-nm` | `150` | Used when `--sb-criterion ic50`. |
 | `--require-el-rank` | off | Also require EL_rank cutoff. |
 | `--coverage-output` | `instances` | `instances` / `unique` / `both`. |
-| `--split-panels`, `--also-write-unique` | off | Manuscript multi-PNG layout. |
+| `--split-panels`, `--also-write-unique` | off | Multi-PNG layout; ``--also-write-unique`` adds ``*_unique_*`` next to ``*_instances_*`` in the **same** ``-o`` directory (orchestrators do **not** enable this by default). |
 
 ## Related
 

@@ -1,23 +1,19 @@
 """
 Figure 1B — sample embedding on TCGA primary tumor lncRNA expression (same matrix as DE pipeline).
 
-Default (**``--embedding sklearn2_pca34``**): **sklearn t-SNE** in **2D** (Barnes–Hut; stable
-for typical sample sizes) for panels **dim 1–2**, and **PC3 vs PC4** from a **sample PCA**
-(``sklearn.decomposition.PCA``) on the **same** ``X_in`` used for t-SNE (after optional
-gene-level PCA truncation). Axis titles mark PC3/PC4 and report their explained variance.
+Default (**``--embedding sklearn2_pca34``**): **sklearn t-SNE** in **2D** only (Barnes–Hut on ``X_in``;
+``X_in`` may be gene-level PCA–truncated first via ``--n-pca``). Writes **two** PNGs (t-SNE dims 1–2),
+coloured by **cancer_type** and by **stage**. There are **no** PC3/PC4 or ``_dims34_`` files in this mode.
 
-Optional **``--embedding opentsne4``**: legacy **4D OpenTSNE** (same four panels as pure t-SNE
-dims 1–2 and 3–4). OpenTSNE emits a **FutureWarning** about Barnes–Hut in >3 embedding
-dimensions; that path filters the warning but may be slower or fragile — prefer the default.
+Optional **``--embedding opentsne4``**: **4D OpenTSNE** — writes **four** PNGs (t-SNE dims 1–2 and 3–4).
+OpenTSNE may emit a **FutureWarning** about Barnes–Hut in >3 dimensions; that path filters it.
 
 Loads ``data/primary_exp_stage_lncRNA.csv`` (same samples as ``tr_lncrna_de_analysis``),
-standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits the
-chosen embedding.
+standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits the chosen embedding.
 
-Writes four PNGs under ``figures/``:
-
-  - components **1 vs 2** (t-SNE), coloured by **cancer_type** and **stage**
-  - components **3 vs 4** (PCA scores on ``X_in`` when using default), same colourings
+Basenames use ``--filename-prefix`` (default ``fig1b_tsne_stage_lncrna_samples``) and ``--out-dir``
+(default ``figures/``) so alternate embeddings can live under ``figures/supplementary/embedding/``
+without clobbering canonical files.
 """
 from __future__ import annotations
 
@@ -122,10 +118,17 @@ def _scatter_panel(
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Figure 1B: sample embedding (t-SNE ± PCA) on stage lncRNA matrix → four PNGs."
+        description="Figure 1B: sample embedding on stage lncRNA matrix → two PNGs (sklearn default) or four (opentsne4)."
     )
     ap.add_argument("--matrix-csv", type=Path, default=DEFAULT_CSV)
     ap.add_argument("--out-dir", type=Path, default=FIGURES)
+    ap.add_argument(
+        "--filename-prefix",
+        type=str,
+        default="fig1b_tsne_stage_lncrna_samples",
+        metavar="STEM",
+        help="Basename prefix for PNGs (before _dims12_* and, with opentsne4, _dims34_*).",
+    )
     ap.add_argument(
         "--n-pca",
         type=int,
@@ -139,8 +142,8 @@ def main() -> None:
         "--embedding",
         choices=("sklearn2_pca34", "opentsne4"),
         default="sklearn2_pca34",
-        help="Default: 2D sklearn t-SNE (dims 1–2) + PC3 vs PC4 on X_in (dims 3–4). "
-        "opentsne4: single 4D OpenTSNE embedding (legacy; may warn internally about BH>3D).",
+        help="sklearn2_pca34: 2D sklearn t-SNE only (two PNGs: dims 1–2). "
+        "opentsne4: 4D OpenTSNE (four PNGs: t-SNE dims 1–2 and 3–4).",
     )
     add_publication_args(ap)
     args = ap.parse_args()
@@ -187,17 +190,7 @@ def main() -> None:
             learning_rate="auto",
         )
         emb12 = np.asarray(tsne2.fit_transform(X_in), dtype=np.float64)
-        n_pc = min(4, X_in.shape[0] - 1, X_in.shape[1])
-        if n_pc < 4:
-            raise SystemExit(f"Need ≥4 PCA components for PC3–PC4 panel; got {n_pc}.")
-        print("Fitting sample PCA (4 components on X_in) for PC3 vs PC4 panels...")
-        pca4 = PCA(n_components=4, random_state=args.random_state, svd_solver="randomized")
-        Z = pca4.fit_transform(X_in)
-        ev = pca4.explained_variance_ratio_
-        emb = np.column_stack([emb12, Z[:, 2:4]])
-        pc3_lab = f"PC3 ({100.0 * float(ev[2]):.1f}% var.)"
-        pc4_lab = f"PC4 ({100.0 * float(ev[3]):.1f}% var.)"
-        dim34_labels = (pc3_lab, pc4_lab)
+        emb = emb12.astype(np.float64, copy=False)
     else:
         try:
             from openTSNE import TSNE as OpenTSNE
@@ -220,12 +213,12 @@ def main() -> None:
         print("Embedding shape:", emb.shape)
 
     if args.embedding == "sklearn2_pca34":
-        print("Combined embedding shape:", emb.shape, "(cols 0–1 t-SNE, 2–3 PCA scores)")
+        print("Embedding shape:", emb.shape, "(2D t-SNE only; no dims 3–4 PNGs — use --embedding opentsne4 for four panels)")
 
     cancer = df["cancer_type"].astype(str).to_numpy()
     stage = df["stage"].astype(str).to_numpy()
 
-    base = "fig1b_tsne_stage_lncrna_samples"
+    base = args.filename_prefix.strip() or "fig1b_tsne_stage_lncrna_samples"
 
     def save_pair(
         dim_i: int,
@@ -285,29 +278,15 @@ def main() -> None:
     if args.embedding == "sklearn2_pca34":
         p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix="t-SNE (dims 1 vs 2)")
         p2 = save_pair(0, 1, "dims12_stage", title_suffix="t-SNE (dims 1 vs 2)")
-        p3 = save_pair(
-            2,
-            3,
-            "dims34_cancer_type",
-            title_suffix="PCA on X_in (PC3 vs PC4)",
-            xlabel=dim34_labels[0],
-            ylabel=dim34_labels[1],
-        )
-        p4 = save_pair(
-            2,
-            3,
-            "dims34_stage",
-            title_suffix="PCA on X_in (PC3 vs PC4)",
-            xlabel=dim34_labels[0],
-            ylabel=dim34_labels[1],
-        )
+        paths_out = [p1, p2]
     else:
-        p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix=f"t-SNE (dims 1 vs 2)")
-        p2 = save_pair(0, 1, "dims12_stage", title_suffix=f"t-SNE (dims 1 vs 2)")
-        p3 = save_pair(2, 3, "dims34_cancer_type", title_suffix=f"t-SNE (dims 3 vs 4)")
-        p4 = save_pair(2, 3, "dims34_stage", title_suffix=f"t-SNE (dims 3 vs 4)")
+        p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix="t-SNE (dims 1 vs 2)")
+        p2 = save_pair(0, 1, "dims12_stage", title_suffix="t-SNE (dims 1 vs 2)")
+        p3 = save_pair(2, 3, "dims34_cancer_type", title_suffix="t-SNE (dims 3 vs 4)")
+        p4 = save_pair(2, 3, "dims34_stage", title_suffix="t-SNE (dims 3 vs 4)")
+        paths_out = [p1, p2, p3, p4]
     print("Wrote:")
-    for p in (p1, p2, p3, p4):
+    for p in paths_out:
         print(" ", p)
 
 

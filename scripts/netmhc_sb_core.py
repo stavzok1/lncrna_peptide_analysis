@@ -2,7 +2,8 @@
 Shared SB (stringent binding-style) filter spec for NetMHC + IEDB merged TSVs.
 
 Used by ``plot_fig5abc_netmhc_sb_triple.py``, ``netmhc_sb_sensitivity_robustness.py``,
-``plot_fig5_netmhc_sb_combination_grid.py``, and ``plot_figure6_ttn_as1_allele_coverage.py`` (IEDB SB).
+``plot_fig5_netmhc_sb_combination_grid.py``, ``netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py``,
+``plot_fig6_ttn_merged_iedb_sb_combination_grid.py``, and ``plot_figure6_ttn_as1_allele_coverage.py`` (IEDB SB).
 """
 
 from __future__ import annotations

@@ -1,6 +1,7 @@
 """
-NetMHC **supplement** figures: legacy wide-XLS cohort 5B–5E (IC50-from-BA), cohort SB sensitivity /
-combination grid, and TTN Fig 6 SB sweeps.
+NetMHC **supplement** figures: legacy wide-XLS cohort 5B–5E (IC50-from-BA), and — unless skipped —
+the **Fig 5–6 supplement bundle** (five subfolders: Fig 5 1D+LOO, Fig 5 Cartesian, Fig 6 NetMHC sweeps, Fig 6 merged IEDB 1D+LOO, Fig 6 merged IEDB Cartesian) under ``figures/supplementary/netmhc_fig5_fig6_supplement/``
+(via ``generate_netmhc_fig5_fig6_supplement.py``).
 
 Run ``generate_netmhc_figure_bundle.py`` first for canonical merged panels.
 
@@ -31,6 +32,11 @@ def run_manuscript(script: str, args: list[str]) -> int:
     return call_echo(cmd, cwd=REPO_ROOT)
 
 
+def run_root(script: str, args: list[str]) -> int:
+    cmd = [sys.executable, str(REPO_ROOT / script), *args]
+    return call_echo(cmd, cwd=REPO_ROOT)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--strict", action="store_true", help="Exit non-zero if any step fails.")
@@ -42,7 +48,7 @@ def main() -> None:
     ap.add_argument(
         "--skip-sensitivity",
         action="store_true",
-        help="Skip cohort sensitivity, combination grid, and Fig 6 SB sensitivity.",
+        help="Skip generate_netmhc_fig5_fig6_supplement.py (cohort sensitivity, Fig 5 combination grid, Fig 6 TTN SB sweeps).",
     )
     args = ap.parse_args()
     failures: list[tuple[str, int]] = []
@@ -95,9 +101,11 @@ def main() -> None:
         )
 
     if not args.skip_sensitivity:
-        step("netmhc_sb_sensitivity_robustness.py", [])
-        step("plot_fig5_netmhc_sb_combination_grid.py", [])
-        step("plot_figure6_ttn_as1_sb_sensitivity.py", [])
+        f56_extra: list[str] = []
+        if args.strict:
+            f56_extra.append("--strict")
+        if run_root("generate_netmhc_fig5_fig6_supplement.py", f56_extra) != 0:
+            failures.append(("generate_netmhc_fig5_fig6_supplement.py", 1))
 
     if failures and args.strict:
         print("Failures:", failures, file=sys.stderr)

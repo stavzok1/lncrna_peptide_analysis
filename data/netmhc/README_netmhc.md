@@ -358,15 +358,25 @@ Manuscript-style numbering for **NetMHC-related** panels is documented in
 
 - **Figure 5** = **cohort** (many 9-mers: significant lncRNA MPs vs coding control): allele–epitope
   interplay, wide XLS scripts at repo root, optional **IEDB-merged** pipeline under `scripts/`.
-- **Figure 6** = **single peptide** **TTN-AS1** (smPEP 108065): `scripts/manuscript_figure6_ttn_as1.py`
-  (→ `plot_figure6_ttn_as1_allele_coverage.py`; default PNG under repo `figures/`) and sensitivity
-  `plot_figure6_ttn_as1_sb_sensitivity.py` (under `data/netmhc/figures/fig6_ttn_as1_sensitivity/`).
+- **Figure 6** = **single peptide** **TTN-AS1** (smPEP 108065): `manuscript/manuscript_figure6_ttn_as1.py`
+  (→ `plot_figure6_ttn_as1_allele_coverage.py`; default PNG under repo `figures/`), NetMHC-only sweeps
+  `plot_figure6_ttn_as1_sb_sensitivity.py`, merged IEDB **1D+LOO** `netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py`,
+  and merged IEDB **Cartesian** grid `plot_fig6_ttn_merged_iedb_sb_combination_grid.py` (defaults under
+  `data/netmhc/figures/...`; orchestrated copies under `figures/supplementary/netmhc_fig5_fig6_supplement/...`).
 
-To regenerate the NetMHC figure set (5 wide + optional IEDB merge + TTN bundle):
+To regenerate the **canonical** NetMHC figure set (merged 5–6 + optional random-fragment mirrors):
 
 ```bash
 python generate_netmhc_figure_bundle.py
 ```
+
+For **Fig 5–6 supplement** (1D + LOO cohort, Cartesian Fig 5, TTN NetMHC sweeps, TTN merged IEDB 1D+LOO, TTN merged IEDB Cartesian):
+
+```bash
+python generate_netmhc_fig5_fig6_supplement.py
+```
+
+Full orchestration map: **`docs/figure_generation_overview.md`**.
 
 Agents should read **`.cursor/skills/netmhc-manuscript-figures/SKILL.md`** for the same map.
 

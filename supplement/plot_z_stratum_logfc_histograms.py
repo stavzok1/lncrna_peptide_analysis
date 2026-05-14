@@ -4,7 +4,7 @@ lncRNA that **enters the z-score calculation** in each stratum: same filters as
 ``tr_lncrna_de_analysis.py`` (≥40% of union samples with log2(expr+1)≥1), per
 cancer type × transition × analysis (stage / metastasis).
 
-Outputs under ``figures/z_stratum_logfc_histograms/``:
+Outputs under ``figures/supplementary/z_stratum_logfc_histograms/``:
   - One PNG per (analysis, transition) with a grid of per-cancer histograms.
   - ``stratum_logfc_summary.csv`` — counts and basic moments per stratum.
 """
@@ -17,9 +17,7 @@ _REPO = Path(__file__).resolve().parent.parent
 for _p in (str(_REPO), str(_REPO / "scripts"), str(_REPO / "pipeline")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
-
-ROOT = REPO_ROOT
+from repo_paths import DATA, FIGURES_SUPPLEMENTARY_Z_STRATUM_LOGFC
 
 
 import math
@@ -41,7 +39,7 @@ from tr_lncrna_de_analysis import (
     subset_two_groups,
 )
 
-OUT_DIR = ROOT / "figures" / "z_stratum_logfc_histograms"
+OUT_DIR = FIGURES_SUPPLEMENTARY_Z_STRATUM_LOGFC
 
 
 def collect_stratum_logfc(

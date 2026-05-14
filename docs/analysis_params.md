@@ -14,7 +14,7 @@ There is **no single markdown** that lists every argparse flag for every panel. 
 | **3C–3D** | `docs/figure_catalog.md` § Figure 3C–3D | **This file** — *Dipeptide Fig. 2* (`plot_dipeptide_mp_figure2.py`) for supplement dipeptide math | `manuscript/plot_figure3cd_dipeptide_log2fc_heatmaps.py --help` |
 | **4A** | `docs/figure_catalog.md` § Figure 4A (p-axis range, shading, labels, `--top-extreme-labels`) | — | `manuscript/plot_figure4a_tis_vs_ribo_tr_mps.py --help` |
 | **5** (merged SB) | `docs/figure_catalog.md` § Figure 5 | **`scripts/netmhc_sb_core.py`** (`FIG5_IEDB_*`); local wide XLS flags in **`docs/iedb_tools_api.md`** appendix; **`data/netmhc/README_netmhc.md`** §5 | `manuscript/plot_fig5abc_netmhc_sb_triple.py --help`, `plot_fig5de_merged_iedb_sb_per_allele.py --help` |
-| **5** (supplement / sensitivity) | `docs/figure_catalog.md` (sensitivity, combo grid) | **`docs/netmhc_figure_commands.md`** | `supplement/netmhc_sb_sensitivity_robustness.py --help`, etc. |
+| **5** (supplement / sensitivity) | `docs/figure_catalog.md` (sensitivity, combo grid) | **`docs/netmhc_figure_commands.md`**, **`docs/figure_generation_overview.md`** | `supplement/netmhc_sb_sensitivity_robustness.py --help`, `supplement/netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py --help`, etc. |
 | **6** | `docs/figure_catalog.md` § Figure 6 | **`docs/figure6_ttn_as1_parameters.md`** (API vs local XLS, SB flags) | `manuscript/plot_figure6_ttn_as1_allele_coverage.py --help` |
 | **Orchestrators** | — | **`docs/netmhc_figure_commands.md`**, root **`README.md`** | `generate_catalog_figures.py --help`, `generate_netmhc_figure_bundle.py --help`, `generate_netmhc_supplement.py --help` |
 

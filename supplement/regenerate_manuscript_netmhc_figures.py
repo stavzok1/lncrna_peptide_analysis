@@ -12,9 +12,9 @@ Layout (each figure number has its own subtree; SB variants and instance/unique 
 - ``sensitivity/cohort_sb_{...}_{instances,unique}/`` — ``netmhc_sb_sensitivity_robustness.py``.
 - ``sensitivity/fig6_netmhc_sb_sweeps/`` — ``plot_figure6_ttn_as1_sb_sensitivity.py``.
 
-Optional purges (see ``--help``) remove legacy flat exports under ``figures/`` and/or PNG+CSV
-artifacts under ``data/netmhc/figures/`` while **keeping** the allele-frequency CSVs used as
-``--freq-file`` for wide 5A.
+Optional purges (see ``--help``) remove legacy flat exports under ``figures/`` (top-level ``fig5*`` / ``fig6*``),
+files under ``figures/supplementary/netmhc/``, and/or PNG+CSV artifacts under ``data/netmhc/figures/`` while **keeping**
+the allele-frequency CSVs used as ``--freq-file`` for wide 5A.
 
 Run from repository root::
 
@@ -34,6 +34,7 @@ from repo_paths import (
     REPO_ROOT,
     DATA,
     FIGURES,
+    FIGURES_SUPPLEMENTARY_NETMHC,
     NETMHC_DATA,
     NETMHC_FIGURES,
     NETMHC_HLA27_ALLELE_FREQ_CSV,
@@ -100,6 +101,17 @@ def purge_repo_netmhc_flat_figures() -> None:
             if p.is_file():
                 p.unlink()
                 print(f"Removed {p.relative_to(ROOT)}")
+    supp_nm = FIGURES_SUPPLEMENTARY_NETMHC
+    if supp_nm.is_dir():
+        for p in sorted(supp_nm.rglob("*"), reverse=True):
+            if p.is_file():
+                p.unlink()
+                print(f"Removed {p.relative_to(ROOT)}")
+            elif p.is_dir():
+                try:
+                    p.rmdir()
+                except OSError:
+                    pass
 
 
 def purge_data_netmhc_figure_artifacts() -> None:

@@ -14,9 +14,9 @@ Volcano plot: overlapping 2-mer (dipeptide) counts in lncRNA-derived peptides vs
 - **Yellow:** ``q < 0.05`` and ``-1 <= log2FC <= 1`` (significant, small effect).
 - **Gray:** ``q >= 0.05``.
 
-Writes PNG + CSV + short report under ``figures/<peptide_set>/`` by default. For the
-default TCGA-matrix run (no custom FASTA / ``--out-dir``, not ``--canonical-only``), a copy
-is also written to ``figures/fig3b.png``.
+Writes PNG + CSV + short report under ``figures/supplementary/<peptide_set>/`` by default.
+For the default TCGA-matrix run (no custom FASTA / ``--out-dir``, not ``--canonical-only``),
+a copy is also written to ``figures/fig3b.png``.
 
 **Manuscript Figure 3B:** default is TCGA-matrix FASTA (``smprot_tcga_filtered_peptides.faa``),
 same default peptide universe as **Figure 3A** in ``plot_aa_frequency_tcga_vs_proteome.py``.
@@ -32,7 +32,15 @@ _MS = Path(__file__).resolve().parent
 for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS), str(_REPO / "supplement")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
-from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from repo_paths import (
+    REPO_ROOT,
+    DATA,
+    FIGURES,
+    FIGURES_SUPPLEMENTARY_TCGA_MATRIX,
+    FIGURES_SUPPLEMENTARY_ALL_SMPROT_FILTERED,
+    NETMHC_DATA,
+    NETMHC_FIGURES,
+)
 from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
@@ -118,7 +126,7 @@ def main() -> None:
         "--out-dir",
         type=Path,
         default=None,
-        help="Output directory (default: figures/<peptide_set>/ when --peptide-fa is unset).",
+        help="Output directory (default: figures/supplementary/<peptide_set>/ when --peptide-fa is unset).",
     )
     ap.add_argument(
         "--fc-threshold",
@@ -162,7 +170,11 @@ def main() -> None:
     if args.out_dir is not None:
         out_dir = args.out_dir
     elif args.peptide_fa is None:
-        out_dir = FIGURES / args.peptide_set
+        out_dir = (
+            FIGURES_SUPPLEMENTARY_TCGA_MATRIX
+            if args.peptide_set == "tcga_matrix"
+            else FIGURES_SUPPLEMENTARY_ALL_SMPROT_FILTERED
+        )
     else:
         out_dir = FIGURES / args.peptide_fa.stem
 

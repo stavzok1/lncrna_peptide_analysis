@@ -54,14 +54,14 @@ This document lists **useful** CSV/TSV/TXT outputs from the UNDEFINED lncRNA / S
 
 ## 4. Figures and ancillary (`figures/`, `tr_lncrna_output/figures/`, scripts at repo root)
 
-**Figure-level documentation:** **`docs/figure_catalog.md`**. **Catalog Fig. 2 & 3** primary outputs live under **`figures/tcga_matrix/`** and **`figures/all_smprot_filtered/`** (see **`generate_catalog_figures.py`**). Legacy/auxiliary plots may still use **`tr_lncrna_output/figures/`**.
+**Figure-level documentation:** **`docs/figure_catalog.md`**. **One-page orchestrator map:** **`docs/figure_generation_overview.md`**. **Catalog Fig. 2 & 3** mode-specific outputs (tables + PNGs) live under **`figures/supplementary/tcga_matrix/`** and **`figures/supplementary/all_smprot_filtered/`** (see **`generate_catalog_figures.py`**); canonical **`fig2b`**, **`fig3a`**, **`fig3b`** copies remain under **`figures/`**. Legacy/auxiliary plots may still use **`tr_lncrna_output/figures/`**.
 
 | Output | Script |
 |--------|--------|
-| **`figures/<mode>/peptide_fraction/*.png`**, **`figures/<mode>/tr_de_peptide_fraction_by_cancer.csv`** | **Fig. 2** (`<mode>` = `tcga_matrix` or `all_smprot_filtered`). **`plot_tr_de_peptide_fractions_by_transition.py`**. |
-| **`figures/<mode>/aa_frequency_*_vs_known_proteins.*`** | **Fig. 3A**. **`plot_aa_frequency_tcga_vs_proteome.py`**. |
-| **`figures/<mode>/dipeptide_volcano_lnc_vs_proteome*.*`** | **Fig. 3B**. **`plot_dipeptide_volcano_lnc_vs_proteome.py`**. |
-| **`figures/fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome.png`**, **`figures/fig3c_dipeptide_log2fc_all_smprot_filtered_vs_proteome.png`** (if FASTA exists), **`figures/fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome.png`** | **Fig. 3C–3D** log2FC 20×20 heatmaps. **`plot_figure3cd_dipeptide_log2fc_heatmaps.py`**. |
+| **`figures/supplementary/<mode>/peptide_fraction/*.png`**, **`figures/supplementary/<mode>/tr_de_peptide_fraction_by_cancer.csv`** | **Fig. 2** (`<mode>` = `tcga_matrix` or `all_smprot_filtered`). **`plot_tr_de_peptide_fractions_by_transition.py`**. |
+| **`figures/supplementary/<mode>/aa_frequency_*_vs_known_proteins.*`** | **Fig. 3A**. **`plot_aa_frequency_tcga_vs_proteome.py`**. |
+| **`figures/supplementary/<mode>/dipeptide_volcano_lnc_vs_proteome*.*`** | **Fig. 3B**. **`plot_dipeptide_volcano_lnc_vs_proteome.py`**. |
+| **`figures/fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome.png`**, **`figures/supplementary/all_smprot_filtered/fig3c_dipeptide_log2fc_all_smprot_filtered_vs_proteome.png`** (if FASTA exists; or custom `--out-dir`), **`figures/fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome.png`** | **Fig. 3C–3D** log2FC 20×20 heatmaps. **`plot_figure3cd_dipeptide_log2fc_heatmaps.py`**. |
 | **`figures/fig4a_tr_lncrna_mp_tis_vs_riboseq_pvalues.png`** | **Fig. 4A** TIS vs Ribo-seq p-values (Tr MPs). **`plot_figure4a_tis_vs_ribo_tr_mps.py`**. |
 | **`generate_catalog_figures.py`** | Runs the three scripts per mode + **3C–3D** + **4A** (skips `all_smprot_filtered` mode if FASTA missing unless **`--strict`**). |
 | **`fig2_dipeptide_mp_composition.png`**, **`fig2_dipeptide_summary.txt`** | Dipeptide heatmaps vs **`data/known_proteins.fasta`** (TCGA-filtered MPs, canonical Tr subset, and **significant exportable FASTA** when present). **`plot_dipeptide_mp_figure2.py`** → **`tr_lncrna_output/figures/`**. |
