@@ -1,23 +1,29 @@
-# lncRNA micropeptides — analysis code (GitHub bundle)
+# lncRNA micropeptides — code (GitHub)
 
-Trimmed project: **canonical figure code**, **supplement / robustness code**, **data-prep pipeline**, **shared NetMHC merge + SB logic**, **docs**, **small inputs**, and **committed catalog / manuscript PNGs** under **`figures/`** (regenerate with orchestrators when numbers change). Large NetMHC / IEDB tables are gitignored (see `data/README.md`).
+This repository holds the **analysis code** for the paper: manuscript figure scripts, supplement utilities, NetMHC merge helpers, and the smaller inputs that fit in git. Paths resolve through **`repo_paths.py`** from the repo root so clones are self-contained.
 
-**Inputs / data you must provide:** see **`data/README.md`** for a checklist by orchestrator (`generate_catalog_figures.py`, `generate_netmhc_figure_bundle.py`, supplements, merge rebuild). Large files are often copied from your full `UNDEFINED` tree or Zenodo; a copy log may live at **`data/MANIFEST_COPIED.txt`**.
+**Large files** are often copied from a private working directory or from Zenodo; a copy log may live at **`data/MANIFEST_COPIED.txt`**. (Wide NetMHC spreadsheets, merged `*_with_iedb.tsv`, IEDB dumps, and bulky SmProt/TCGA sources are usually gitignored.) File-by-file expectations: **`data/README.md`** and **`docs/ZENODO.md`**.
 
-## Layout
+## What lives where
 
-| Path | Contents |
-|------|----------|
-| **`repo_paths.py`** | `REPO_ROOT`, `DATA`, `FIGURES`, `NETMHC_DATA`, … — all scripts build paths from here (no hard-coded user directories). |
-| **`manuscript/`** | Default figure scripts whose outputs go to **`figures/`** (or are mirrored there): catalog Fig **1B**, **2–4A**, merged Fig **5–6**, `manuscript_figure6_ttn_as1.py` entrypoint. Legacy **wide-XLS Fig 5A** (IC50-from-BA) stays here for supplement use. |
-| **`supplement/`** | Legacy wide-XLS Fig 5B–5E, cohort sensitivity, SB combination grid, Fig 6 SB sweeps, regenerate-matrix orchestrator, IEDB/NetMHC4.1 helpers, exploratory plots. |
-| **`pipeline/`** | SmProt / TCGA exports, filters, NetMHC prep, summaries — not main figure panels. |
-| **`notebooks/`** | **`process_scratch.ipynb`** — mirror of **`../process_scratch.ipynb`** (parent UNDEFINED tree): TCGA matrix → filters → stage / M_stage → `data/primary_exp_*_lncRNA.csv`. |
-| **`scripts/`** | **`netmhc_sb_core.py`**, **`merge_netmhcpan_xls_with_iedb.py`** only (shared libraries). |
-| **`generate_catalog_figures.py`** | Orchestrates **`manuscript/`** for Fig **1B** + **2–4A**. |
-| **`generate_netmhc_figure_bundle.py`** | Orchestrates **canonical** NetMHC Fig **5–6** (merged **5A–5E** + Fig **6** only; no wide-XLS 5A). |
-| **`generate_netmhc_supplement.py`** | Optional **wide 5A–5E**, sensitivity, combo grid, Fig 6 sensitivity. |
-| **`figures/`** | **Shipped PNGs + CSV/txt sidecars** for Fig **1B**, **2–4A** (and `tcga_matrix/` / `all_smprot_filtered/`). **`figures/manuscript_netmhc/`** — merged NetMHC **Fig 5–6** bundle from **`supplement/regenerate_manuscript_netmhc_figures.py`** (copy or regenerate here, then commit). |
+- **`manuscript/`** — scripts whose defaults write under **`figures/`** (catalog 1B, 2–4A, merged NetMHC 5–6, TTN-AS1 Fig 6 entrypoint). Supplement-only wide-XLS Fig 5A stays here for legacy/supplement use.
+- **`supplement/`** — extra NetMHC panels, sensitivity grids, IEDB helpers, exploratory plots, regenerate orchestrators.
+- **`pipeline/`** — SmProt / TCGA prep and filters; not the main figure entrypoints.
+- **`scripts/`** — shared **`netmhc_sb_core.py`** and **`merge_netmhcpan_xls_with_iedb.py`**.
+- **`notebooks/process_scratch.ipynb`** — TCGA matrices → filters → `data/primary_exp_*_lncRNA.csv` (edit paths inside if your raw downloads live elsewhere).
+
+Top-level drivers (run from **repo root** so `import repo_paths` works):
+
+| Script | What it does |
+|--------|----------------|
+| `generate_catalog_figures.py` | Fig 1B + 2–4A |
+| `generate_netmhc_figure_bundle.py` | Canonical merged NetMHC Fig 5–6 |
+| `rebuild_netmhc_merged_tsvs.py` | Rebuild merged TSVs from wide `*.xls` + IEDB |
+| `generate_tr_lncrna_identification.py` | z-scores + R limma for Tr-lncRNA tables |
+| `generate_netmhc_supplement.py` | Optional wide 5A–5E, sensitivity, Fig 6 sweeps |
+| `supplement/regenerate_manuscript_netmhc_figures.py` | Full clean tree under `figures/manuscript_netmhc/` |
+
+More command-level notes: `docs/figure_catalog.md`, `docs/netmhc_figure_commands.md`, `docs/iedb_tools_api.md`, `docs/figure6_ttn_as1_parameters.md`, `docs/CODE_REVIEW.md`, `data/netmhc/README_netmhc.md`.
 
 ## Setup
 
@@ -25,32 +31,17 @@ Trimmed project: **canonical figure code**, **supplement / robustness code**, **
 python -m venv .venv
 .venv\Scripts\activate   # Windows
 pip install -r requirements.txt
-Rscript install_r_dependencies.R   # R: limma + jsonlite for tr_limma_de.R (once per machine)
+Rscript install_r_dependencies.R   # once: limma + jsonlite for tr_limma_de.R
 ```
 
-Run commands from the **repository root** (`import repo_paths` relies on that).
+`tr_limma_de.R` is at repo root for the limma step.
 
-## Regenerate figures
+## Zenodo
 
-| Command | Role |
-|---------|------|
-| `python generate_catalog_figures.py` | Fig **1B** + **2–4A** → `figures/` (1B + shared panels), `figures/tcga_matrix/`, `figures/all_smprot_filtered/` |
-| `python generate_netmhc_figure_bundle.py` | Canonical NetMHC Fig **5–6** (merged cohort panels + TTN; needs merged `*_with_iedb.tsv`; see `data/README.md`) |
-| `python rebuild_netmhc_merged_tsvs.py` | Rebuild merged TSVs from wide `*.xls` + IEDB (see `--help`; default compares row counts to existing files) |
-| `python generate_tr_lncrna_identification.py` | Tr-lncRNA **z-scores** + **limma** from `data/primary_exp_*_lncRNA.csv` (needs **R** + **limma**); see `data/README.md` |
-| `python generate_netmhc_supplement.py` | Supplement / sensitivity / legacy wide cohort (optional flags) |
-| `python supplement/regenerate_manuscript_netmhc_figures.py --help` | Full clean tree under `figures/manuscript_netmhc/` |
+Dataset deposit (large tables, figures bundle, and related files): **[https://doi.org/10.5281/zenodo.20167452](https://doi.org/10.5281/zenodo.20167452)**.
 
-Docs: `docs/figure_catalog.md`, `docs/netmhc_figure_commands.md`, `docs/iedb_tools_api.md`, `docs/figure6_ttn_as1_parameters.md`, `docs/ZENODO.md`, **`docs/CODE_REVIEW.md`** (bundle code audit / checklist), `data/netmhc/README_netmhc.md`.
-
-## R
-
-`tr_limma_de.R` lives at repo root for the limma DE step.
+What ships on GitHub vs the archive, and how to refresh uploads: **`docs/ZENODO.md`**.
 
 ## License
 
-This repository includes a root **`LICENSE`** file (**MIT** by default). Replace the copyright line with your name or institution if you prefer. If you need **non-code** terms (e.g. data-only CC BY), use a second license file or Zenodo metadata for the data deposit—see **`docs/ZENODO.md`**.
-
-## Zenodo (DOI archive)
-
-Short guide: **`docs/ZENODO.md`** — GitHub release integration, what to do about **gitignored** large NetMHC/IEDB files, and how to refresh figure folders from the terminal before a new upload.
+Root **`LICENSE`** is MIT unless you replace it. Dataset rights belong in Zenodo metadata or a separate data notice if you need that — see **`docs/ZENODO.md`**.
