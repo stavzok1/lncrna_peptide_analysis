@@ -20,10 +20,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS), str(_REPO / "supplement")):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -73,6 +75,7 @@ def main() -> None:
     ap.add_argument("--all-filtered-fa", type=Path, default=ALL_FILTERED_FAA)
     ap.add_argument("--proteome-fa", type=Path, default=PROTEOME_FA)
     ap.add_argument("--out-dir", type=Path, default=FIGURES, help="Directory for PNG outputs.")
+    add_publication_args(ap)
     args = ap.parse_args()
 
     if not args.proteome_fa.exists():
@@ -119,7 +122,15 @@ def main() -> None:
     )
     fig_tcga.tight_layout()
     out_tcga = args.out_dir / "fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome.png"
-    fig_tcga.savefig(out_tcga, bbox_inches="tight")
+    save_figure_bundle(
+        fig_tcga,
+        out_tcga,
+        png_dpi=150,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=FIGURES,
+        bbox_inches="tight",
+    )
     plt.close(fig_tcga)
     print(f"Wrote {out_tcga}")
 
@@ -134,7 +145,15 @@ def main() -> None:
         )
         fig_all.tight_layout()
         out_all = args.out_dir / "fig3c_dipeptide_log2fc_all_smprot_filtered_vs_proteome.png"
-        fig_all.savefig(out_all, bbox_inches="tight")
+        save_figure_bundle(
+            fig_all,
+            out_all,
+            png_dpi=150,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=FIGURES,
+            bbox_inches="tight",
+        )
         plt.close(fig_all)
         print(f"Wrote {out_all}")
     else:
@@ -151,7 +170,15 @@ def main() -> None:
     )
     fig_d.tight_layout()
     out_d = args.out_dir / "fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome.png"
-    fig_d.savefig(out_d, bbox_inches="tight")
+    save_figure_bundle(
+        fig_d,
+        out_d,
+        png_dpi=150,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=FIGURES,
+        bbox_inches="tight",
+    )
     plt.close(fig_d)
     print(f"Wrote {out_d}")
 

@@ -24,10 +24,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -134,6 +136,7 @@ def main() -> None:
         default="fdr",
         help="fdr: star when BH-FDR < alpha (default). raw: star when Fisher p < alpha.",
     )
+    add_publication_args(ap)
     args = ap.parse_args()
 
     if args.peptide_fa is not None:
@@ -257,7 +260,15 @@ def main() -> None:
     )
     fig.tight_layout()
     png_path = out_dir / f"aa_frequency_{out_stem}_vs_known_proteins.png"
-    fig.savefig(png_path, bbox_inches="tight")
+    save_figure_bundle(
+        fig,
+        png_path,
+        png_dpi=150,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=FIGURES,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
     if args.peptide_fa is None and args.peptide_set == "tcga_matrix" and args.out_dir is None:

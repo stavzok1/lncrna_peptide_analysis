@@ -32,6 +32,10 @@ data/netmhc/netmhcpan_sig_lnc*.xls
 data/netmhc/netmhcpan_coding*.xls
 data/netmhc/predictions/**/netmhcpan*.xls
 
+# Local Zenodo dataset staging / zip output (see scripts/build_zenodo_dataset_bundle.ps1)
+zenodo_dataset_staging/
+zenodo_dataset_staging.zip
+
 # OS
 .DS_Store
 Thumbs.db

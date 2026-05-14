@@ -12,6 +12,8 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent
 DATA = REPO_ROOT / "data"
 FIGURES = REPO_ROOT / "figures"
+# Canonical figures: PDF + TIFF exports (see export_publication_figures.py).
+FIGURES_PUBLICATION = FIGURES / "publication"
 NETMHC_DATA = DATA / "netmhc"
 NETMHC_FIGURES = NETMHC_DATA / "figures"
 # European 27 class-I panel population frequencies (reference table for merged Fig 5A).

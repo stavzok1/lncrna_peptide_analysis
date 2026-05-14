@@ -6,17 +6,25 @@ Structured notes for selected manuscript-style figures: what they show, how they
 
 **Script layout in this repository:** canonical figure code is under **`manuscript/`** (outputs default to **`figures/`** at repo root or `figures/<mode>/`). Supplement / sensitivity / legacy wide cohort code is under **`supplement/`**. Shared NetMHC merge + SB logic is under **`scripts/`** (`merge_netmhcpan_xls_with_iedb.py`, `netmhc_sb_core.py`). SmProt / TCGA prep utilities are under **`pipeline/`**. Orchestrators at repo root call into `manuscript/`. Table entries below list **basename** for readability; run as e.g. ``python manuscript/plot_tr_de_peptide_fractions_by_transition.py``.
 
-**Output root:** catalog scripts below write under **`figures/<peptide_mode>/`** at the repository root (`paper-github/figures/`), where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**, except **Figure 1B** (t-SNE) which writes directly under **`figures/`**.
+**Output root:** catalog scripts below write under **`figures/<peptide_mode>/`** at the repository root (`paper-github/figures/`), where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**, except **Figure 1B** (sample embedding) which writes directly under **`figures/`**.
 
-**Figure 1B** — t-SNE of TCGA primary samples on the lncRNA stage matrix (`plot_figure1b_tsne_stage_lncrna.py`). **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps in **separate** TCGA-matrix and all-filtered files, **3D** Tr log2FC heatmap). **Figure 4A** — TIS vs Ribo-seq p-values for Tr MPs (`plot_figure4a_tis_vs_ribo_tr_mps.py`). **3A–3B** default/alternate use **`figures/<mode>/`**; **3C–3D** and **4A** live under **`figures/`** at repo root.
+**Figure 1B** — sample embedding of TCGA primary samples on the lncRNA stage matrix (`plot_figure1b_tsne_stage_lncrna.py`; default **2D sklearn t-SNE** + **PC3 vs PC4** on the same truncated input). **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps in **separate** TCGA-matrix and all-filtered files, **3D** Tr log2FC heatmap). **Figure 4A** — TIS vs Ribo-seq p-values for Tr MPs (`plot_figure4a_tis_vs_ribo_tr_mps.py`). **3A–3B** default/alternate use **`figures/<mode>/`**; **3C–3D** and **4A** live under **`figures/`** at repo root.
 
 ---
 
-## Figure 1B — t-SNE (TCGA primary, lncRNA stage matrix)
+## Figure 1B — t-SNE / PCA panels (TCGA primary, lncRNA stage matrix)
 
-**Paths:** `figures/fig1b_tsne_stage_lncrna_samples_*.png` (four panels: dims 1–2 and 3–4 × {cancer type, AJCC stage}).
+**Paths:** `figures/fig1b_tsne_stage_lncrna_samples_*.png` (four panels: **dims 1–2** and **dims 3–4** × {cancer type, AJCC stage}; filenames unchanged for compatibility).
 
-**Script:** `plot_figure1b_tsne_stage_lncrna.py` — input **`data/primary_exp_stage_lncRNA.csv`**; requires **openTSNE** (`pip install opentsne`). Same matrix columns as the limma / peptide-fraction pipeline.
+**Script:** `plot_figure1b_tsne_stage_lncrna.py` — input **`data/primary_exp_stage_lncRNA.csv`**. **Default** (`--embedding sklearn2_pca34`): **sklearn** `TSNE` **n_components=2** (Barnes–Hut) for the first two panels; **PC3 vs PC4** from **sample PCA** on the same `X_in` (after optional `--n-pca` gene-level truncation) for the third and fourth panels (axis labels include % variance). **Legacy** pure 4D t-SNE: `--embedding opentsne4` (requires **`pip install opentsne`**; Barnes–Hut >3D FutureWarning is filtered but the path is not recommended). Same matrix columns as the limma / peptide-fraction pipeline.
+
+---
+
+## Supplement — PCA PC1–PC2 and PC3–PC4 (same matrix as Fig 1B)
+
+**Paths:** `figures/figS_pca_stage_lncrna_samples_pc*_*.png` (four panels).
+
+**Script:** `supplement/plot_supplement_pca_stage_samples.py` — **sample PCA** on standardized expression (optional `--n-pca` gene truncation before PCA, default off). Independent of Fig 1B t-SNE; use for a straightforward linear low-dimensional view.
 
 ---
 
@@ -88,7 +96,8 @@ top **N** combined-significance MPs (`--top-extreme-labels`, default 28).
 
 | ID | Short name | Script |
 |----|--------------|--------|
-| 1B | t-SNE (stage lncRNA matrix) | `plot_figure1b_tsne_stage_lncrna.py` |
+| 1B | t-SNE / PCA panels (stage lncRNA matrix) | `plot_figure1b_tsne_stage_lncrna.py` |
+| S | PCA PC1–2 & PC3–4 (supplement) | `supplement/plot_supplement_pca_stage_samples.py` |
 | 2 | Peptide fraction by cancer × transition | `plot_tr_de_peptide_fractions_by_transition.py` |
 | 3A | 1-mer AA vs proteome | `plot_aa_frequency_tcga_vs_proteome.py` |
 | 3B | Dipeptide volcano vs proteome | `plot_dipeptide_volcano_lnc_vs_proteome.py` |

@@ -22,6 +22,9 @@ one of those shaded regions (the extreme LINC00958 uses the highlight dot + arro
 raw p **&lt;** ``P_LO`` (10⁻¹²) are **skipped** for those automatic labels (they sit on
 the axis clip) **except** the special **LINC00958** anchor, which may be below the
 floor on TIS.
+
+By default the figure is drawn on a **white** background with dark axis labels; use
+``--no-light`` for the legacy black theme used in early drafts.
 """
 from __future__ import annotations
 
@@ -29,10 +32,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -98,7 +103,14 @@ def main() -> None:
         help="Additional sparse lavender gene labels in the violet corner (0 = none). MPs with "
         "either raw p < axis floor 10⁻¹² are skipped except the red LINC00958 anchor.",
     )
+    ap.add_argument(
+        "--no-light",
+        action="store_true",
+        help="Use the legacy black background instead of the default white figure.",
+    )
+    add_publication_args(ap)
     args = ap.parse_args()
+    use_light = not args.no_light
 
     if not args.peptides_tsv.exists():
         raise SystemExit(f"Missing {args.peptides_tsv}")
@@ -141,17 +153,22 @@ def main() -> None:
 
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    fig, ax = plt.subplots(figsize=(7.2, 6.4), dpi=150, facecolor="black")
-    ax.set_facecolor("black")
+    fig_bg = pal.F4A_LIGHT_AX if use_light else "black"
+    ax_bg = pal.F4A_LIGHT_AX if use_light else "black"
+    fig, ax = plt.subplots(figsize=(7.2, 6.4), dpi=150, facecolor=fig_bg)
+    ax.set_facecolor(ax_bg)
+
+    frame_styles = pal.F4A_LIGHT_FRAME_STYLES if use_light else pal.F4A_FRAME_STYLES
 
     # Polygons from p = 10⁻¹² to 10⁻¹; outer boundary at P_HI = 0.1.
+    shade_alpha = pal.F4A_LIGHT_SHADE_ALPHA if use_light else 0.24
     green = Polygon(
         [(P_LO, STRONG), (STRONG, STRONG), (STRONG, P_HI), (P_LO, P_HI)],
         closed=True,
         facecolor=pal.F4A_SHADE_TIS_STRONG,
         edgecolor="#7fbf9f",
         linewidth=1.0,
-        alpha=0.24,
+        alpha=shade_alpha,
         zorder=1,
     )
     blue = Polygon(
@@ -160,7 +177,7 @@ def main() -> None:
         facecolor=pal.F4A_SHADE_RIBO_STRONG,
         edgecolor="#9ecae1",
         linewidth=1.0,
-        alpha=0.24,
+        alpha=shade_alpha,
         zorder=1,
     )
     corner = Polygon(
@@ -169,7 +186,7 @@ def main() -> None:
         facecolor=pal.F4A_SHADE_BOTH_STRONG,
         edgecolor="#d4a5df",
         linewidth=0.9,
-        alpha=0.18,
+        alpha=shade_alpha * 0.75,
         zorder=1,
     )
     ax.add_patch(green)
@@ -177,35 +194,40 @@ def main() -> None:
     ax.add_patch(corner)
 
     # Reference lines at p = 1e-4 from 10⁻¹² to 10⁻¹.
-    ax.plot([P_LO, P_HI], [STRONG, STRONG], color=pal.F4A_GRID, lw=1.05, alpha=0.55, zorder=2)
-    ax.plot([STRONG, STRONG], [P_LO, P_HI], color=pal.F4A_GRID, lw=1.05, alpha=0.55, zorder=2)
+    grid_c = pal.F4A_LIGHT_GRID_MAJOR if use_light else pal.F4A_GRID
+    grid_min_c = pal.F4A_LIGHT_GRID_MINOR if use_light else pal.F4A_GRID
+    frame_c = pal.F4A_LIGHT_FRAME if use_light else pal.F4A_FRAME
+    ax.plot([P_LO, P_HI], [STRONG, STRONG], color=grid_c, lw=1.05, alpha=0.55, zorder=2)
+    ax.plot([STRONG, STRONG], [P_LO, P_HI], color=grid_c, lw=1.05, alpha=0.55, zorder=2)
 
     # Outer frame at p = 10⁻¹ (top and right) so the 10⁻¹ boundary reads clearly.
     ax.plot(
         [P_LO, P_HI],
         [P_HI, P_HI],
-        color=pal.F4A_FRAME,
+        color=frame_c,
         lw=1.35,
-        alpha=0.75,
+        alpha=0.9 if use_light else 0.75,
         solid_capstyle="round",
         zorder=2,
     )
     ax.plot(
         [P_HI, P_HI],
         [P_LO, P_HI],
-        color=pal.F4A_FRAME,
+        color=frame_c,
         lw=1.35,
-        alpha=0.75,
+        alpha=0.9 if use_light else 0.75,
         solid_capstyle="round",
         zorder=2,
     )
 
+    bulk_c = pal.F4A_LIGHT_POINTS_BULK if use_light else pal.F4A_POINTS_BULK
+    bulk_alpha = 0.45 if use_light else 0.35
     ax.scatter(
         tis[bulk_mask],
         ribo[bulk_mask],
         s=22,
-        c=pal.F4A_POINTS_BULK,
-        alpha=0.35,
+        c=bulk_c,
+        alpha=bulk_alpha,
         linewidths=0,
         zorder=3,
         rasterized=True,
@@ -222,7 +244,7 @@ def main() -> None:
             c=pal.F4A_POINT_EXTREME,
             alpha=0.98,
             linewidths=0.75,
-            edgecolors=pal.F4A_FRAME,
+            edgecolors=frame_c,
             marker="o",
             zorder=6,
             clip_on=False,
@@ -238,13 +260,17 @@ def main() -> None:
     ax.set_yticks(decade_ticks)
     ax.xaxis.set_major_formatter(mticker.LogFormatterMathtext(base=10))
     ax.yaxis.set_major_formatter(mticker.LogFormatterMathtext(base=10))
-    ax.set_xlabel("P-value of TIS (translation-initiation site)", color="0.9", fontsize=11)
-    ax.set_ylabel("P-value of Ribo-seq", color="0.9", fontsize=11)
-    ax.tick_params(colors="0.85", which="both", labelsize=8)
+    lbl_c = pal.F4A_LIGHT_TEXT if use_light else "0.9"
+    tick_c = pal.F4A_LIGHT_TICK if use_light else "0.85"
+    label_accent = pal.OI_VERMILLION if use_light else pal.OI_YELLOW
+    ax.set_xlabel("P-value of TIS (translation-initiation site)", color=lbl_c, fontsize=11)
+    ax.set_ylabel("P-value of Ribo-seq", color=lbl_c, fontsize=11)
+    ax.tick_params(colors=tick_c, which="both", labelsize=8)
+    spine_c = pal.F4A_LIGHT_TICK if use_light else "0.5"
     for spine in ax.spines.values():
-        spine.set_color("0.5")
-    ax.grid(True, which="major", linestyle="-", alpha=0.25, color="0.65")
-    ax.grid(True, which="minor", linestyle=":", alpha=0.12, color="0.5")
+        spine.set_color(spine_c)
+    ax.grid(True, which="major", linestyle="-", alpha=0.35 if use_light else 0.25, color=grid_c)
+    ax.grid(True, which="minor", linestyle=":", alpha=0.22 if use_light else 0.12, color=grid_min_c)
 
     # Track row indices that already carry a text/marker callout (avoid duplicate labels).
     labeled: set[int] = set()
@@ -257,14 +283,14 @@ def main() -> None:
             continue
         if g == "LINC00958" and i == extreme_idx:
             continue  # extreme MP: highlight dot + arrow label
-        sty = pal.F4A_FRAME_STYLES[g]
+        sty = frame_styles[g]
         ax.annotate(
             str(g),
             xy=(tis[i], ribo[i]),
             xytext=(4, 4),
             textcoords="offset points",
             fontsize=7,
-            color="0.95",
+            color=lbl_c,
             ha="left",
             va="bottom",
             bbox=dict(boxstyle="round,pad=0.22", fc=sty["facecolor"], ec=sty["edgecolor"], lw=1.2),
@@ -289,10 +315,15 @@ def main() -> None:
             xytext=(tx, ty),
             textcoords="data",
             fontsize=8.5,
-            color="0.95",
+            color=lbl_c,
             ha="left",
             va="bottom",
-            bbox=dict(boxstyle="round,pad=0.22", fc="#050a28", ec=pal.OI_SKY_BLUE, lw=1.5),
+            bbox=dict(
+                boxstyle="round,pad=0.22",
+                fc=frame_styles["LINC00958"]["facecolor"],
+                ec=frame_styles["LINC00958"]["edgecolor"],
+                lw=1.5,
+            ),
             arrowprops=dict(
                 arrowstyle="-|>",
                 color=pal.OI_SKY_BLUE,
@@ -330,7 +361,7 @@ def main() -> None:
                 xytext=(5 + (k % 3) * 3, 4 + (k % 6) * 2),
                 textcoords="offset points",
                 fontsize=5.8,
-                color=pal.OI_YELLOW,
+                color=label_accent,
                 ha="left",
                 va="bottom",
                 alpha=0.92,
@@ -365,7 +396,7 @@ def main() -> None:
                     xytext=(-10 - (ck % 3) * 16, -8 - (ck % 4) * 14),
                     textcoords="offset points",
                     fontsize=6.0,
-                    color=pal.OI_YELLOW,
+                    color=label_accent,
                     ha="right",
                     va="top",
                     alpha=0.95,
@@ -401,7 +432,7 @@ def main() -> None:
                 xytext=(-12 - (uk % 3) * 18, -10 - (uk % 4) * 16),
                 textcoords="offset points",
                 fontsize=5.8,
-                color=pal.OI_YELLOW,
+                color=label_accent,
                 ha="right",
                 va="top",
                 alpha=0.9,
@@ -413,7 +444,16 @@ def main() -> None:
 
     fig.tight_layout()
     out = args.out_dir / args.out_name
-    fig.savefig(out, bbox_inches="tight", facecolor="black")
+    save_figure_bundle(
+        fig,
+        out,
+        png_dpi=150,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=FIGURES,
+        bbox_inches="tight",
+        facecolor=fig_bg,
+    )
     plt.close(fig)
     print(f"Wrote {out} ({len(df)} MPs)")
 

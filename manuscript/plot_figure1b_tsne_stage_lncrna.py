@@ -1,27 +1,37 @@
 """
-Figure 1B — t-SNE on TCGA primary tumor samples with AJCC stage (lncRNA expression matrix).
+Figure 1B — sample embedding on TCGA primary tumor lncRNA expression (same matrix as DE pipeline).
+
+Default (**``--embedding sklearn2_pca34``**): **sklearn t-SNE** in **2D** (Barnes–Hut; stable
+for typical sample sizes) for panels **dim 1–2**, and **PC3 vs PC4** from a **sample PCA**
+(``sklearn.decomposition.PCA``) on the **same** ``X_in`` used for t-SNE (after optional
+gene-level PCA truncation). Axis titles mark PC3/PC4 and report their explained variance.
+
+Optional **``--embedding opentsne4``**: legacy **4D OpenTSNE** (same four panels as pure t-SNE
+dims 1–2 and 3–4). OpenTSNE emits a **FutureWarning** about Barnes–Hut in >3 embedding
+dimensions; that path filters the warning but may be slower or fragile — prefer the default.
 
 Loads ``data/primary_exp_stage_lncRNA.csv`` (same samples as ``tr_lncrna_de_analysis``),
-standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits a
-**4-dimensional** t-SNE (OpenTSNE; sklearn Barnes-Hut does not support ``n_components > 3``).
+standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits the
+chosen embedding.
 
 Writes four PNGs under ``figures/``:
 
-  - components **1 vs 2**, colored by **cancer_type**
-  - components **1 vs 2**, colored by **stage**
-  - components **3 vs 4**, colored by **cancer_type**
-  - components **3 vs 4**, colored by **stage**
+  - components **1 vs 2** (t-SNE), coloured by **cancer_type** and **stage**
+  - components **3 vs 4** (PCA scores on ``X_in`` when using default), same colourings
 """
 from __future__ import annotations
 
 from pathlib import Path
 import sys
+import warnings
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import DATA, FIGURES, REPO_ROOT
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -32,14 +42,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE as SklearnTSNE
 from sklearn.preprocessing import StandardScaler
-
-try:
-    from openTSNE import TSNE as OpenTSNE
-except ImportError as e:  # pragma: no cover
-    raise SystemExit(
-        "openTSNE is required for 4D t-SNE at this sample size. Install: pip install opentsne"
-    ) from e
 
 DEFAULT_CSV = DATA / "primary_exp_stage_lncRNA.csv"
 
@@ -79,6 +83,9 @@ def _scatter_panel(
     title: str,
     legend_title: str,
     stage_mode: bool,
+    *,
+    xlabel: str | None = None,
+    ylabel: str | None = None,
 ) -> None:
     hue = hue.astype(str)
     if stage_mode:
@@ -96,8 +103,8 @@ def _scatter_panel(
             m = hue == lab
             c = cmap[lab]
             ax.scatter(emb[m, i], emb[m, j], s=4, c=[c], alpha=0.75, linewidths=0, label=str(lab))
-    ax.set_xlabel(f"t-SNE {i + 1}")
-    ax.set_ylabel(f"t-SNE {j + 1}")
+    ax.set_xlabel(xlabel if xlabel is not None else f"t-SNE {i + 1}")
+    ax.set_ylabel(ylabel if ylabel is not None else f"t-SNE {j + 1}")
     ax.set_title(title)
     leg = ax.legend(
         title=legend_title,
@@ -114,7 +121,9 @@ def _scatter_panel(
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Figure 1B: 4D t-SNE on stage-sample lncRNA matrix → four PNGs.")
+    ap = argparse.ArgumentParser(
+        description="Figure 1B: sample embedding (t-SNE ± PCA) on stage lncRNA matrix → four PNGs."
+    )
     ap.add_argument("--matrix-csv", type=Path, default=DEFAULT_CSV)
     ap.add_argument("--out-dir", type=Path, default=FIGURES)
     ap.add_argument(
@@ -126,6 +135,14 @@ def main() -> None:
     )
     ap.add_argument("--perplexity", type=float, default=30.0)
     ap.add_argument("--random-state", type=int, default=0)
+    ap.add_argument(
+        "--embedding",
+        choices=("sklearn2_pca34", "opentsne4"),
+        default="sklearn2_pca34",
+        help="Default: 2D sklearn t-SNE (dims 1–2) + PC3 vs PC4 on X_in (dims 3–4). "
+        "opentsne4: single 4D OpenTSNE embedding (legacy; may warn internally about BH>3D).",
+    )
+    add_publication_args(ap)
     args = ap.parse_args()
 
     if not args.matrix_csv.exists():
@@ -156,22 +173,69 @@ def main() -> None:
     else:
         X_in = Xs
 
-    print("Fitting 4D t-SNE (OpenTSNE)...")
-    tsne = OpenTSNE(
-        n_components=4,
-        perplexity=args.perplexity,
-        random_state=args.random_state,
-        n_jobs=-1,
-    )
-    emb = np.asarray(tsne.fit(X_in), dtype=np.float64)
-    print("Embedding shape:", emb.shape)
+    n_s = X_in.shape[0]
+    if args.embedding == "sklearn2_pca34":
+        perplexity = float(min(args.perplexity, max(5.0, (n_s - 1) / 3.0)))
+        print(f"Fitting 2D t-SNE (sklearn, perplexity={perplexity:.3g}, Barnes–Hut)...")
+        tsne2 = SklearnTSNE(
+            n_components=2,
+            perplexity=perplexity,
+            random_state=args.random_state,
+            max_iter=1000,
+            init="pca",
+            method="barnes_hut",
+            learning_rate="auto",
+        )
+        emb12 = np.asarray(tsne2.fit_transform(X_in), dtype=np.float64)
+        n_pc = min(4, X_in.shape[0] - 1, X_in.shape[1])
+        if n_pc < 4:
+            raise SystemExit(f"Need ≥4 PCA components for PC3–PC4 panel; got {n_pc}.")
+        print("Fitting sample PCA (4 components on X_in) for PC3 vs PC4 panels...")
+        pca4 = PCA(n_components=4, random_state=args.random_state, svd_solver="randomized")
+        Z = pca4.fit_transform(X_in)
+        ev = pca4.explained_variance_ratio_
+        emb = np.column_stack([emb12, Z[:, 2:4]])
+        pc3_lab = f"PC3 ({100.0 * float(ev[2]):.1f}% var.)"
+        pc4_lab = f"PC4 ({100.0 * float(ev[3]):.1f}% var.)"
+        dim34_labels = (pc3_lab, pc4_lab)
+    else:
+        try:
+            from openTSNE import TSNE as OpenTSNE
+        except ImportError as e:  # pragma: no cover
+            raise SystemExit("Install openTSNE for --embedding opentsne4: pip install opentsne") from e
+        print("Fitting 4D t-SNE (OpenTSNE)...")
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*BH t-SNE for >3 dimensions.*",
+                category=FutureWarning,
+            )
+            tsne = OpenTSNE(
+                n_components=4,
+                perplexity=args.perplexity,
+                random_state=args.random_state,
+                n_jobs=-1,
+            )
+            emb = np.asarray(tsne.fit(X_in), dtype=np.float64)
+        print("Embedding shape:", emb.shape)
+
+    if args.embedding == "sklearn2_pca34":
+        print("Combined embedding shape:", emb.shape, "(cols 0–1 t-SNE, 2–3 PCA scores)")
 
     cancer = df["cancer_type"].astype(str).to_numpy()
     stage = df["stage"].astype(str).to_numpy()
 
     base = "fig1b_tsne_stage_lncrna_samples"
 
-    def save_pair(dim_i: int, dim_j: int, suffix: str) -> Path:
+    def save_pair(
+        dim_i: int,
+        dim_j: int,
+        suffix: str,
+        *,
+        title_suffix: str,
+        xlabel: str | None = None,
+        ylabel: str | None = None,
+    ) -> Path:
         fig, ax = plt.subplots(figsize=(7.0, 6.0))
         if suffix.endswith("cancer_type"):
             _scatter_panel(
@@ -180,9 +244,11 @@ def main() -> None:
                 dim_i,
                 dim_j,
                 cancer,
-                f"Fig 1B — t-SNE (dims {dim_i + 1} vs {dim_j + 1}) — cancer type",
+                f"Fig 1B — {title_suffix} — cancer type",
                 "cancer_type",
                 stage_mode=False,
+                xlabel=xlabel,
+                ylabel=ylabel,
             )
         else:
             _scatter_panel(
@@ -191,9 +257,11 @@ def main() -> None:
                 dim_i,
                 dim_j,
                 stage,
-                f"Fig 1B — t-SNE (dims {dim_i + 1} vs {dim_j + 1}) — AJCC stage",
+                f"Fig 1B — {title_suffix} — AJCC stage",
                 "stage",
                 stage_mode=True,
+                xlabel=xlabel,
+                ylabel=ylabel,
             )
         fig.patch.set_facecolor("white")
         ax.set_facecolor("#fafafa")
@@ -202,14 +270,42 @@ def main() -> None:
         ax.grid(False)
         path = args.out_dir / f"{base}_{suffix}.png"
         fig.tight_layout()
-        fig.savefig(path, dpi=200, bbox_inches="tight")
+        save_figure_bundle(
+            fig,
+            path,
+            png_dpi=200,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=FIGURES,
+            bbox_inches="tight",
+        )
         plt.close(fig)
         return path
 
-    p1 = save_pair(0, 1, "dims12_cancer_type")
-    p2 = save_pair(0, 1, "dims12_stage")
-    p3 = save_pair(2, 3, "dims34_cancer_type")
-    p4 = save_pair(2, 3, "dims34_stage")
+    if args.embedding == "sklearn2_pca34":
+        p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix="t-SNE (dims 1 vs 2)")
+        p2 = save_pair(0, 1, "dims12_stage", title_suffix="t-SNE (dims 1 vs 2)")
+        p3 = save_pair(
+            2,
+            3,
+            "dims34_cancer_type",
+            title_suffix="PCA on X_in (PC3 vs PC4)",
+            xlabel=dim34_labels[0],
+            ylabel=dim34_labels[1],
+        )
+        p4 = save_pair(
+            2,
+            3,
+            "dims34_stage",
+            title_suffix="PCA on X_in (PC3 vs PC4)",
+            xlabel=dim34_labels[0],
+            ylabel=dim34_labels[1],
+        )
+    else:
+        p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix=f"t-SNE (dims 1 vs 2)")
+        p2 = save_pair(0, 1, "dims12_stage", title_suffix=f"t-SNE (dims 1 vs 2)")
+        p3 = save_pair(2, 3, "dims34_cancer_type", title_suffix=f"t-SNE (dims 3 vs 4)")
+        p4 = save_pair(2, 3, "dims34_stage", title_suffix=f"t-SNE (dims 3 vs 4)")
     print("Wrote:")
     for p in (p1, p2, p3, p4):
         print(" ", p)

@@ -21,6 +21,7 @@ Top-level drivers (run from **repo root** so `import repo_paths` works):
 | `rebuild_netmhc_merged_tsvs.py` | Rebuild merged TSVs from wide `*.xls` + IEDB |
 | `generate_tr_lncrna_identification.py` | z-scores + R limma for Tr-lncRNA tables |
 | `generate_netmhc_supplement.py` | Optional wide 5A–5E, sensitivity, Fig 6 sweeps |
+| `export_publication_figures.py` | Canonical 1B–6: PNG + **PDF + TIFF** under `figures/publication/` (see folder README) |
 | `supplement/regenerate_manuscript_netmhc_figures.py` | Full clean tree under `figures/manuscript_netmhc/` |
 
 More command-level notes: `docs/figure_catalog.md`, `docs/netmhc_figure_commands.md`, `docs/iedb_tools_api.md`, `docs/figure6_ttn_as1_parameters.md`, `docs/CODE_REVIEW.md`, `data/netmhc/README_netmhc.md`.

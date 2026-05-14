@@ -20,9 +20,11 @@ Think in **two deposits**: (A) **GitHub release → Zenodo “software”** = ev
 | **Expression + DE** | `tr_lncrna_output/**` — OK on GitHub if totals stay under limits. **`data/primary_exp_stage_lncRNA.csv`** and **`data/primary_exp_metastasis_lncRNA.csv`** are usually **>100 MiB** → **do not commit** (see `.gitignore`); ship on the **Zenodo dataset** instead (or use **Git LFS** if you insist on GitHub). |
 | **Figures** | `figures/**` including `figures/manuscript_netmhc/**` |
 
-**Do not expect** the following on GitHub: merged NetMHC TSVs, cohort wide XLS, IEDB exports, **`SmProt2.txt`**, **`primary_exp_*_final.csv`** — they are **gitignored** by design; put them on the **Zenodo dataset** (see below). Smaller **`data/primary_exp_*_lncRNA.csv`** slices may still ship on GitHub if you keep them tracked for Fig 1B / 2 / limma.
+**Do not expect** the following on GitHub: merged NetMHC TSVs, cohort wide XLS, IEDB exports, **`SmProt2.txt`**, **`primary_exp_*_final.csv`**, **`primary_exp_*_lncRNA.csv`** (when large) — they are **gitignored** by design; put them on the **Zenodo dataset** (see below). Smaller **`data/`** files that remain under the GitHub size limit can stay on GitHub per `data/README.md`.
 
 ### B — Zenodo **dataset** record (manual; second DOI) — **your chosen bundle**
+
+**Folder layout + README for upload:** see **`zenodo_dataset_bundle/README.md`** (human-facing text for the zip root) and run **`scripts/build_zenodo_dataset_bundle.ps1`** to assemble numbered folders (`01_tcga_lncrna_expression/`, `02_smprot_raw/`, …) from your machine’s **`data/`** tree before zipping.
 
 Upload one **zip** (or multiple files) with everything you want archived **but not on GitHub**. This repo’s policy for your manuscript is:
 
@@ -101,33 +103,34 @@ Then **GitHub → Releases → Draft a new release → choose tag `v1.0.0` → P
 
 **If GitHub rejects a large file:** use **[Git LFS](https://git-lfs.com/)** for that path, or **remove** it from git and put it only on the **Zenodo dataset** record instead.
 
-## Zenodo dataset (second DOI): build a zip from your full machine
+## Zenodo dataset (second DOI): build the zip from your full machine
 
-Point `$root` at the folder that contains your real **`data/`** tree (often the parent **`UNDEFINED`** checkout, not only `paper-github/`).
+Preferred: from **`paper-github/`** run the bundler.
+
+**PowerShell (Windows):**
 
 ```powershell
-$root = "C:\Users\stavz\Desktop\masters\UNDEFINED"
-$dst  = "$env:USERPROFILE\Desktop\zenodo-dataset-v1.zip"
-$paths = @(
-  "$root\data\SmProt2.txt",
-  "$root\data\primary_exp_stage_lncRNA.csv",
-  "$root\data\primary_exp_metastasis_lncRNA.csv",
-  "$root\data\primary_exp_stage_final.csv",
-  "$root\data\primary_exp_metastasis_final.csv",
-  "$root\data\netmhc\netmhcpan_sig_lnc_with_iedb.tsv",
-  "$root\data\netmhc\netmhcpan_coding_proportional_whole_with_iedb.tsv",
-  "$root\data\netmhc\netmhcpan_coding_control_with_iedb.tsv",
-  "$root\data\netmhc\netmhcpan_sig_lnc.xls",
-  "$root\data\netmhc\netmhcpan_coding_proportional_whole.xls",
-  "$root\data\netmhc\netmhcpan_coding_control.xls"
-)
-# Add every IEDB file you used, e.g.:
-# $paths += Get-ChildItem "$root\data\netmhc\iedb_*.csv" -File | ForEach-Object FullName
-$existing = $paths | Where-Object { Test-Path $_ }
-Compress-Archive -Path $existing -DestinationPath $dst -Force
+cd C:\path\to\paper-github
+.\scripts\build_zenodo_dataset_bundle.ps1 -DataParent "C:\path\to\UNDEFINED" -Zip
 ```
 
-Upload **`zenodo-dataset-v1.zip`** on Zenodo → **New upload** → resource type **Dataset** → publish.
+**Git Bash or WSL** (bash does not run `.ps1` files; use the wrapper and Unix paths):
+
+```bash
+cd /c/Users/you/Desktop/masters/UNDEFINED/paper-github   # Git Bash — note /c/ not c:\
+./scripts/build_zenodo_dataset_bundle.sh /c/Users/you/Desktop/masters/UNDEFINED --zip
+```
+
+```bash
+cd /mnt/c/Users/you/Desktop/masters/UNDEFINED/paper-github   # WSL
+./scripts/build_zenodo_dataset_bundle.sh /mnt/c/Users/you/Desktop/masters/UNDEFINED --zip
+```
+
+This writes **`zenodo_dataset_staging/`** under `paper-github/` (gitignored) with **`README.md`**, **`FILE_MANIFEST.txt`**, and numbered folders, then **`zenodo_dataset_staging.zip`** when `-Zip` / `--zip` is used. Adjust `-DataParent` if your `data/` lives directly under `paper-github` (then pass the `paper-github` directory as `-DataParent`).
+
+Upload the **zip** on Zenodo → **New upload** → resource type **Dataset** → publish.
+
+**Manual alternative (flat list):** if you prefer not to use the script, you can still `Compress-Archive` a hand-picked file list; the table above remains the checklist.
 
 **If a file was ever committed to GitHub before adding `.gitignore`:** remove it from git tracking (keep local copy):  
 `git rm --cached data/SmProt2.txt` then commit, so the public repo no longer grows with that blob.

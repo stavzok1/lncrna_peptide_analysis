@@ -36,10 +36,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -204,6 +206,10 @@ def plot_one(
     out_path: Path,
     overall_tr_canonical_pct: float,
     overall_tcga_matrix_pct: float,
+    *,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = FIGURES,
 ) -> None:
     pcts = []
     for d, p in zip(n_stratum, n_pep, strict=True):
@@ -267,7 +273,14 @@ def plot_one(
     ax.legend(loc="upper right", frameon=True, edgecolor="0.7")
     plt.tight_layout()
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_path, dpi=150)
+    save_figure_bundle(
+        fig,
+        out_path,
+        png_dpi=150,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+    )
     plt.close(fig)
 
 
@@ -293,6 +306,7 @@ def main() -> None:
         default=None,
         help="Parent directory for outputs (default: UNDEFINED/figures). PNGs go in <parent>/<peptide_gene_set>/peptide_fraction/.",
     )
+    add_publication_args(ap)
     args = ap.parse_args()
 
     figures_parent = args.figures_dir if args.figures_dir is not None else FIGURES
@@ -415,6 +429,9 @@ def main() -> None:
                     out_panel,
                     overall_tr_canonical,
                     overall_tcga_matrix,
+                    publication_dir=args.publication_dir,
+                    publication_tiff_kind=args.publication_tiff_kind,
+                    figures_root=FIGURES,
                 )
                 sum_stratum = sum(n_stratum_list)
                 print(f"Wrote {out_panel}  (sum limma-z stratum genes across cancers: {sum_stratum})")

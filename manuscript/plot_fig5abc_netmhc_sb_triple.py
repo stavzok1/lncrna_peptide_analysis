@@ -37,10 +37,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES, NETMHC_HLA27_ALLELE_FREQ_CSV
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -114,6 +116,9 @@ def plot_fig5a(
     sb_legend: str,
     *,
     y_metric: str,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = REPO_FIGURES,
 ) -> None:
     t = tab.dropna(subset=["allele_frequency"])
     if len(t) < 2:
@@ -146,7 +151,15 @@ def plot_fig5a(
     ax.grid(alpha=0.3)
     fig.tight_layout()
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, dpi=150, bbox_inches="tight")
+    save_figure_bundle(
+        fig,
+        out_png,
+        png_dpi=150,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 
@@ -194,6 +207,9 @@ def plot_fig5bc_legacy(
     *,
     bar_color: str,
     y_metric: str,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = REPO_FIGURES,
 ) -> None:
     _ = sb_legend
     fig, ax = plt.subplots(figsize=(7.2, 4.8), dpi=150)
@@ -236,7 +252,15 @@ def plot_fig5bc_legacy(
         )
     fig.tight_layout()
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, dpi=150, bbox_inches="tight")
+    save_figure_bundle(
+        fig,
+        out_png,
+        png_dpi=150,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 
@@ -326,6 +350,7 @@ def main() -> None:
         action="store_true",
         help="Do not copy 5A–5C PNGs into repo-root figures/.",
     )
+    add_publication_args(ap)
     args = ap.parse_args()
 
     hdr_cod = set(pd.read_csv(args.coding_tsv, sep="\t", nrows=0).columns)
@@ -423,6 +448,9 @@ def main() -> None:
             "Significant lncRNA micropeptides (translated)",
             sb_legend,
             y_metric=args.fig5a_y_metric,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=REPO_FIGURES,
         )
 
         cnt_b = fig5bc_sharing(sig_sb)
@@ -435,6 +463,9 @@ def main() -> None:
             sb_legend,
             bar_color=pal.SIG_LNC,
             y_metric=args.sharing_y_metric,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=REPO_FIGURES,
         )
 
     cnt_c = fig5bc_sharing(cod_sb)
@@ -447,6 +478,9 @@ def main() -> None:
         sb_legend,
         bar_color=pal.SIG_LNC,
         y_metric=args.sharing_y_metric,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=REPO_FIGURES,
     )
 
     if not args.no_repo_mirror:

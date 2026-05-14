@@ -28,10 +28,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -97,6 +99,9 @@ def plot_bars(
     title: str,
     subtitle: str,
     count_metric: str,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = REPO_FIGURES,
 ) -> None:
     ycol = "n_sb_row_instances_allele" if count_metric == "instances" else "n_unique_epitopes_sb"
     ylab = "SB epitopes per allele" if count_metric == "instances" else "Unique 9-mers per allele"
@@ -120,7 +125,15 @@ def plot_bars(
     fig.tight_layout()
     fig.subplots_adjust(bottom=0.28)
     out_png.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out_png, bbox_inches="tight")
+    save_figure_bundle(
+        fig,
+        out_png,
+        png_dpi=150,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+        bbox_inches="tight",
+    )
     plt.close(fig)
 
 
@@ -183,6 +196,9 @@ def run_one(
         title="Per-allele SB load (Tr-lncRNA-MPs, merged IEDB+NetMHC)",
         subtitle="",
         count_metric=args.count_metric,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=REPO_FIGURES,
     )
     plot_bars(
         tab_c,
@@ -190,6 +206,9 @@ def run_one(
         title="Per-allele SB load (coding control, merged IEDB+NetMHC)",
         subtitle="",
         count_metric=args.count_metric,
+        publication_dir=args.publication_dir,
+        publication_tiff_kind=args.publication_tiff_kind,
+        figures_root=REPO_FIGURES,
     )
     if not getattr(args, "no_repo_mirror", False):
         _mirror(
@@ -241,6 +260,7 @@ def main() -> None:
         action="store_true",
         help="Do not copy 5D/5E PNGs into repo-root figures/.",
     )
+    add_publication_args(ap)
     args = ap.parse_args()
 
     if args.write_all_sb_modes:

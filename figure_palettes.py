@@ -56,6 +56,21 @@ F4A_FRAME_STYLES: dict[str, dict[str, str]] = {
     "LINC00958": {"edgecolor": OI_SKY_BLUE, "facecolor": "#050a18"},
 }
 
+# Fig 4A light theme (white figure/axes; Okabe–Ito–safe contrast)
+F4A_LIGHT_AX = "#ffffff"
+F4A_LIGHT_TEXT = "#1a1a1a"
+F4A_LIGHT_TICK = "#333333"
+F4A_LIGHT_GRID_MAJOR = "#9a9a9a"
+F4A_LIGHT_GRID_MINOR = "#c8c8c8"
+F4A_LIGHT_FRAME = "#222222"
+F4A_LIGHT_POINTS_BULK = OI_BLUE
+F4A_LIGHT_SHADE_ALPHA = 0.35
+F4A_LIGHT_FRAME_STYLES: dict[str, dict[str, str]] = {
+    "PTPRG-AS1": {"edgecolor": OI_VERMILLION, "facecolor": "#fff5f0"},
+    "LINC00326": {"edgecolor": OI_REDDISH_PURPLE, "facecolor": "#f8f0ff"},
+    "LINC00958": {"edgecolor": OI_SKY_BLUE, "facecolor": "#f0f8ff"},
+}
+
 
 @lru_cache(maxsize=1)
 def diverging_log2fc_cmap() -> LinearSegmentedColormap:

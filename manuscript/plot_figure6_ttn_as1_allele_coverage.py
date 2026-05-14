@@ -62,10 +62,12 @@ from pathlib import Path
 import sys
 
 _REPO = Path(__file__).resolve().parent.parent
-for _p in (str(_REPO), str(_REPO / "scripts")):
+_MS = Path(__file__).resolve().parent
+for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
     if _p not in sys.path:
         sys.path.insert(0, _p)
 from repo_paths import REPO_ROOT, DATA, FIGURES, NETMHC_DATA, NETMHC_FIGURES
+from figure_export import add_publication_args, save_figure_bundle
 
 ROOT = REPO_ROOT
 
@@ -554,6 +556,9 @@ def _render_figure6_single_combined(
     stats_cov: np.ndarray,
     metric_suffix: str,
     stats_txt: str | None = None,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = REPO_FIGURES,
 ) -> None:
     stats_use = stats_txt if stats_txt is not None else stats_block_text(full, stats_cov, len(alleles))
     fig = plt.figure(figsize=(12, 14), dpi=150)
@@ -618,7 +623,15 @@ def _render_figure6_single_combined(
     )
 
     out.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(out, bbox_inches="tight")
+    save_figure_bundle(
+        fig,
+        out,
+        png_dpi=150,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+        bbox_inches="tight",
+    )
     plt.close(fig)
     print(f"Wrote {out}")
 
@@ -648,6 +661,9 @@ def _render_figure6_split_panels(
     stats_cov: np.ndarray,
     metric_suffix: str,
     stats_txt: str | None = None,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = REPO_FIGURES,
 ) -> None:
     if out.suffix.lower() != ".png":
         raise SystemExit("--split-panels requires -o to end with .png")
@@ -655,6 +671,17 @@ def _render_figure6_split_panels(
 
     def _p(letter: str) -> Path:
         return parent / f"{stem}_{letter}{suf}"
+
+    def _save_pub(fig, path_png: Path) -> None:
+        save_figure_bundle(
+            fig,
+            path_png,
+            png_dpi=150,
+            publication_dir=publication_dir,
+            publication_tiff_kind=publication_tiff_kind,
+            figures_root=figures_root,
+            bbox_inches="tight",
+        )
 
     stats_use = stats_txt if stats_txt is not None else stats_block_text(full, stats_cov, len(alleles))
 
@@ -667,7 +694,7 @@ def _render_figure6_split_panels(
         subtitle,
         colorbar_label=heatmap_cb_label,
     )
-    fig_a.savefig(_p("a"), bbox_inches="tight")
+    _save_pub(fig_a, _p("a"))
     plt.close(fig_a)
 
     fig_b, ax_b = plt.subplots(figsize=(7, 5.5), dpi=150)
@@ -680,7 +707,7 @@ def _render_figure6_split_panels(
     ax_b.xaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{int(round(v))}"))
     ax_b.set_title("Distribution across positions")
     ax_b.text(0.98, 0.97, stats_use, transform=ax_b.transAxes, va="top", ha="right", fontsize=8, family="monospace")
-    fig_b.savefig(_p("b"), bbox_inches="tight")
+    _save_pub(fig_b, _p("b"))
     plt.close(fig_b)
 
     fig_c = plt.figure(figsize=(12, 7.5), dpi=150)
@@ -707,7 +734,7 @@ def _render_figure6_split_panels(
         _ax.yaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=3))
     plt.setp(ax_c1.get_xticklabels(), visible=False)
     plt.setp(ax_c2.get_xticklabels(), visible=False)
-    fig_c.savefig(_p("c"), bbox_inches="tight")
+    _save_pub(fig_c, _p("c"))
     plt.close(fig_c)
 
     fig_d, ax_d = plt.subplots(figsize=(8, 4.2), dpi=150)
@@ -716,7 +743,7 @@ def _render_figure6_split_panels(
         sb_all_logo,
         f"9-mer epitope logo (instance-weighted, N={len(sb_all_logo)})",
     )
-    fig_d.savefig(_p("d"), bbox_inches="tight")
+    _save_pub(fig_d, _p("d"))
     plt.close(fig_d)
 
     fig_e, ax_e = plt.subplots(figsize=(8, 4.2), dpi=150)
@@ -725,7 +752,7 @@ def _render_figure6_split_panels(
         sb_ex_logo,
         f"9-mer epitope logo — {display_allele(ex_norm)} (instance-weighted, N={len(sb_ex_logo)})",
     )
-    fig_e.savefig(_p("e"), bbox_inches="tight")
+    _save_pub(fig_e, _p("e"))
     plt.close(fig_e)
     for ch in "abcde":
         print(f"Wrote {_p(ch)}")
@@ -858,6 +885,7 @@ def main() -> None:
         action="store_true",
         help="Write five PNGs: {stem}_a.png … {stem}_e.png (uses -o path stem/suffix/parent)",
     )
+    add_publication_args(ap)
     args = ap.parse_args()
 
     if args.gating == "iedb_sb":
@@ -1009,6 +1037,9 @@ def main() -> None:
                 sb_ex_logo,
                 ex_norm,
                 stats_txt=stats_txt_kw,
+                publication_dir=args.publication_dir,
+                publication_tiff_kind=args.publication_tiff_kind,
+                figures_root=REPO_FIGURES,
                 **kw,
             )
         else:
@@ -1021,6 +1052,9 @@ def main() -> None:
                 sb_ex_logo,
                 ex_norm,
                 stats_txt=stats_txt_kw,
+                publication_dir=args.publication_dir,
+                publication_tiff_kind=args.publication_tiff_kind,
+                figures_root=REPO_FIGURES,
                 **kw,
             )
 
