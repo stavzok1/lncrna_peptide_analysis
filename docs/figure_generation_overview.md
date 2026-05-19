@@ -77,9 +77,7 @@ Five **non-overlapping** roles (same default gate values as the underlying scrip
 `python generate_netmhc_fig5_fig6_supplement.py`  
 Add `--strict` if any step should abort the run.
 
-**Command (wide legacy 5A–5E + this bundle):**  
-`python generate_netmhc_supplement.py`  
-Optional: `--include-wide-xls-fig5` (IC50-from-BA wide XLS cohort). Use `--skip-sensitivity` to skip §6 entirely.
+**Legacy wrapper (avoid for §6 alone):** `python generate_netmhc_supplement.py` — deprecated; prints a warning and forwards to `generate_netmhc_fig5_fig6_supplement.py` unless `--skip-sensitivity`. Use only with `--include-wide-xls-fig5` when you need **wide-XLS** Fig 5A–5E (IC50-from-BA), not merged IEDB panels.
 
 **Recommendation:** run **`generate_netmhc_figure_bundle.py`** (§5) first so merged tables exist for the Fig 5 supplement scripts.
 
@@ -119,7 +117,7 @@ Optional Fig 6 **unique** (canonical + publication): ``--include-fig6-unique``.
 **Optional add-ons:**
 
 - **Legacy wide-XLS Fig 5A–5E (IC50-from-BA):**  
-  `python generate_netmhc_supplement.py --strict --include-wide-xls-fig5`  
+  `python generate_netmhc_supplement.py --strict --include-wide-xls-fig5` *(legacy wide-XLS 5A–5E only)*  
   (still runs step 3’s bundle unless you pass `--skip-sensitivity`.)
 - **PCA supplement** (also run by `export_publication_figures.py` unless `--skip-supplement-pca`):  
   `python supplement/plot_supplement_pca_stage_samples.py --out-dir figures/supplementary/pca`

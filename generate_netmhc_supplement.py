@@ -1,19 +1,33 @@
 """
-NetMHC **supplement** figures: legacy wide-XLS cohort 5B–5E (IC50-from-BA), and — unless skipped —
-the **Fig 5–6 supplement bundle** (five subfolders: Fig 5 1D+LOO, Fig 5 Cartesian, Fig 6 NetMHC sweeps, Fig 6 merged IEDB 1D+LOO, Fig 6 merged IEDB Cartesian) under ``figures/supplementary/netmhc_fig5_fig6_supplement/``
-(via ``generate_netmhc_fig5_fig6_supplement.py``).
+NetMHC supplement wrapper (legacy entry point).
 
-Run ``generate_netmhc_figure_bundle.py`` first for canonical merged panels.
+.. deprecated::
+   For the **Fig 5–6 sensitivity supplement** (five folders under
+   ``figures/supplementary/netmhc_fig5_fig6_supplement/``), prefer::
 
-Usage::
+       python generate_netmhc_fig5_fig6_supplement.py --strict
 
-    python generate_netmhc_supplement.py
-    python generate_netmhc_supplement.py --include-wide-xls-fig5 --strict
+   or the full pipeline::
+
+       python regenerate_all_figures.py --strict
+
+   Keep using **this** script only when you need **legacy wide-XLS** Fig 5A–5E
+   (IC50-from-BA on ``*.xls``, not the merged IEDB manuscript panels)::
+
+       python generate_netmhc_supplement.py --include-wide-xls-fig5 --strict
+
+What this script still does:
+
+- With ``--include-wide-xls-fig5``: runs wide-XLS **5A–5E** into ``data/netmhc/figures/``.
+- Unless ``--skip-sensitivity``: delegates to ``generate_netmhc_fig5_fig6_supplement.py``.
+
+Run ``generate_netmhc_figure_bundle.py`` first so merged ``*_with_iedb.tsv`` exist for the sensitivity bundle.
 """
 from __future__ import annotations
 
 import argparse
 import sys
+import warnings
 
 from orchestrate_subprocess import call_echo
 from repo_paths import NETMHC_DATA, NETMHC_FIGURES, NETMHC_HLA27_ALLELE_FREQ_CSV, REPO_ROOT, SUPPLEMENT_DIR
@@ -37,7 +51,17 @@ def run_root(script: str, args: list[str]) -> int:
     return call_echo(cmd, cwd=REPO_ROOT)
 
 
+_DEPRECATION_MSG = (
+    "Note: generate_netmhc_supplement.py is deprecated. "
+    "For Fig 5-6 sensitivity supplements use generate_netmhc_fig5_fig6_supplement.py "
+    "(or regenerate_all_figures.py). "
+    "Use --include-wide-xls-fig5 here only for legacy wide-XLS Fig 5A-5E."
+)
+
+
 def main() -> None:
+    print(_DEPRECATION_MSG, file=sys.stderr, flush=True)
+    warnings.warn(_DEPRECATION_MSG, DeprecationWarning, stacklevel=1)
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--strict", action="store_true", help="Exit non-zero if any step fails.")
     ap.add_argument(

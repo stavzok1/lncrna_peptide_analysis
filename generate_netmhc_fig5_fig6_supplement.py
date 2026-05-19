@@ -16,7 +16,7 @@ Writes under ``figures/supplementary/netmhc_fig5_fig6_supplement/``:
 
 Run ``generate_netmhc_figure_bundle.py`` first so merged ``*_with_iedb.tsv`` inputs exist for the Fig 5 steps.
 
-``generate_netmhc_supplement.py`` invokes this script when sensitivity steps are not skipped.
+``generate_netmhc_supplement.py`` (legacy wrapper) may invoke this script; prefer calling it directly.
 
 Usage::
 

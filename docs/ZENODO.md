@@ -18,7 +18,7 @@ Think in **two deposits**: (A) **GitHub release → Zenodo “software”** = ev
 | **Docs** | `docs/`, `data/README.md`, root `README.md` |
 | **Small / bundled inputs** | `data/known_proteins.fasta`, `data/smprot_*.tsv` / `.faa` (if sizes OK), `data/netmhc/hla_european27_*.csv` / `.txt`, `data/canonical_significant_lncRNAs.txt`, TTN helper FASTAs, bundled **`netmhcpan_ttn_as1_108065.xls`** when small |
 | **Expression + DE** | `tr_lncrna_output/**` — OK on GitHub if totals stay under limits. **`data/primary_exp_stage_lncRNA.csv`** and **`data/primary_exp_metastasis_lncRNA.csv`** are usually **>100 MiB** → **do not commit** (see `.gitignore`); ship on the **Zenodo dataset** instead (or use **Git LFS** if you insist on GitHub). |
-| **Figures** | `figures/**` including `figures/manuscript_netmhc/**` |
+| **Figures** | Canonical main-text PNGs at `figures/` root + `figures/supplementary/`; `data/netmhc/figures/*.png`. **Not** on GitHub: `figures/external/`, `figures/publication/`, `figures/paper_tifs/`, ECCB source deck, combined manifest, Fig 1B single-panel PNGs (see `.gitignore`) |
 
 **Do not expect** the following on GitHub: merged NetMHC TSVs, cohort wide XLS, IEDB exports, **`SmProt2.txt`**, **`primary_exp_*_final.csv`**, **`primary_exp_*_lncRNA.csv`** (when large) — they are **gitignored** by design; put them on the **Zenodo dataset** (see below). Smaller **`data/`** files that remain under the GitHub size limit can stay on GitHub per `data/README.md`.
 

@@ -150,7 +150,7 @@ EL **< 1%** by default, IC50 **< 150 nM** using the IEDB BA-IC50 column when pre
 
 CSV companions for 5A–5C live alongside the PNGs under ``data/netmhc/figures/`` (not mirrored to ``figures/`` by default).
 
-**Orchestrator:** ``generate_netmhc_figure_bundle.py`` — merged **5A–5C** (IEDB+NetMHC SB default) + second **5C** (random-fragment coding cohort; mirror under ``figures/supplementary/netmhc/``) + two merged **5D–5E** runs (whole → ``figures/``; fragments → supplementary folder) + **Fig 6** TTN split panels. **Supplement:** ``generate_netmhc_supplement.py`` (wide XLS **5A–5E** with ``--include-wide-xls-fig5``, cohort sensitivity, combination grid, Fig 6 SB sweeps).
+**Orchestrator:** ``generate_netmhc_figure_bundle.py`` — merged **5A–5C** (IEDB+NetMHC SB default) + second **5C** (random-fragment coding cohort; mirror under ``figures/supplementary/netmhc/``) + two merged **5D–5E** runs (whole → ``figures/``; fragments → supplementary folder) + **Fig 6** TTN split panels. **Supplement sensitivity:** ``generate_netmhc_fig5_fig6_supplement.py``. **Legacy wide XLS 5A–5E:** ``generate_netmhc_supplement.py --include-wide-xls-fig5`` (deprecated wrapper).
 
 **Optional clean tree:** ``python supplement/regenerate_manuscript_netmhc_figures.py`` (see script ``--help`` for ``--clean``, purges, skips) → ``figures/manuscript_netmhc/``. ``--purge-repo-figures-netmhc`` removes top-level ``figures/fig5*`` / ``fig6*`` **and** files under ``figures/supplementary/netmhc/``.
 
@@ -260,7 +260,8 @@ lives in ``netmhc_sb_sensitivity_robustness.py`` (two-table design).
 | Regenerate Fig 2–4A (SmProt catalog) | `generate_catalog_figures.py` |
 | Regenerate Fig 5–6 NetMHC **canonical** | `generate_netmhc_figure_bundle.py` |
 | Fig 5–6 NetMHC **supplement folder** (Fig 5 1D+LOO, Fig 5 Cartesian, Fig 6 NetMHC sweeps, Fig 6 merged IEDB 1D+LOO, Fig 6 merged IEDB Cartesian) | `generate_netmhc_fig5_fig6_supplement.py` |
-| NetMHC **supplement** (above + optional legacy wide 5A–5E) | `generate_netmhc_supplement.py` |
+| NetMHC **supplement** sensitivity bundle | `generate_netmhc_fig5_fig6_supplement.py` |
+| NetMHC **legacy** wide-XLS 5A–5E (optional) | `generate_netmhc_supplement.py` (deprecated) |
 | **Orchestrator roadmap** (canonical vs supplement vs NetMHC) | **`docs/figure_generation_overview.md`** |
 | **Command cheat sheet** (orchestrators + one-off CLIs) | **`docs/netmhc_figure_commands.md`** |
 | **Supplementary figure tree** (`figures/supplementary/`) | **`figures/supplementary/README.md`** |

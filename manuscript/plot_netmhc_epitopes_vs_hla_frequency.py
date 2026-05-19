@@ -5,7 +5,7 @@ Scatter: allele population frequency (x) vs **SB epitopes** or unique 9-mers (y)
 
 **Scope:** **Supplement / legacy** wide-XLS cohort **5A** (IC50-from-BA only). The **manuscript** Figure **5A**
 uses ``manuscript/plot_fig5abc_netmhc_sb_triple.py`` on merged ``*_with_iedb.tsv`` (IEDB + EL + IC50 SB gates).
-Orchestrator: ``python generate_netmhc_supplement.py --include-wide-xls-fig5``.
+Orchestrator (legacy): ``python generate_netmhc_supplement.py --include-wide-xls-fig5``.
 
 NetMHCpan-4.2 wide XLS (``-xls 1 -BA 1``) does **not** print a literal ``IC50_nM`` column; it
 prints ``BA_score`` in (0, 1) and ``BA_rank``. Those come from the **same binding-affinity

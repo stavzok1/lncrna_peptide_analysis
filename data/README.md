@@ -1,8 +1,8 @@
 # Data layout
 
-Small **SmProt / TCGA** tables, **NetMHC helper** FASTAs/metadata, **`netmhcpan_ttn_as1_108065.xls`** (TTN-AS1 wide run), and **saved figure CSV sidecars** under `data/netmhc/figures/` ship in this repository. **Large** cohort wide `*.xls`, merged `*_with_iedb.tsv`, and **IEDB peptide_table** exports are gitignored: copy them from your full analysis tree or from an archive (e.g. Zenodo) into `data/netmhc/` as listed below. **Which tables go to Zenodo vs GitHub** is summarized in **`docs/ZENODO.md`** (*What goes where*).
+Small **SmProt / TCGA** tables, **NetMHC helper** FASTAs/metadata, **`netmhcpan_ttn_as1_108065.xls`** (TTN-AS1 wide run), and **canonical merged** CSV sidecars under `data/netmhc/figures/` (`fig5_merged_*`, `fig5de_merged_whole_*`, supplement stems) ship in this repository. **All PNGs** under `data/netmhc/figures/` stay on GitHub; **legacy wide-XLS / Cartesian-grid / alternate-stem CSVs** are gitignored (see root `.gitignore`). **Large** cohort wide `*.xls`, merged `*_with_iedb.tsv`, and **IEDB peptide_table** exports are gitignored: copy them from your full analysis tree or from an archive (e.g. Zenodo) into `data/netmhc/` as listed below. **Which tables go to Zenodo vs GitHub** is summarized in **`docs/ZENODO.md`** (*What goes where*).
 
-A one-time copy log from the parent analysis tree (if you used it) may exist as **`data/MANIFEST_COPIED.txt`**.
+A one-time copy log from the parent analysis tree (if you used it) may exist locally as **`data/MANIFEST_COPIED.txt`** (not tracked on GitHub).
 
 ---
 
@@ -91,7 +91,7 @@ Place these under `data/netmhc/` (paths match `generate_netmhc_figure_bundle.py`
 
 Optional **wide XLS** cohort panels: `netmhcpan_sig_lnc.xls` and coding `*.xls` if you use **`python generate_netmhc_supplement.py --include-wide-xls-fig5`**.
 
-**Supplement sensitivity / grids** (`generate_netmhc_fig5_fig6_supplement.py`, also invoked from `generate_netmhc_supplement.py` unless `--skip-sensitivity`): needs the **same merged cohort TSVs** as the canonical NetMHC Fig 5 scripts, plus TTN wide XLS + IEDB companion CSV for Fig 6 supplement steps. **Rebuild merged TSVs** from wide XLS + IEDB CSVs: `python rebuild_netmhc_merged_tsvs.py` (see `--help`; IEDB CSVs often live only on your machine under a sibling `data/netmhc/`).
+**Supplement sensitivity / grids** (`python generate_netmhc_fig5_fig6_supplement.py`, or `regenerate_all_figures.py`): needs the **same merged cohort TSVs** as the canonical NetMHC Fig 5 scripts, plus TTN wide XLS + IEDB companion CSV for Fig 6 supplement steps. **Rebuild merged TSVs** from wide XLS + IEDB CSVs: `python rebuild_netmhc_merged_tsvs.py` (see `--help`; IEDB CSVs often live only on your machine under a sibling `data/netmhc/`).
 
 **Allele frequencies (legacy sidecar):** older workflows used `data/netmhc/figures/fig5a_epitopes_vs_allele_frequency_ic50_sb.csv` from wide 5A; the **default merged pipeline** now uses the bundled **`hla_european27_allele_frequencies.csv`**.
 

@@ -12,7 +12,8 @@
 | **Main-text bundle (1B sklearn + OpenTSNE supplement, tcga-matrix 2–4A, NetMHC core; optional Fig 6 unique)** | `python generate_canonical_manuscript_figures.py` — **`--strict`**; **`--fig1b-embedding opentsne4`** uses OpenTSNE for canonical 1B; **`--write-fig6-unique-supplement`** emits Fig 6 unique under `figures/supplementary/figure6_ttn_as1/`; **`--skip-opentsne-supplement`** / **`--skip-netmhc`** as needed |
 | **Figures 5–6** (NetMHC **canonical**: merged **5A–5E**, TTN Fig 6 coverage) | `python generate_netmhc_figure_bundle.py` — **`--strict`** for non-zero on failure; **`--skip-iedb-pipeline`** skips merged cohort steps; **`--canonical-main-text-only`** = proportional-whole coding cohort only + no random-fragment mirrors; **Fig 6** defaults to **instances** split panels only — add **`--also-write-unique`** to also emit `*_unique_*` next to `*_instances_*` under `figures/` |
 | **Figures 5–6** (NetMHC **supplement bundle** under `figures/supplementary/netmhc_fig5_fig6_supplement/`) | `python generate_netmhc_fig5_fig6_supplement.py` — **`--strict`** |
-| **Figures 5–6** (NetMHC **supplement**: optional legacy wide **5A–5E** + § bundle unless skipped) | `python generate_netmhc_supplement.py` — **`--include-wide-xls-fig5`** for wide-XLS **5A–5E**; **`--skip-sensitivity`** skips `generate_netmhc_fig5_fig6_supplement.py` |
+| **Figures 5–6** (NetMHC **supplement** sensitivity bundle) | `python generate_netmhc_fig5_fig6_supplement.py` — **`--strict`** |
+| **Figures 5–6** (legacy wide-XLS **5A–5E** + optional § bundle) | `python generate_netmhc_supplement.py` — **deprecated**; use only with **`--include-wide-xls-fig5`** for IC50-from-BA wide `*.xls` panels |
 | **Clean matrix: Fig 5–6 + all SB modes + instances/unique + sensitivity** | `python supplement/regenerate_manuscript_netmhc_figures.py --clean --purge-repo-figures-netmhc --purge-data-netmhc-figures` — see script `--help` (`--dry-run`, skips, optional `--with-combination-grid`) |
 
 ---

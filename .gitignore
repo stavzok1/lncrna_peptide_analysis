@@ -11,9 +11,19 @@ env/
 .vscode/
 .cursor/
 
-# Canonical manuscript / catalog PNGs + sidecars live under figures/ and are
-# intended to be committed (~few–tens of MiB). Regenerate with orchestrators
-# and commit updates when panels change.
+# Canonical main-text PNGs at figures/ root (and figures/supplementary/) are
+# intended to be committed. Regenerate with orchestrators and commit when panels change.
+#
+# Local-only figure trees (keep on disk; ship combined layouts / PDF+TIFF on Zenodo):
+figures/ECCB-Figures OPEN to STAV (2a and 4b).pdf
+figures/ECCB-Figures OPEN to STAV (2a and 4b).pptx
+figures/external/
+figures/paper_tifs/
+figures/publication/
+figures/combined_figure_manifest.yaml
+# Fig 1B: commit combined A|B panel only (not separate cancer_type / stage PNGs)
+figures/fig1b_tsne_stage_lncrna_samples_dims12_cancer_type.png
+figures/fig1b_tsne_stage_lncrna_samples_dims12_stage.png
 
 # Large raw / expression tables — ship on Zenodo only (see docs/ZENODO.md)
 data/SmProt2.txt
@@ -31,6 +41,23 @@ data/netmhc/iedb_*.json
 data/netmhc/netmhcpan_sig_lnc*.xls
 data/netmhc/netmhcpan_coding*.xls
 data/netmhc/predictions/**/netmhcpan*.xls
+
+# Legacy NetMHC sidecars (wide-XLS / alternate stems / Cartesian CSV grids).
+# PNGs under data/netmhc/figures/ remain tracked; regenerate CSVs locally as needed.
+data/netmhc/figures/fig5abc_sb_immuno_proc_el_ic50_*.csv
+data/netmhc/figures/fig5_netmhc_sb_combinations/
+data/netmhc/figures/fig5de_merged_iedb_sb_*.csv
+data/netmhc/figures/fig5a_epitopes_vs_allele_frequency_ic50_sb.csv
+data/netmhc/figures/epitopes_vs_allele_frequency_ic50_sb.csv
+data/netmhc/figures/fig5b_epitope_sharing_across_alleles.csv
+data/netmhc/figures/fig5c_epitope_sharing_across_alleles.csv
+data/netmhc/figures/fig5c_epitope_sharing_fragments_control.csv
+data/netmhc/figures/fig5d_epitopes_per_allele.csv
+data/netmhc/figures/fig5e_epitopes_per_allele.csv
+data/netmhc/figures/fig5e_epitopes_per_allele_fragments_control.csv
+
+# Machine-local copy log (Zenodo bundle uses FILE_MANIFEST.txt)
+data/MANIFEST_COPIED.txt
 
 # Local Zenodo dataset staging / zip output (see scripts/build_zenodo_dataset_bundle.ps1)
 zenodo_dataset_staging/
