@@ -2,14 +2,17 @@
 Figure 1B — sample embedding on TCGA primary tumor lncRNA expression (same matrix as DE pipeline).
 
 Default (**``--embedding sklearn2_pca34``**): **sklearn t-SNE** in **2D** only (Barnes–Hut on ``X_in``;
-``X_in`` may be gene-level PCA–truncated first via ``--n-pca``). Writes **two** PNGs (t-SNE dims 1–2),
-coloured by **cancer_type** and by **stage**. There are **no** PC3/PC4 or ``_dims34_`` files in this mode.
+``X_in`` may be gene-level PCA–truncated first via ``--n-pca``). Writes separate PNGs coloured by
+**cancer_type** and **AJCC stage**, plus a **two-panel** figure (**A** = cancer type, **B** = stage).
+There are **no** PC3/PC4 or ``_dims34_`` files in this mode.
 
-Optional **``--embedding opentsne4``**: **4D OpenTSNE** — writes **four** PNGs (t-SNE dims 1–2 and 3–4).
+Optional **``--embedding opentsne4``**: **4D OpenTSNE** — separate and combined panels for dims 1–2 and 3–4.
 OpenTSNE may emit a **FutureWarning** about Barnes–Hut in >3 dimensions; that path filters it.
 
-Loads ``data/primary_exp_stage_lncRNA.csv`` (same samples as ``tr_lncrna_de_analysis``),
-standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits the chosen embedding.
+Loads ``data/primary_exp_stage_lncRNA.csv`` (stage primary-tumor matrix only; not the
+metastasis matrix). By default keeps samples from cancer types with **>100** samples in that
+matrix (same rule as ``tr_lncrna_de_analysis`` / Fig 2 bars; ``--min-samples-per-cancer 0`` for all types).
+Standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits the chosen embedding.
 
 Basenames use ``--filename-prefix`` (default ``fig1b_tsne_stage_lncrna_samples``) and ``--out-dir``
 (default ``figures/``) so alternate embeddings can live under ``figures/supplementary/embedding/``
@@ -28,6 +31,7 @@ for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
         sys.path.insert(0, _p)
 from repo_paths import DATA, FIGURES, REPO_ROOT
 from figure_export import add_publication_args, save_figure_bundle
+from tcga_cohort_filters import MIN_SAMPLES_CANCER, filter_samples_min_cancer_count
 
 ROOT = REPO_ROOT
 
@@ -70,6 +74,15 @@ def _stage_colors() -> dict[str, tuple]:
     }
 
 
+def _style_embedding_figure(fig: plt.Figure, axes: list[plt.Axes]) -> None:
+    fig.patch.set_facecolor("white")
+    for ax in axes:
+        ax.set_facecolor("#fafafa")
+        for spine in ax.spines.values():
+            spine.set_color("#bbbbbb")
+        ax.grid(False)
+
+
 def _scatter_panel(
     ax: plt.Axes,
     emb: np.ndarray,
@@ -82,6 +95,7 @@ def _scatter_panel(
     *,
     xlabel: str | None = None,
     ylabel: str | None = None,
+    panel_label: str | None = None,
 ) -> None:
     hue = hue.astype(str)
     if stage_mode:
@@ -101,7 +115,22 @@ def _scatter_panel(
             ax.scatter(emb[m, i], emb[m, j], s=4, c=[c], alpha=0.75, linewidths=0, label=str(lab))
     ax.set_xlabel(xlabel if xlabel is not None else f"t-SNE {i + 1}")
     ax.set_ylabel(ylabel if ylabel is not None else f"t-SNE {j + 1}")
-    ax.set_title(title)
+    if title:
+        ax.set_title(title)
+    if panel_label:
+        # Outside and left of the y-axis label (t-SNE 2), not over the scatter.
+        ax.text(
+            -0.11,
+            1.0,
+            panel_label,
+            transform=ax.transAxes,
+            fontsize=14,
+            fontweight=400,
+            va="bottom",
+            ha="right",
+            color="black",
+            clip_on=False,
+        )
     leg = ax.legend(
         title=legend_title,
         bbox_to_anchor=(1.02, 1),
@@ -145,6 +174,19 @@ def main() -> None:
         help="sklearn2_pca34: 2D sklearn t-SNE only (two PNGs: dims 1–2). "
         "opentsne4: 4D OpenTSNE (four PNGs: t-SNE dims 1–2 and 3–4).",
     )
+    ap.add_argument(
+        "--min-samples-per-cancer",
+        type=int,
+        default=MIN_SAMPLES_CANCER,
+        metavar="N",
+        help=f"Keep only cancer types with >N samples in the matrix (default {MIN_SAMPLES_CANCER}, "
+        "aligned with DE/peptide-fraction cohort). Use 0 for all cancer types.",
+    )
+    ap.add_argument(
+        "--no-combined-ab-panel",
+        action="store_true",
+        help="Skip the two-panel figure (A: cancer type, B: AJCC stage) in one PNG.",
+    )
     add_publication_args(ap)
     args = ap.parse_args()
 
@@ -158,6 +200,19 @@ def main() -> None:
     miss = [c for c in META_COLS if c not in df.columns]
     if miss:
         raise SystemExit(f"{args.matrix_csv}: missing columns {miss}")
+
+    n_before = len(df)
+    df, kept_cancers = filter_samples_min_cancer_count(
+        df, min_samples_per_cancer=args.min_samples_per_cancer
+    )
+    if args.min_samples_per_cancer > 0:
+        print(
+            f"Cohort filter (> {args.min_samples_per_cancer} samples per cancer type): "
+            f"{n_before} -> {len(df)} samples; {len(kept_cancers)} cancer types: "
+            f"{', '.join(kept_cancers)}"
+        )
+    else:
+        print(f"No per-cancer sample filter ({len(df)} samples, all cancer types in matrix)")
 
     gene_cols = [c for c in df.columns if c not in META_COLS]
     X = df[gene_cols].to_numpy(dtype=np.float64)
@@ -225,7 +280,7 @@ def main() -> None:
         dim_j: int,
         suffix: str,
         *,
-        title_suffix: str,
+        dim_tag: str,
         xlabel: str | None = None,
         ylabel: str | None = None,
     ) -> Path:
@@ -237,7 +292,7 @@ def main() -> None:
                 dim_i,
                 dim_j,
                 cancer,
-                f"Fig 1B — {title_suffix} — cancer type",
+                f"t-SNE ({dim_tag}) — cancer type",
                 "cancer_type",
                 stage_mode=False,
                 xlabel=xlabel,
@@ -250,17 +305,13 @@ def main() -> None:
                 dim_i,
                 dim_j,
                 stage,
-                f"Fig 1B — {title_suffix} — AJCC stage",
+                f"t-SNE ({dim_tag}) — AJCC stage",
                 "stage",
                 stage_mode=True,
                 xlabel=xlabel,
                 ylabel=ylabel,
             )
-        fig.patch.set_facecolor("white")
-        ax.set_facecolor("#fafafa")
-        for spine in ax.spines.values():
-            spine.set_color("#bbbbbb")
-        ax.grid(False)
+        _style_embedding_figure(fig, [ax])
         path = args.out_dir / f"{base}_{suffix}.png"
         fig.tight_layout()
         save_figure_bundle(
@@ -275,16 +326,67 @@ def main() -> None:
         plt.close(fig)
         return path
 
+    def save_combined_ab(
+        dim_i: int,
+        dim_j: int,
+        suffix: str,
+        *,
+        dim_tag: str,
+    ) -> Path:
+        fig, (ax_a, ax_b) = plt.subplots(1, 2, figsize=(12.2, 5.4))
+        _scatter_panel(
+            ax_a,
+            emb,
+            dim_i,
+            dim_j,
+            cancer,
+            "",
+            "cancer_type",
+            stage_mode=False,
+            panel_label="A",
+        )
+        _scatter_panel(
+            ax_b,
+            emb,
+            dim_i,
+            dim_j,
+            stage,
+            "",
+            "stage",
+            stage_mode=True,
+            panel_label="B",
+        )
+        ax_b.set_ylabel("")
+        _style_embedding_figure(fig, [ax_a, ax_b])
+        path = args.out_dir / f"{base}_{suffix}.png"
+        fig.tight_layout(w_pad=0.15, pad=0.4)
+        save_figure_bundle(
+            fig,
+            path,
+            png_dpi=200,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=FIGURES,
+            bbox_inches="tight",
+        )
+        plt.close(fig)
+        return path
+
+    paths_out: list[Path] = []
     if args.embedding == "sklearn2_pca34":
-        p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix="t-SNE (dims 1 vs 2)")
-        p2 = save_pair(0, 1, "dims12_stage", title_suffix="t-SNE (dims 1 vs 2)")
-        paths_out = [p1, p2]
+        paths_out.append(save_pair(0, 1, "dims12_cancer_type", dim_tag="dims 1 vs 2"))
+        paths_out.append(save_pair(0, 1, "dims12_stage", dim_tag="dims 1 vs 2"))
+        if not args.no_combined_ab_panel:
+            paths_out.append(save_combined_ab(0, 1, "dims12_panels_AB", dim_tag="dims 1 vs 2"))
     else:
-        p1 = save_pair(0, 1, "dims12_cancer_type", title_suffix="t-SNE (dims 1 vs 2)")
-        p2 = save_pair(0, 1, "dims12_stage", title_suffix="t-SNE (dims 1 vs 2)")
-        p3 = save_pair(2, 3, "dims34_cancer_type", title_suffix="t-SNE (dims 3 vs 4)")
-        p4 = save_pair(2, 3, "dims34_stage", title_suffix="t-SNE (dims 3 vs 4)")
-        paths_out = [p1, p2, p3, p4]
+        paths_out.append(save_pair(0, 1, "dims12_cancer_type", dim_tag="dims 1 vs 2"))
+        paths_out.append(save_pair(0, 1, "dims12_stage", dim_tag="dims 1 vs 2"))
+        if not args.no_combined_ab_panel:
+            paths_out.append(save_combined_ab(0, 1, "dims12_panels_AB", dim_tag="dims 1 vs 2"))
+        paths_out.append(save_pair(2, 3, "dims34_cancer_type", dim_tag="dims 3 vs 4"))
+        paths_out.append(save_pair(2, 3, "dims34_stage", dim_tag="dims 3 vs 4"))
+        if not args.no_combined_ab_panel:
+            paths_out.append(save_combined_ab(2, 3, "dims34_panels_AB", dim_tag="dims 3 vs 4"))
     print("Wrote:")
     for p in paths_out:
         print(" ", p)

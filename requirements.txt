@@ -1,15 +1,17 @@
-pandas>=2.0
-numpy>=1.24
-matplotlib>=3.7
-scipy>=1.10
-scikit-learn>=1.2
-opentsne>=1.0
-biopython>=1.81
+# Pinned versions used for manuscript analyses (Python 3.11+ recommended).
+# Reproduce with: pip install -r requirements.txt
 
-# --- R (not installed by pip) ---
-# Tr-lncRNA limma step: tr_limma_de.R needs Bioconductor limma + CRAN jsonlite.
-# After pip install above, from repo root run:
-#   Rscript install_r_dependencies.R
-# Then:
-#   Rscript tr_limma_de.R .
-# (Or use python generate_tr_lncrna_identification.py which calls both Python z-step and R.)
+matplotlib==3.10.8
+numpy==2.3.4
+pandas==2.3.3
+scipy==1.16.3
+scikit-learn==1.8.0
+biopython==1.86
+logomaker==0.8.7
+
+# Supplement / alternate Fig 1B embedding (--embedding opentsne4)
+opentsne==1.0.4
+
+# --- R (install via install_r_dependencies.R; not on PyPI) ---
+# limma==3.66.0      # Bioconductor — DE + BH-FDR on adj.P.Val (tr_limma_de.R)
+# jsonlite==2.0.0    # CRAN — limma_summary.json

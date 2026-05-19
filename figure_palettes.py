@@ -24,6 +24,13 @@ OI_BLACK = "#000000"
 SIG_LNC = OI_VERMILLION
 CODING_CONTROL = OI_BLUE
 BAR_SINGLE_SERIES = OI_BLUE
+# Fig 5D/5E: same allele → same edge color across lncRNA vs coding bars (rank-shift callouts)
+FIG5DE_TRACK_ALLELE_EDGES: dict[str, str] = {
+    "HLA-A*31:01": OI_ORANGE,
+    "HLA-B*15:01": OI_BLUISH_GREEN,
+    "HLA-B*08:01": OI_REDDISH_PURPLE,
+    "HLA-A*30:01": OI_SKY_BLUE,
+}
 SCATTER_DEFAULT = OI_SKY_BLUE
 LINE_PRIMARY = OI_BLUE
 LINE_SECONDARY = OI_VERMILLION
@@ -70,6 +77,22 @@ F4A_LIGHT_FRAME_STYLES: dict[str, dict[str, str]] = {
     "LINC00326": {"edgecolor": OI_REDDISH_PURPLE, "facecolor": "#f8f0ff"},
     "LINC00958": {"edgecolor": OI_SKY_BLUE, "facecolor": "#f0f8ff"},
 }
+
+# Extra framed callouts for multi-MP genes (Fig 4A); cycled after the three highlights above.
+F4A_EXTRA_FRAME_STYLES_LIGHT: tuple[dict[str, str], ...] = (
+    {"edgecolor": OI_ORANGE, "facecolor": "#fff8f0"},
+    {"edgecolor": OI_BLUISH_GREEN, "facecolor": "#f0faf6"},
+    {"edgecolor": OI_BLUE, "facecolor": "#f0f4ff"},
+    {"edgecolor": OI_BLACK, "facecolor": "#f4f4f4"},
+    {"edgecolor": OI_YELLOW, "facecolor": "#fffef0"},
+)
+F4A_EXTRA_FRAME_STYLES_DARK: tuple[dict[str, str], ...] = (
+    {"edgecolor": OI_ORANGE, "facecolor": "#1a1206"},
+    {"edgecolor": OI_BLUISH_GREEN, "facecolor": "#061410"},
+    {"edgecolor": OI_BLUE, "facecolor": "#060a14"},
+    {"edgecolor": "#aaaaaa", "facecolor": "#141414"},
+    {"edgecolor": OI_YELLOW, "facecolor": "#141206"},
+)
 
 
 @lru_cache(maxsize=1)

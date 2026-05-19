@@ -44,6 +44,7 @@ import shutil
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
 
 import figure_palettes as pal  # noqa: E402
@@ -77,6 +78,42 @@ def _norm_display_allele(name: str) -> str:
     if m:
         return f"HLA-{m.group(1)}*{m.group(2)}"
     return str(name)
+
+
+def _add_shift_track_tick_frames(
+    ax: plt.Axes,
+    fig: plt.Figure,
+    *,
+    allele_to_edge: dict[str, str],
+) -> None:
+    """Thin rectangles around selected x tick labels (same color = same allele across 5D/5E)."""
+    if not allele_to_edge:
+        return
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    inv_fig = fig.transFigure.inverted()
+    for tick in ax.get_xticklabels():
+        name = tick.get_text()
+        ec = allele_to_edge.get(name)
+        if ec is None:
+            continue
+        bb = tick.get_window_extent(renderer=renderer)
+        # Slightly roomier than default tick bbox (rotated labels: pad both axes in display space).
+        bb = bb.expanded(1.14, 1.24)
+        bb_fig = bb.transformed(inv_fig)
+        fig.add_artist(
+            Rectangle(
+                (bb_fig.x0, bb_fig.y0),
+                bb_fig.width,
+                bb_fig.height,
+                transform=fig.transFigure,
+                fill=False,
+                edgecolor=ec,
+                linewidth=1.0,
+                clip_on=False,
+                zorder=1000,
+            )
+        )
 
 
 def per_allele_table(sb: pd.DataFrame) -> pd.DataFrame:
@@ -124,6 +161,7 @@ def plot_bars(
     ax.spines["right"].set_visible(False)
     fig.tight_layout()
     fig.subplots_adjust(bottom=0.28)
+    _add_shift_track_tick_frames(ax, fig, allele_to_edge=pal.FIG5DE_TRACK_ALLELE_EDGES)
     out_png.parent.mkdir(parents=True, exist_ok=True)
     save_figure_bundle(
         fig,

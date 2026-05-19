@@ -12,6 +12,9 @@ PCA uses ``sklearn.decomposition.PCA(..., svd_solver='randomized')`` on the full
 sample × gene matrix after per-gene standardization (no gene-level PCA truncation
 before PCA, unlike the default Fig 1B t-SNE pipeline unless you match it with ``--n-pca``).
 
+Default cohort: ``primary_exp_stage_lncRNA.csv`` with cancer types that have **>100**
+samples (same rule as Fig 1B / DE; ``--min-samples-per-cancer 0`` for all types).
+
 Default PNG output directory: ``figures/supplementary/pca/`` (see ``repo_paths.FIGURES_SUPPLEMENTARY_PCA``).
 """
 from __future__ import annotations
@@ -27,6 +30,7 @@ for _p in (str(_REPO), str(_REPO / "scripts"), str(_MS)):
 
 from repo_paths import DATA, FIGURES, FIGURES_SUPPLEMENTARY_PCA, REPO_ROOT
 from figure_export import add_publication_args, save_figure_bundle
+from tcga_cohort_filters import MIN_SAMPLES_CANCER, filter_samples_min_cancer_count
 
 import argparse
 
@@ -131,6 +135,13 @@ def main() -> None:
         default="figS_pca_stage_lncrna_samples",
         help="Output basename prefix for four PNGs.",
     )
+    ap.add_argument(
+        "--min-samples-per-cancer",
+        type=int,
+        default=MIN_SAMPLES_CANCER,
+        metavar="N",
+        help=f"Keep only cancer types with >N samples (default {MIN_SAMPLES_CANCER}; 0 = all types).",
+    )
     add_publication_args(ap)
     args = ap.parse_args()
 
@@ -141,6 +152,18 @@ def main() -> None:
     miss = [c for c in META_COLS if c not in df.columns]
     if miss:
         raise SystemExit(f"{args.matrix_csv}: missing columns {miss}")
+
+    n_before = len(df)
+    df, kept_cancers = filter_samples_min_cancer_count(
+        df, min_samples_per_cancer=args.min_samples_per_cancer
+    )
+    if args.min_samples_per_cancer > 0:
+        print(
+            f"Cohort filter (> {args.min_samples_per_cancer} samples per cancer type): "
+            f"{n_before} -> {len(df)} samples; {len(kept_cancers)} cancer types"
+        )
+    else:
+        print(f"No per-cancer sample filter ({len(df)} samples)")
 
     gene_cols = [c for c in df.columns if c not in META_COLS]
     X = df[gene_cols].to_numpy(dtype=np.float64)

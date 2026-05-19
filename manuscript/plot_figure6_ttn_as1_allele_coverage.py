@@ -497,6 +497,56 @@ def stats_block_text(full: str, distinct_sb_alleles_per_site: np.ndarray, n_pane
     )
 
 
+def save_heatmap_colorbar_strip(
+    path: Path,
+    vmax: int,
+    *,
+    label: str = "Distinct SB alleles (per site)",
+    cmap_name: str | None = None,
+    figsize: tuple[float, float] = (10.0, 0.45),
+    dpi: int = 150,
+    publication_dir: Path | None = None,
+    publication_tiff_kind: str = "color",
+    figures_root: Path = REPO_FIGURES,
+    right_aligned_width_frac: float = 0.32,
+    figure_right_margin: float = 0.05,
+) -> None:
+    """Horizontal colorbar PNG for combined Fig 6 layout (below panel A).
+
+    The colorbar is **right-aligned** and uses at most ``right_aligned_width_frac`` of the
+    figure width (default 32%, i.e. less than 35% from the right edge).
+    """
+    vmax = max(int(vmax), 1)
+    cmap = plt.get_cmap(cmap_name or pal.sequential_heatmap())
+    norm = Normalize(vmin=0, vmax=vmax)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    ax.set_axis_off()
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    w = min(max(right_aligned_width_frac, 0.05), 0.349)
+    rm = min(max(figure_right_margin, 0.01), 0.2)
+    left = 1.0 - rm - w
+    # [left, bottom, width, height] in figure coordinates
+    cax = fig.add_axes([left, 0.35, w, 0.35])
+    cb = fig.colorbar(sm, cax=cax, orientation="horizontal")
+    cb.set_label(label, fontsize=9)
+    cb.ax.xaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=3))
+    cb.ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{int(round(v))}"))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    save_figure_bundle(
+        fig,
+        path,
+        png_dpi=dpi,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+        bbox_inches="tight",
+        facecolor="white",
+        pad_inches=0.05,
+    )
+    plt.close(fig)
+
+
 def panel_sequence_grid(
     ax,
     full: str,
@@ -505,7 +555,8 @@ def panel_sequence_grid(
     subtitle: str,
     *,
     colorbar_label: str = "Allele coverage (unique)",
-) -> None:
+    colorbar: str = "vertical",
+) -> int:
     L = len(full)
     vmax = max(int(allele_cov.max()), 1)
     norm = Normalize(vmin=0, vmax=vmax)
@@ -523,13 +574,15 @@ def panel_sequence_grid(
     ax.set_aspect("equal")
     ax.axis("off")
     ax.set_title(title + "\n" + subtitle, fontsize=10)
-    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-    sm.set_array([])
-    cb = plt.colorbar(sm, ax=ax, fraction=0.046, pad=0.02)
-    cb.set_label(colorbar_label)
-    cb.ax.yaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=3))
-    cb.ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{int(round(v))}"))
-    cb.ax.tick_params(axis="x", bottom=False, labelbottom=False)
+    if colorbar == "vertical":
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+        sm.set_array([])
+        cb = plt.colorbar(sm, ax=ax, fraction=0.046, pad=0.02)
+        cb.set_label(colorbar_label)
+        cb.ax.yaxis.set_major_locator(MaxNLocator(integer=True, min_n_ticks=3))
+        cb.ax.yaxis.set_major_formatter(FuncFormatter(lambda v, _p: f"{int(round(v))}"))
+        cb.ax.tick_params(axis="x", bottom=False, labelbottom=False)
+    return vmax
 
 
 def metric_output_path(out: Path, metric_tag: str) -> Path:
@@ -694,17 +747,28 @@ def _render_figure6_split_panels(
 
     stats_use = stats_txt if stats_txt is not None else stats_block_text(full, stats_cov, len(alleles))
 
-    fig_a, ax_a = plt.subplots(figsize=(14, 4.8), dpi=150)
-    panel_sequence_grid(
+    fig_a, ax_a = plt.subplots(figsize=(14, 4.2), dpi=150)
+    vmax_a = panel_sequence_grid(
         ax_a,
         full,
         heatmap_cov,
         f"TTN-AS1 sequence ({metric_suffix})",
         subtitle,
         colorbar_label=heatmap_cb_label,
+        colorbar="none",
     )
     _save_pub(fig_a, _p("a"))
     plt.close(fig_a)
+    cbar_stem = f"{stem}_a_colorbar"
+    save_heatmap_colorbar_strip(
+        parent / f"{cbar_stem}{suf}",
+        vmax_a,
+        label=heatmap_cb_label,
+        publication_dir=publication_dir,
+        publication_tiff_kind=publication_tiff_kind,
+        figures_root=figures_root,
+    )
+    print(f"Wrote {parent / f'{cbar_stem}{suf}'}")
 
     fig_b, ax_b = plt.subplots(figsize=(7, 5.5), dpi=150)
     bins = np.arange(-0.5, float(np.max(hist_cov)) + 1.5, 1.0)

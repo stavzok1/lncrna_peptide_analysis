@@ -7,7 +7,7 @@ Build **main-text** manuscript figures in one pass (single driver).
   ``--fig1b-embedding opentsne4`` for four t-SNE panels (dims 1–2 and 3–4).
 - **Fig 2** (tcga-matrix mode only) + **Fig 2B** copy at ``figures/fig2b_stage_E_L_combined.png``
 - **Fig 3A–3B–3C** (TCGA-matrix lncRNA MPs only) + **Fig 3D** (Tr MPs; TCGA-matrix peptide set)
-- **Fig 4A**
+- **Fig 4A** — ``significant_lnc_peptides.tsv`` (~501 MPs; default in ``plot_figure4a_tis_vs_ribo_tr_mps.py``)
 - **Fig 5** merged — **5A–5C** + **5D–5E** for **proportional-whole** coding cohort only (no random-fragment mirrors)
 - **Fig 6** TTN-AS1 — ``--split-panels`` **instances** only (under ``figures/fig6_ttn_as1_split_instances_*.png``)
 

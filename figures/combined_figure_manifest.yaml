@@ -1,0 +1,107 @@
+# Combined main-text figure layouts (match original paper_tifs structure).
+# External: figures/external/fig2a_scheme.* , figures/external/fig4b_lncbook.*
+#
+# Run: python manuscript/assemble_combined_manuscript_figures.py
+
+defaults:
+  output_dir: paper_tifs
+  width_in: 11.0
+  dpi: 300
+  prefer: publication
+  label_fontsize: 16
+  label_weight: normal
+  figure_gutter: 0.028
+  vertical_hspace: 0.003
+  horizontal_wspace: 0.018
+  grid_wspace: 0.028
+  grid_hspace: 0.022
+  split_outer_hspace: 0.007
+  split_inner_wspace: 0.028
+  split_inner_hspace: 0.022
+
+figures:
+  figure1:
+    output_stem: Figure1
+    width_in: 12.0
+    layout:
+      type: single
+      panels:
+        - label: ""
+          source: fig1b_tsne_stage_lncrna_samples_dims12_panels_AB
+
+  figure2:
+    output_stem: Figure2
+    notes: "Full slide 2 from PowerPoint/PDF (scheme + 2B plot), no crop — external/fig2_full."
+    width_in: 11.0
+    layout:
+      type: single
+      panels:
+        - label: ""
+          source: external/fig2_full
+          optional: true
+
+  figure3:
+    output_stem: Figure3
+    notes: "3A top, 3B below, then 3C left + 3D right."
+    layout:
+      type: grid
+      nrows: 3
+      ncols: 2
+      height_ratios: [0.74, 0.74, 1.0]
+      panels:
+        - { label: A, source: fig3a, row: 0, col: 0, colspan: 2 }
+        - { label: B, source: fig3b, row: 1, col: 0, colspan: 2 }
+        - { label: C, source: fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome, row: 2, col: 0 }
+        - { label: D, source: fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome, row: 2, col: 1 }
+
+  figure4:
+    output_stem: Figure4
+    notes: "4A top; 4B below. Tight gap; 4B auto-trim white borders."
+    layout:
+      type: vertical
+      figure_gutter: 0.004
+      vertical_hspace: 0.0
+      height_ratios: [1.0, 1.0]
+      panels:
+        - label: A
+          source: fig4a_tr_lncrna_mp_tis_vs_riboseq_pvalues
+        - label: B
+          source: external/fig4b_lncbook
+          optional: true
+          trim_whitespace: true
+
+  figure5:
+    output_stem: Figure5
+    notes: "5A large left (top); 5B/5C right (moderate); 5D|5E bottom unchanged ratios."
+    width_in: 11.0
+    layout:
+      type: grid
+      nrows: 3
+      ncols: 2
+      split_row: 2
+      fill_cells: true
+      top_width_ratios: [1.72, 1.0]
+      bottom_width_ratios: [1.12, 1.0]
+      height_ratios: [1.0, 1.0, 0.88]
+      panels:
+        - { label: A, source: fig5_merged_5a_epitopes_vs_allele_frequency, row: 0, col: 0, rowspan: 2 }
+        - { label: B, source: fig5_merged_5b_epitope_sharing, row: 0, col: 1 }
+        - { label: C, source: fig5_merged_5c_epitope_sharing, row: 1, col: 1, label_position: outside_top }
+        - { label: D, source: fig5de_merged_whole_5d_sig_per_allele, row: 2, col: 0, label_position: outside_top }
+        - { label: E, source: fig5de_merged_whole_5e_coding_per_allele, row: 2, col: 1, label_position: outside_top }
+
+  figure6:
+    output_stem: Figure6
+    notes: "6A sequence (no vertical bar); horizontal colorbar strip; B|C; D|E."
+    layout:
+      type: grid
+      nrows: 4
+      ncols: 2
+      height_ratios: [1.35, 0.085, 1.0, 0.95]
+      panels:
+        - { label: A, source: fig6_ttn_as1_split_instances_a, row: 0, col: 0, colspan: 2 }
+        - { label: "", source: fig6_ttn_as1_split_instances_a_colorbar, row: 1, col: 0, colspan: 2 }
+        - { label: B, source: fig6_ttn_as1_split_instances_b, row: 2, col: 0, anchor: north, label_position: outside_top }
+        - { label: C, source: fig6_ttn_as1_split_instances_c, row: 2, col: 1, anchor: north, label_position: outside_top }
+        - { label: D, source: fig6_ttn_as1_split_instances_d, row: 3, col: 0, anchor: north, label_position: outside_top }
+        - { label: E, source: fig6_ttn_as1_split_instances_e, row: 3, col: 1, anchor: north, label_position: outside_top }

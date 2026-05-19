@@ -31,7 +31,8 @@ Orchestrator: Fig **1B** (t-SNE) + **2–4A**. Run from repo root; paths are und
 |------|------|
 | **`data/primary_exp_stage_lncRNA.csv`** | Fig **1B** t-SNE + same sample set as DE pipeline |
 | **`data/primary_exp_metastasis_lncRNA.csv`** | Metastasis panels in Fig **2** (peptide fractions) |
-| **`data/smprot_filtered_tcga_expr_genes.tsv`** | Default peptide gene table (**tcga_matrix** mode) |
+| **`data/smprot_filtered_tcga_expr_genes.tsv`** | Peptide gene table (**tcga_matrix** mode; Fig 2 / 3A–3B) |
+| **`data/significant_lnc_peptides.tsv`** | **Fig. 4A** default (~501 exportable MPs; NetMHC cohort) |
 | **`data/smprot_tcga_filtered_peptides.faa`** | FASTA for **3A–3B**, **3C** (TCGA-matrix branch), **3D** |
 | **`data/known_proteins.fasta`** | Proteome reference for composition / volcano / heatmaps |
 | **`tr_lncrna_output/limma/*.csv`** | Limma DE tables (e.g. `limma_stage_FDR0.05.csv`, `limma_metastasis_FDR0.05.csv`) |

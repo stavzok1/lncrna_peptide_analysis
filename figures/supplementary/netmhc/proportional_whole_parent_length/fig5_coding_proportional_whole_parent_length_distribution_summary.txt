@@ -1,0 +1,7 @@
+fig5_coding_parent_csv: C:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\data\netmhc\coding_proportional_whole_parent_micropeptides.csv
+n_proteins: 501
+length_aa: min=10 max=101 mean=66.64 sd=21.13
+quantiles (aa): p5=20 p25=56 p50=70 p75=81 p95=94 p99=100
+histogram_bin_width_aa: 5
+histogram_csv: c:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\figures\supplementary\netmhc\proportional_whole_parent_length\fig5_coding_proportional_whole_parent_length_distribution_histogram.csv
+figure_png: c:\Users\stavz\Desktop\masters\UNDEFINED\paper-github\figures\supplementary\netmhc\proportional_whole_parent_length\fig5_coding_proportional_whole_parent_length_distribution.png

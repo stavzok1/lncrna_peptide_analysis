@@ -8,7 +8,7 @@ Structured notes for selected manuscript-style figures: what they show, how they
 
 **Output root:** catalog scripts for **Fig 2** and **Fig 3A–3B** write under **`figures/supplementary/<peptide_mode>/`**, where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**, except **Figure 1B** (sample embedding) which writes directly under **`figures/`**. Canonical copies **`fig2b_stage_E_L_combined.png`**, **`fig3a.png`**, and **`fig3b.png`** (TCGA-matrix mode) are also written at **`figures/`** root.
 
-**Figure 1B** — sample embedding of TCGA primary samples on the lncRNA stage matrix (`plot_figure1b_tsne_stage_lncrna.py`; default **2D sklearn t-SNE only**, two PNGs under **`figures/`**). **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps: **TCGA-matrix** file at repo **`figures/`** root; **all-filtered** 3C under **`figures/supplementary/all_smprot_filtered/`** when that FASTA exists, **3D** Tr log2FC heatmap at repo root). **Figure 4A** — TIS vs Ribo-seq p-values for Tr MPs (`plot_figure4a_tis_vs_ribo_tr_mps.py`). For **TCGA-matrix-only** 3C (omit all-filtered 3C), use ``plot_figure3cd_dipeptide_log2fc_heatmaps.py --only-tcga-matrix-3c`` (as in ``generate_canonical_manuscript_figures.py``).
+**Figure 1B** — sample embedding of TCGA primary samples on the lncRNA stage matrix (`plot_figure1b_tsne_stage_lncrna.py`; default **2D sklearn t-SNE only**, two PNGs under **`figures/`**). **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps: **TCGA-matrix** file at repo **`figures/`** root; **all-filtered** 3C under **`figures/supplementary/all_smprot_filtered/`** when that FASTA exists, **3D** Tr log2FC heatmap at repo root). **Figure 4A** — TIS vs Ribo-seq p-values for **501** analyzed MPs (`data/significant_lnc_peptides.tsv`; `plot_figure4a_tis_vs_ribo_tr_mps.py`, no flags). For **TCGA-matrix-only** 3C (omit all-filtered 3C), use ``plot_figure3cd_dipeptide_log2fc_heatmaps.py --only-tcga-matrix-3c`` (as in ``generate_canonical_manuscript_figures.py``).
 
 ---
 
@@ -77,12 +77,14 @@ Each file has its own symmetric color scale (99th percentile of |log2 ratio|, fl
 
 **Legacy multi-panel figure:** `plot_dipeptide_mp_figure2.py` → `tr_lncrna_output/figures/fig2_dipeptide_mp_composition.png`
 
-### Figure 4A — TIS vs Ribo-seq p-values (TCGA-matrix filtered lncRNA MPs)
+### Figure 4A — TIS vs Ribo-seq p-values (canonical Tr-lncRNA MPs)
 
-**Path:** `figures/fig4a_tr_lncrna_mp_tis_vs_riboseq_pvalues.png` (filename legacy; plot is **not** Tr-only.)
+**Path:** `figures/fig4a_tr_lncrna_mp_tis_vs_riboseq_pvalues.png`
 
-**Script:** `plot_figure4a_tis_vs_ribo_tr_mps.py` — **all** rows from `data/smprot_filtered_tcga_expr_genes.tsv`
-(TCGA expression–matrix gene filter only; **no** canonical Tr gene filter) with both **TISPvalue** and **RiboPvalue** ≤ 0.05; log-scaled
+**Script:** `plot_figure4a_tis_vs_ribo_tr_mps.py` — default: all rows in **`data/significant_lnc_peptides.tsv`**
+(~501 exportable MPs; NetMHC cohort), both **TISPvalue** and **RiboPvalue** ≤ 0.05. Optional `--cohort tr_lncrna`
+filters by **GeneSymbol or GeneID** (Ensembl) vs **`significant_lncs.csv`** / canonical Tr genes (`smprot_gene_match.py`).
+Log-scaled
 axes **10⁻¹²–10⁻¹** on both dimensions (ticks do not extend below 10⁻¹²). Shading: **green**
 (TIS ≤ 10⁻⁴, Ribo ≥ 10⁻⁴), **blue** (Ribo ≤ 10⁻⁴, TIS ≥ 10⁻⁴), **violet** (both &lt; 10⁻⁴);
 polygons and p = 10⁻⁴ reference lines extend to **10⁻¹**. Orange points; framed labels for
@@ -102,7 +104,7 @@ top **N** combined-significance MPs (`--top-extreme-labels`, default 28).
 | 3A | 1-mer AA vs proteome | `plot_aa_frequency_tcga_vs_proteome.py` |
 | 3B | Dipeptide volcano vs proteome | `plot_dipeptide_volcano_lnc_vs_proteome.py` |
 | 3C–3D | Dipeptide log2FC heatmaps (3C split files / 3D Tr) | `plot_figure3cd_dipeptide_log2fc_heatmaps.py` |
-| 4A | TIS vs Ribo-seq p scatter (TCGA filtered MPs) | `plot_figure4a_tis_vs_ribo_tr_mps.py` |
+| 4A | TIS vs Ribo-seq p scatter (canonical Tr MPs) | `plot_figure4a_tis_vs_ribo_tr_mps.py` |
 | — | Fig 1B + both modes + 3C–3D + 4A (orchestrator) | `generate_catalog_figures.py` |
 | — | Main-text 1B (sklearn) + tcga-matrix 2–4A + NetMHC core + supplements (OpenTSNE 1B; optional Fig 6 unique) | `generate_canonical_manuscript_figures.py` |
 | — | Fig 5–6 NetMHC supplement tree (5 subfolders under `figures/supplementary/netmhc_fig5_fig6_supplement/`) | `generate_netmhc_fig5_fig6_supplement.py` |
