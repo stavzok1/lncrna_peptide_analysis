@@ -1,25 +1,16 @@
 """
-Build **Figure 1B** (t-SNE), then catalog **Figure 2** and **Figure 3** outputs for both peptide modes:
+Build catalog **Figure 2** and **Figure 3** outputs (and optionally main-text panels).
 
-  - ``figures/supplementary/tcga_matrix/`` — TCGA-matrix SmProt gene list / FASTA (tables + PNGs;
-    canonical ``fig3a`` / ``fig3b`` / ``fig2b`` copies still mirrored under ``figures/``).
-  - ``figures/supplementary/all_smprot_filtered/`` — full ``smprot_filtered.tsv`` genes / all-filtered FASTA
+**Default (full catalog):** Fig 1B + Fig 2–3 for both peptide modes under
+``figures/supplementary/<mode>/``, plus Fig 3C–3D and 4A at ``figures/`` root.
 
-Runs **first**:
+**``--supplement-only``:** only supplementary trees (both modes) + all-filtered Fig 3C when the
+FASTA exists — no Fig 1B, 3D, or 4A at repo root. Used by ``generate_supplementary_figures.py``.
 
-  0. ``manuscript/plot_figure1b_tsne_stage_lncrna.py`` — Fig. 1B (requires ``data/primary_exp_stage_lncRNA.csv``; default **2D sklearn t-SNE**, two PNGs).
+For a clean split, prefer:
 
-Then, **in order for each mode**:
-
-  1. ``manuscript/plot_tr_de_peptide_fractions_by_transition.py --peptide-gene-set <mode>``
-  2. ``manuscript/plot_aa_frequency_tcga_vs_proteome.py --peptide-set <mode>``
-  3. ``manuscript/plot_dipeptide_volcano_lnc_vs_proteome.py --peptide-set <mode>``
-
-Then **once** (shared under ``figures/``):
-
-  4. ``manuscript/plot_figure3cd_dipeptide_log2fc_heatmaps.py`` — Fig. 3C and Fig. 3D.
-
-  5. ``manuscript/plot_figure4a_tis_vs_ribo_tr_mps.py`` — Fig. 4A.
+- ``generate_canonical_manuscript_figures.py`` — main text at ``figures/``
+- ``generate_supplementary_figures.py`` — everything under ``figures/supplementary/``
 
 ``all_smprot_filtered`` requires ``data/smprot_all_filtered_peptides.faa`` (see
 ``pipeline/export_tcga_filtered_peptides_fasta.py``).
@@ -54,6 +45,11 @@ def main() -> None:
         default="both",
         help="Which peptide mode(s) to run.",
     )
+    ap.add_argument(
+        "--supplement-only",
+        action="store_true",
+        help="Only Fig 2–3 supplement trees (+ all-filtered 3C); skip Fig 1B, 3D, and 4A at figures/ root.",
+    )
     args = ap.parse_args()
 
     modes: list[str]
@@ -64,9 +60,10 @@ def main() -> None:
 
     failures: list[tuple[str, str, int]] = []
 
-    code_1b = run_script("plot_figure1b_tsne_stage_lncrna.py", [])
-    if code_1b != 0:
-        failures.append(("fig1b", "plot_figure1b_tsne_stage_lncrna.py", code_1b))
+    if not args.supplement_only:
+        code_1b = run_script("plot_figure1b_tsne_stage_lncrna.py", [])
+        if code_1b != 0:
+            failures.append(("fig1b", "plot_figure1b_tsne_stage_lncrna.py", code_1b))
 
     for mode in modes:
         if mode == "all_smprot_filtered" and not ALL_FILTERED_FAA.exists():
@@ -89,13 +86,27 @@ def main() -> None:
             if code != 0:
                 failures.append((mode, script, code))
 
-    code_3cd = run_script("plot_figure3cd_dipeptide_log2fc_heatmaps.py", [])
-    if code_3cd != 0:
-        failures.append(("shared", "plot_figure3cd_dipeptide_log2fc_heatmaps.py", code_3cd))
+    if args.supplement_only:
+        if ALL_FILTERED_FAA.exists():
+            code_3c_af = run_script(
+                "plot_figure3cd_dipeptide_log2fc_heatmaps.py",
+                ["--only-all-smprot-filtered-3c"],
+            )
+            if code_3c_af != 0:
+                failures.append(("shared", "plot_figure3cd_dipeptide_log2fc_heatmaps.py (all-filtered 3C)", code_3c_af))
+        elif args.strict:
+            print(f"Missing required FASTA for all-filtered 3C: {ALL_FILTERED_FAA}", file=sys.stderr)
+            sys.exit(1)
+        else:
+            print(f"Skip all-filtered Fig 3C: missing {ALL_FILTERED_FAA}")
+    else:
+        code_3cd = run_script("plot_figure3cd_dipeptide_log2fc_heatmaps.py", [])
+        if code_3cd != 0:
+            failures.append(("shared", "plot_figure3cd_dipeptide_log2fc_heatmaps.py", code_3cd))
 
-    code_4a = run_script("plot_figure4a_tis_vs_ribo_tr_mps.py", [])
-    if code_4a != 0:
-        failures.append(("shared", "plot_figure4a_tis_vs_ribo_tr_mps.py", code_4a))
+        code_4a = run_script("plot_figure4a_tis_vs_ribo_tr_mps.py", [])
+        if code_4a != 0:
+            failures.append(("shared", "plot_figure4a_tis_vs_ribo_tr_mps.py", code_4a))
 
     if failures and args.strict:
         print("Failures:", failures)

@@ -63,12 +63,21 @@ def main() -> None:
         "instances-only unless you also pass --also-write-unique.",
     )
     ap.add_argument(
+        "--supplement-mirrors-only",
+        action="store_true",
+        help="Only random-fragment NetMHC mirrors under figures/supplementary/netmhc/ "
+        "(no main-text 5A–5E or Fig 6). Used by generate_supplementary_figures.py.",
+    )
+    ap.add_argument(
         "--also-write-unique",
         action="store_true",
         help="With Fig 6 split panels, also write *_unique_* companion PNGs next to *_instances_* "
         "(same directory as -o). Default is instances only.",
     )
     args = ap.parse_args()
+
+    if args.supplement_mirrors_only and args.canonical_main_text_only:
+        raise SystemExit("Use at most one of --canonical-main-text-only and --supplement-mirrors-only.")
 
     failures: list[tuple[str, int]] = []
 
@@ -77,7 +86,7 @@ def main() -> None:
         if code != 0:
             failures.append((script, code))
 
-    if not args.skip_iedb_pipeline:
+    if not args.skip_iedb_pipeline and not args.supplement_mirrors_only:
         step("plot_fig5abc_netmhc_sb_triple.py", [])
         if not args.canonical_main_text_only:
             step(
@@ -93,15 +102,16 @@ def main() -> None:
                     str(FIGURES_SUPPLEMENTARY_NETMHC_CODING_FRAGMENTS),
                 ],
             )
-        step(
-            "plot_fig5de_merged_iedb_sb_per_allele.py",
-            [
-                "--coding-tsv",
-                str(NETMHC_DATA / "netmhcpan_coding_proportional_whole_with_iedb.tsv"),
-                "--output-stem",
-                "fig5de_merged_whole",
-            ],
-        )
+        if not args.supplement_mirrors_only:
+            step(
+                "plot_fig5de_merged_iedb_sb_per_allele.py",
+                [
+                    "--coding-tsv",
+                    str(NETMHC_DATA / "netmhcpan_coding_proportional_whole_with_iedb.tsv"),
+                    "--output-stem",
+                    "fig5de_merged_whole",
+                ],
+            )
         if not args.canonical_main_text_only:
             step(
                 "plot_fig5de_merged_iedb_sb_per_allele.py",
@@ -115,12 +125,13 @@ def main() -> None:
                 ],
             )
 
-    ttn_out = FIGURES / "fig6_ttn_as1_split.png"
-    ttn_args: list[str] = ["--split-panels"]
-    if args.also_write_unique:
-        ttn_args.append("--also-write-unique")
-    ttn_args.extend(["-o", str(ttn_out)])
-    step("plot_figure6_ttn_as1_allele_coverage.py", ttn_args)
+    if not args.supplement_mirrors_only:
+        ttn_out = FIGURES / "fig6_ttn_as1_split.png"
+        ttn_args: list[str] = ["--split-panels"]
+        if args.also_write_unique:
+            ttn_args.append("--also-write-unique")
+        ttn_args.extend(["-o", str(ttn_out)])
+        step("plot_figure6_ttn_as1_allele_coverage.py", ttn_args)
 
     if failures and args.strict:
         print("Failures:", failures, file=sys.stderr)

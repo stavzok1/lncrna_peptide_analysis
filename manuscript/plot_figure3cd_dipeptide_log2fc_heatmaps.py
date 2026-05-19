@@ -82,10 +82,18 @@ def main() -> None:
     ap.add_argument(
         "--only-tcga-matrix-3c",
         action="store_true",
-        help="Do not write the all-SmProt-filtered Figure 3C panel (only TCGA-matrix 3C).",
+        help="Do not write the all-SmProt-filtered Figure 3C panel (only TCGA-matrix 3C and 3D).",
+    )
+    ap.add_argument(
+        "--only-all-smprot-filtered-3c",
+        action="store_true",
+        help="Write only the all-SmProt-filtered Figure 3C panel (skip TCGA-matrix 3C and 3D).",
     )
     add_publication_args(ap)
     args = ap.parse_args()
+
+    if args.only_tcga_matrix_3c and args.only_all_smprot_filtered_3c:
+        raise SystemExit("Use at most one of --only-tcga-matrix-3c and --only-all-smprot-filtered-3c.")
 
     if not args.proteome_fa.exists():
         raise SystemExit(f"Missing proteome FASTA: {args.proteome_fa}")
@@ -103,7 +111,12 @@ def main() -> None:
     log_tcga = dp.log2_ratio_mat(dp.freq_matrix(c_tcga_all), f_ref)
     log_tr = dp.log2_ratio_mat(dp.freq_matrix(c_tcga_tr), f_ref)
 
-    all_filtered_exists = (not args.only_tcga_matrix_3c) and args.all_filtered_fa.exists()
+    all_filtered_exists = (
+        not args.only_tcga_matrix_3c
+        and args.all_filtered_fa.exists()
+    )
+    write_tcga_3c = not args.only_all_smprot_filtered_3c
+    write_3d = not args.only_all_smprot_filtered_3c
     log_all_filtered: np.ndarray | None = None
     aa_all = di_all = 0
     if all_filtered_exists:
@@ -121,27 +134,28 @@ def main() -> None:
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
     # --- Figure 3C (separate files: TCGA-matrix vs all-filtered) ---
-    fig_tcga, ax_tcga = plt.subplots(figsize=(6.5, 5.2), dpi=150)
-    plot_log2_panel(
-        ax_tcga,
-        log_tcga,
-        "TCGA-matrix filtered lncRNA MPs vs proteome",
-        f"{aa_tcga:,} aa in MPs; {aa_ref:,} aa proteome",
-        vmax=vmax_tcga_3c,
-    )
-    fig_tcga.tight_layout()
-    out_tcga = args.out_dir / "fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome.png"
-    save_figure_bundle(
-        fig_tcga,
-        out_tcga,
-        png_dpi=150,
-        publication_dir=args.publication_dir,
-        publication_tiff_kind=args.publication_tiff_kind,
-        figures_root=FIGURES,
-        bbox_inches="tight",
-    )
-    plt.close(fig_tcga)
-    print(f"Wrote {out_tcga}")
+    if write_tcga_3c:
+        fig_tcga, ax_tcga = plt.subplots(figsize=(6.5, 5.2), dpi=150)
+        plot_log2_panel(
+            ax_tcga,
+            log_tcga,
+            "TCGA-matrix filtered lncRNA MPs vs proteome",
+            f"{aa_tcga:,} aa in MPs; {aa_ref:,} aa proteome",
+            vmax=vmax_tcga_3c,
+        )
+        fig_tcga.tight_layout()
+        out_tcga = args.out_dir / "fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome.png"
+        save_figure_bundle(
+            fig_tcga,
+            out_tcga,
+            png_dpi=150,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=FIGURES,
+            bbox_inches="tight",
+        )
+        plt.close(fig_tcga)
+        print(f"Wrote {out_tcga}")
 
     if log_all_filtered is not None:
         fig_all, ax_all = plt.subplots(figsize=(6.5, 5.2), dpi=150)
@@ -174,27 +188,28 @@ def main() -> None:
         print(f"Skip 3C all-filtered: missing {args.all_filtered_fa}")
 
     # --- Figure 3D ---
-    fig_d, ax_d = plt.subplots(figsize=(6.5, 5.2), dpi=150)
-    plot_log2_panel(
-        ax_d,
-        log_tr,
-        "Tr-lncRNA MPs (canonical genes, TCGA-matrix) vs proteome",
-        f"{aa_tr:,} aa in MPs; {aa_ref:,} aa proteome; {len(tr_genes)} canonical genes",
-        vmax=vmax_3d,
-    )
-    fig_d.tight_layout()
-    out_d = args.out_dir / "fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome.png"
-    save_figure_bundle(
-        fig_d,
-        out_d,
-        png_dpi=150,
-        publication_dir=args.publication_dir,
-        publication_tiff_kind=args.publication_tiff_kind,
-        figures_root=FIGURES,
-        bbox_inches="tight",
-    )
-    plt.close(fig_d)
-    print(f"Wrote {out_d}")
+    if write_3d:
+        fig_d, ax_d = plt.subplots(figsize=(6.5, 5.2), dpi=150)
+        plot_log2_panel(
+            ax_d,
+            log_tr,
+            "Tr-lncRNA MPs (canonical genes, TCGA-matrix) vs proteome",
+            f"{aa_tr:,} aa in MPs; {aa_ref:,} aa proteome; {len(tr_genes)} canonical genes",
+            vmax=vmax_3d,
+        )
+        fig_d.tight_layout()
+        out_d = args.out_dir / "fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome.png"
+        save_figure_bundle(
+            fig_d,
+            out_d,
+            png_dpi=150,
+            publication_dir=args.publication_dir,
+            publication_tiff_kind=args.publication_tiff_kind,
+            figures_root=FIGURES,
+            bbox_inches="tight",
+        )
+        plt.close(fig_d)
+        print(f"Wrote {out_d}")
 
 
 if __name__ == "__main__":

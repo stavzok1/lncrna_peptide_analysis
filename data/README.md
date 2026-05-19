@@ -91,7 +91,7 @@ Place these under `data/netmhc/` (paths match `generate_netmhc_figure_bundle.py`
 
 Optional **wide XLS** cohort panels: `netmhcpan_sig_lnc.xls` and coding `*.xls` if you use **`python generate_netmhc_supplement.py --include-wide-xls-fig5`**.
 
-**Supplement sensitivity / grids** (`python generate_netmhc_fig5_fig6_supplement.py`, or `regenerate_all_figures.py`): needs the **same merged cohort TSVs** as the canonical NetMHC Fig 5 scripts, plus TTN wide XLS + IEDB companion CSV for Fig 6 supplement steps. **Rebuild merged TSVs** from wide XLS + IEDB CSVs: `python rebuild_netmhc_merged_tsvs.py` (see `--help`; IEDB CSVs often live only on your machine under a sibling `data/netmhc/`).
+**Supplement figures** (`python generate_supplementary_figures.py`, or `regenerate_all_figures.py`; NetMHC sensitivity subtree only: `generate_netmhc_fig5_fig6_supplement.py`): needs the **same merged cohort TSVs** as the canonical NetMHC Fig 5 scripts, plus TTN wide XLS + IEDB companion CSV for Fig 6 supplement steps. **Rebuild merged TSVs** from wide XLS + IEDB CSVs: `python rebuild_netmhc_merged_tsvs.py` (see `--help`; IEDB CSVs often live only on your machine under a sibling `data/netmhc/`).
 
 **Allele frequencies (legacy sidecar):** older workflows used `data/netmhc/figures/fig5a_epitopes_vs_allele_frequency_ic50_sb.csv` from wide 5A; the **default merged pipeline** now uses the bundled **`hla_european27_allele_frequencies.csv`**.
 

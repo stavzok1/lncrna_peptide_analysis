@@ -14,7 +14,7 @@ Structured notes for selected manuscript-style figures: what they show, how they
 
 ## Figure 1B — t-SNE panels (TCGA primary, lncRNA stage matrix)
 
-**Paths:** `figures/fig1b_tsne_stage_lncrna_samples_dims12_*.png` (**two** panels: cancer type, AJCC stage) with default `--embedding sklearn2_pca34`. With `--embedding opentsne4`, also `*_dims34_*.png` (four panels total). Alternate **OpenTSNE** supplement defaults to `figures/supplementary/embedding/figS1b_opentsne4_tsne_stage_lncrna_samples_*.png` when using `generate_canonical_manuscript_figures.py` (override basename with `plot_figure1b_tsne_stage_lncrna.py --filename-prefix`).
+**Paths:** `figures/fig1b_tsne_stage_lncrna_samples_dims12_*.png` (**two** panels: cancer type, AJCC stage) with default `--embedding sklearn2_pca34`. With `--embedding opentsne4`, also `*_dims34_*.png` (four panels total). Alternate **OpenTSNE** supplement: `figures/supplementary/embedding/figS1b_opentsne4_tsne_stage_lncrna_samples_*.png` via `generate_supplementary_figures.py` (or `plot_figure1b_tsne_stage_lncrna.py` with `--embedding opentsne4` and `--out-dir figures/supplementary/embedding`).
 
 **Script:** `plot_figure1b_tsne_stage_lncrna.py` — input **`data/primary_exp_stage_lncRNA.csv`**. **Default** (`--embedding sklearn2_pca34`): **sklearn** `TSNE` **n_components=2** (Barnes–Hut) on `X_in` (after optional `--n-pca` gene-level truncation). **Four t-SNE panels:** `--embedding opentsne4` (requires **`pip install opentsne`**). Same matrix columns as the limma / peptide-fraction pipeline. Use **`--filename-prefix`** and **`--out-dir`** to write non-default embeddings without overwriting canonical basenames.
 
@@ -105,8 +105,10 @@ top **N** combined-significance MPs (`--top-extreme-labels`, default 28).
 | 3B | Dipeptide volcano vs proteome | `plot_dipeptide_volcano_lnc_vs_proteome.py` |
 | 3C–3D | Dipeptide log2FC heatmaps (3C split files / 3D Tr) | `plot_figure3cd_dipeptide_log2fc_heatmaps.py` |
 | 4A | TIS vs Ribo-seq p scatter (canonical Tr MPs) | `plot_figure4a_tis_vs_ribo_tr_mps.py` |
-| — | Fig 1B + both modes + 3C–3D + 4A (orchestrator) | `generate_catalog_figures.py` |
-| — | Main-text 1B (sklearn) + tcga-matrix 2–4A + NetMHC core + supplements (OpenTSNE 1B; optional Fig 6 unique) | `generate_canonical_manuscript_figures.py` |
+| — | Main text Fig 1B–4A + NetMHC 5–6 instances | `generate_canonical_manuscript_figures.py` |
+| — | All supplementary figures | `generate_supplementary_figures.py` |
+| — | Main + supplement + optional publication export | `regenerate_all_figures.py` |
+| — | Legacy combined catalog (main + supplement overlap) | `generate_catalog_figures.py` |
 | — | Fig 5–6 NetMHC supplement tree (5 subfolders under `figures/supplementary/netmhc_fig5_fig6_supplement/`) | `generate_netmhc_fig5_fig6_supplement.py` |
 | — | Fig 6 TTN merged IEDB 1D + LOO | `supplement/netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py` |
 | — | Fig 6 TTN merged IEDB Cartesian SB grid | `supplement/plot_fig6_ttn_merged_iedb_sb_combination_grid.py` |
@@ -210,8 +212,8 @@ Wide cohort scripts accept ``--no-repo-mirror`` so outputs stay under this tree 
   three coverage tracks, two sequence logos. `generate_netmhc_figure_bundle.py` uses
   **`figures/fig6_ttn_as1_split.png`** → `fig6_ttn_as1_split_instances_a.png` … `_e.png` by default.
   Pass **`--also-write-unique`** on the bundle to also write `fig6_ttn_as1_split_unique_*.png` in the
-  same folder; **`generate_canonical_manuscript_figures.py`** instead writes **unique** split panels
-  under **`figures/supplementary/figure6_ttn_as1/`** only.
+  same folder; **`generate_supplementary_figures.py --include-fig6-unique`** writes **unique** split panels
+  under **`figures/supplementary/figure6_ttn_as1/`**.
 
 **Gating (canonical TTN script):** default is **`--gating iedb_sb`**: merge NetMHC wide rows to
 **`--iedb-csv`** on **`stable_key`**, then apply the **same cohort-style SB bundle** as merged Fig 5
@@ -256,8 +258,10 @@ lives in ``netmhc_sb_sensitivity_robustness.py`` (two-table design).
 
 | Goal | Entry point |
 |------|----------------|
-| Regenerate **everything** (catalog → NetMHC bundle → Fig 5–6 supplement → canonical extras → publication export) | `regenerate_all_figures.py` |
-| Regenerate Fig 2–4A (SmProt catalog) | `generate_catalog_figures.py` |
+| Regenerate **everything** (main → supplement → publication export) | `regenerate_all_figures.py` |
+| Regenerate **main text** only | `generate_canonical_manuscript_figures.py` |
+| Regenerate **supplement** only | `generate_supplementary_figures.py` |
+| Regenerate Fig 2–4A (legacy combined catalog) | `generate_catalog_figures.py` |
 | Regenerate Fig 5–6 NetMHC **canonical** | `generate_netmhc_figure_bundle.py` |
 | Fig 5–6 NetMHC **supplement folder** (Fig 5 1D+LOO, Fig 5 Cartesian, Fig 6 NetMHC sweeps, Fig 6 merged IEDB 1D+LOO, Fig 6 merged IEDB Cartesian) | `generate_netmhc_fig5_fig6_supplement.py` |
 | NetMHC **supplement** sensitivity bundle | `generate_netmhc_fig5_fig6_supplement.py` |

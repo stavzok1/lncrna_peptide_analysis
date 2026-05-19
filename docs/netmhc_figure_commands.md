@@ -9,7 +9,9 @@
 | Goal | Command |
 |------|---------|
 | **Figures 2–4A** (SmProt / TCGA catalog): Fig **1B** + `figures/supplementary/tcga_matrix/`, `figures/supplementary/all_smprot_filtered/`, shared `figures/` for 3C (TCGA) + 3D + 4A | `python generate_catalog_figures.py` — add `--strict` to fail on missing optional inputs; `--only tcga_matrix` or `all_smprot_filtered` |
-| **Main-text bundle (1B sklearn + OpenTSNE supplement, tcga-matrix 2–4A, NetMHC core; optional Fig 6 unique)** | `python generate_canonical_manuscript_figures.py` — **`--strict`**; **`--fig1b-embedding opentsne4`** uses OpenTSNE for canonical 1B; **`--write-fig6-unique-supplement`** emits Fig 6 unique under `figures/supplementary/figure6_ttn_as1/`; **`--skip-opentsne-supplement`** / **`--skip-netmhc`** as needed |
+| **Main-text bundle (1B sklearn, tcga-matrix 2–4A, NetMHC 5–6 instances)** | `python generate_canonical_manuscript_figures.py` — **`--strict`**; **`--skip-netmhc`** as needed |
+| **All supplementary figures** | `python generate_supplementary_figures.py` — **`--strict`**; **`--include-fig6-unique`** for Fig 6 unique under `figures/supplementary/figure6_ttn_as1/` |
+| **Main + supplement + publication export** | `python regenerate_all_figures.py` — **`--strict`** |
 | **Figures 5–6** (NetMHC **canonical**: merged **5A–5E**, TTN Fig 6 coverage) | `python generate_netmhc_figure_bundle.py` — **`--strict`** for non-zero on failure; **`--skip-iedb-pipeline`** skips merged cohort steps; **`--canonical-main-text-only`** = proportional-whole coding cohort only + no random-fragment mirrors; **Fig 6** defaults to **instances** split panels only — add **`--also-write-unique`** to also emit `*_unique_*` next to `*_instances_*` under `figures/` |
 | **Figures 5–6** (NetMHC **supplement bundle** under `figures/supplementary/netmhc_fig5_fig6_supplement/`) | `python generate_netmhc_fig5_fig6_supplement.py` — **`--strict`** |
 | **Figures 5–6** (NetMHC **supplement** sensitivity bundle) | `python generate_netmhc_fig5_fig6_supplement.py` — **`--strict`** |

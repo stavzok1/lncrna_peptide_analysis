@@ -31,9 +31,9 @@ or **``both``**; ``both`` writes **separate files** ``*_instances*`` and ``*_uni
 ``-o`` stem). Use ``--also-write-unique`` when ``--coverage-output`` is ``instances`` to add
 the unique-only companion files (same A–C metrics as ``instances`` for this figure). **Repo
 orchestrators** default to **instances only** under ``figures/``; Fig 6 **unique** is opt-in
-(``--write-fig6-unique-supplement`` on ``generate_canonical_manuscript_figures.py``,
-``--include-fig6-unique-split`` on ``export_publication_figures.py``, ``--include-fig6-unique`` on
-``regenerate_all_figures.py``, or ``--also-write-unique`` on ``generate_netmhc_figure_bundle.py``).
+(``--include-fig6-unique`` on ``generate_supplementary_figures.py`` / ``regenerate_all_figures.py``,
+``--include-fig6-unique-split`` on ``export_publication_figures.py``, or ``--also-write-unique`` on
+``generate_netmhc_figure_bundle.py``).
 
 **Panel B (histogram + stats):** with **``instances``**, the histogram counts positions by
 **distinct SB alleles** per site (union across overlapping 9-mers). With **``unique``**, same
