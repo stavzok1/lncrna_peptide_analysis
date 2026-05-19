@@ -54,7 +54,7 @@ This document lists **useful** CSV/TSV/TXT outputs from the UNDEFINED lncRNA / S
 
 ## 4. Figures and ancillary (`figures/`, `tr_lncrna_output/figures/`, scripts at repo root)
 
-**Figure-level documentation:** **`docs/figure_catalog.md`**. **One-page orchestrator map:** **`docs/figure_generation_overview.md`**. **Catalog Fig. 2 & 3** mode-specific outputs (tables + PNGs) live under **`figures/supplementary/tcga_matrix/`** and **`figures/supplementary/all_smprot_filtered/`** (see **`generate_catalog_figures.py`**); canonical **`fig2b`**, **`fig3a`**, **`fig3b`** copies remain under **`figures/`**. Legacy/auxiliary plots may still use **`tr_lncrna_output/figures/`**.
+**Figure-level documentation:** **`docs/figure_catalog.md`**. **One-page orchestrator map:** **`docs/figure_generation_overview.md`**. **Supplement Fig. 2 & 3** mode-specific outputs live under **`figures/supplementary/tcga_matrix/`** and **`figures/supplementary/all_smprot_filtered/`** (via **`generate_supplementary_figures.py`**); canonical **`fig2b`**, **`fig3a`**, **`fig3b`**, **Fig 1** (`fig1_*_panels_AB.png`) remain under **`figures/`**.
 
 | Output | Script |
 |--------|--------|
@@ -63,7 +63,8 @@ This document lists **useful** CSV/TSV/TXT outputs from the UNDEFINED lncRNA / S
 | **`figures/supplementary/<mode>/dipeptide_volcano_lnc_vs_proteome*.*`** | **Fig. 3B**. **`plot_dipeptide_volcano_lnc_vs_proteome.py`**. |
 | **`figures/fig3c_dipeptide_log2fc_tcga_matrix_vs_proteome.png`**, **`figures/supplementary/all_smprot_filtered/fig3c_dipeptide_log2fc_all_smprot_filtered_vs_proteome.png`** (if FASTA exists; or custom `--out-dir`), **`figures/fig3d_dipeptide_log2fc_tr_lncrna_tcga_vs_proteome.png`** | **Fig. 3C–3D** log2FC 20×20 heatmaps. **`plot_figure3cd_dipeptide_log2fc_heatmaps.py`**. |
 | **`figures/fig4a_tr_lncrna_mp_tis_vs_riboseq_pvalues.png`** | **Fig. 4A** TIS vs Ribo-seq p-values (~**501** MPs in **`data/significant_lnc_peptides.tsv`**). **`plot_figure4a_tis_vs_ribo_tr_mps.py`** (default, no flags). |
-| **`generate_catalog_figures.py`** | Runs the three scripts per mode + **3C–3D** + **4A** (skips `all_smprot_filtered` mode if FASTA missing unless **`--strict`**). |
+| **`generate_supplementary_figures.py`** | Fig 2–3 supplement modes + OpenTSNE/PCA/NetMHC supplement trees. |
+| **`generate_canonical_manuscript_figures.py`** | Main text Fig 1–4A + NetMHC 5–6 instances. |
 | **`fig2_dipeptide_mp_composition.png`**, **`fig2_dipeptide_summary.txt`** | Dipeptide heatmaps vs **`data/known_proteins.fasta`** (TCGA-filtered MPs, canonical Tr subset, and **significant exportable FASTA** when present). **`plot_dipeptide_mp_figure2.py`** → **`tr_lncrna_output/figures/`**. |
 | **`starting_aa_filtered_vs_significant.png`**, **`starting_aa_distribution_counts.csv`**, **`starting_aa_distribution_report.txt`** | N-terminal AA distribution (filtered all, canonical subset, **SmProt significant exportable** when **`significant_lnc_peptides.faa`** exists). **`plot_starting_aa_distribution_mps.py`**. |
 | **`data/cdhit_clustering/<GENE>/`** | Per-gene CD-HIT clustering. **`cluster_gene_peptides_cdhit.py`**. |

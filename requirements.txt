@@ -9,7 +9,7 @@ scikit-learn==1.8.0
 biopython==1.86
 logomaker==0.8.7
 
-# Supplement / alternate Fig 1B embedding (--embedding opentsne4)
+# Fig 1 OpenTSNE supplement (--embedding opentsne4 in plot_figure1_tsne_stage_lncrna.py)
 opentsne==1.0.4
 
 # --- R (install via install_r_dependencies.R; not on PyPI) ---

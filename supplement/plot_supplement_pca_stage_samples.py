@@ -1,7 +1,7 @@
 """
-Supplementary sample scatter: **PCA** of standardized lncRNA expression (same matrix as Fig 1B).
+Supplementary sample scatter: **PCA** of standardized lncRNA expression (same matrix as Fig 1).
 
-Four panels (same layout as ``manuscript/plot_figure1b_tsne_stage_lncrna.py``):
+Four panels (same layout as ``manuscript/plot_figure1_tsne_stage_lncrna.py``):
 
 - **PC1 vs PC2**, coloured by **cancer_type**
 - **PC1 vs PC2**, coloured by **AJCC stage**
@@ -10,10 +10,10 @@ Four panels (same layout as ``manuscript/plot_figure1b_tsne_stage_lncrna.py``):
 
 PCA uses ``sklearn.decomposition.PCA(..., svd_solver='randomized')`` on the full
 sample × gene matrix after per-gene standardization (no gene-level PCA truncation
-before PCA, unlike the default Fig 1B t-SNE pipeline unless you match it with ``--n-pca``).
+before PCA, unlike the default Fig 1 t-SNE pipeline unless you match it with ``--n-pca``).
 
 Default cohort: ``primary_exp_stage_lncRNA.csv`` with cancer types that have **>100**
-samples (same rule as Fig 1B / DE; ``--min-samples-per-cancer 0`` for all types).
+samples (same rule as Fig 1 / DE; ``--min-samples-per-cancer 0`` for all types).
 
 Default PNG output directory: ``figures/supplementary/pca/`` (see ``repo_paths.FIGURES_SUPPLEMENTARY_PCA``).
 """
@@ -125,7 +125,7 @@ def main() -> None:
         type=int,
         default=0,
         metavar="P",
-        help="If >0, run gene-level PCA to P components before sample PCA (matches Fig 1B truncation). "
+        help="If >0, run gene-level PCA to P components before sample PCA (matches Fig 1 truncation). "
         "Default 0 = sample PCA on all standardized genes (randomized SVD).",
     )
     ap.add_argument("--random-state", type=int, default=0)

@@ -8,8 +8,9 @@
 
 | Goal | Command |
 |------|---------|
-| **Figures 2–4A** (SmProt / TCGA catalog): Fig **1B** + `figures/supplementary/tcga_matrix/`, `figures/supplementary/all_smprot_filtered/`, shared `figures/` for 3C (TCGA) + 3D + 4A | `python generate_catalog_figures.py` — add `--strict` to fail on missing optional inputs; `--only tcga_matrix` or `all_smprot_filtered` |
-| **Main-text bundle (1B sklearn, tcga-matrix 2–4A, NetMHC 5–6 instances)** | `python generate_canonical_manuscript_figures.py` — **`--strict`**; **`--skip-netmhc`** as needed |
+| **Main-text bundle (Fig 1 sklearn, tcga-matrix 2–4A, NetMHC 5–6 instances)** | `python generate_canonical_manuscript_figures.py` — **`--strict`**; **`--skip-netmhc`** as needed |
+| **All supplementary figures** | `python generate_supplementary_figures.py` — **`--strict`** |
+| **Main + supplement + export** | `python regenerate_all_figures.py` — **`--strict`** |
 | **All supplementary figures** | `python generate_supplementary_figures.py` — **`--strict`**; **`--include-fig6-unique`** for Fig 6 unique under `figures/supplementary/figure6_ttn_as1/` |
 | **Main + supplement + publication export** | `python regenerate_all_figures.py` — **`--strict`** |
 | **Figures 5–6** (NetMHC **canonical**: merged **5A–5E**, TTN Fig 6 coverage) | `python generate_netmhc_figure_bundle.py` — **`--strict`** for non-zero on failure; **`--skip-iedb-pipeline`** skips merged cohort steps; **`--canonical-main-text-only`** = proportional-whole coding cohort only + no random-fragment mirrors; **Fig 6** defaults to **instances** split panels only — add **`--also-write-unique`** to also emit `*_unique_*` next to `*_instances_*` under `figures/` |
@@ -22,11 +23,11 @@
 
 ## Catalog Figures 2–4A (individual scripts)
 
-Same steps as `generate_catalog_figures.py`; override output roots with each script’s `--help`.
+Fig 2–3 supplement modes are produced by `generate_supplementary_figures.py`; override output roots with each script’s `--help`.
 
 | Figure | Script | Typical invocation |
 |--------|--------|--------------------|
-| **1B** | `manuscript/plot_figure1b_tsne_stage_lncrna.py` | `python manuscript/plot_figure1b_tsne_stage_lncrna.py` — needs `data/primary_exp_stage_lncRNA.csv`; default embedding is sklearn (see `--embedding`; **openTSNE** only for `--embedding opentsne4`) |
+| **1** | `manuscript/plot_figure1_tsne_stage_lncrna.py` | `python manuscript/plot_figure1_tsne_stage_lncrna.py` — needs `data/primary_exp_stage_lncRNA.csv`; default sklearn 2D; OpenTSNE via supplement driver or `--embedding opentsne4` |
 | **2** | `manuscript/plot_tr_de_peptide_fractions_by_transition.py` | `python manuscript/plot_tr_de_peptide_fractions_by_transition.py --peptide-gene-set tcga_matrix` (or `all_smprot_filtered`) |
 | **3A** | `manuscript/plot_aa_frequency_tcga_vs_proteome.py` | `python manuscript/plot_aa_frequency_tcga_vs_proteome.py --peptide-set tcga_matrix` |
 | **3B** | `manuscript/plot_dipeptide_volcano_lnc_vs_proteome.py` | `python manuscript/plot_dipeptide_volcano_lnc_vs_proteome.py --peptide-set tcga_matrix` |
@@ -62,13 +63,13 @@ Requires merged long TSVs from `scripts/merge_netmhcpan_xls_with_iedb.py` (see `
 
 ---
 
-## Supplement — PCA (same expression matrix as Fig 1B)
+## Supplement — PCA (same expression matrix as Fig 1)
 
 | Product | Script | Default output |
 |---------|--------|----------------|
 | **Fig S — PCA panels** | `supplement/plot_supplement_pca_stage_samples.py` | `figures/supplementary/pca/figS_pca_stage_lncrna_samples_*.png` (override with `--out-dir`) |
 
-`export_publication_figures.py` runs this step after Fig 1B unless you pass `--skip-supplement-pca`.
+`export_publication_figures.py` runs this step after Fig 1 unless you pass `--skip-supplement-pca`.
 
 ---
 

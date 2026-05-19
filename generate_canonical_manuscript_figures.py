@@ -6,7 +6,7 @@ Does **not** write supplementary panels under ``figures/supplementary/`` — use
 
 **Panels:**
 
-- **Fig 1B** — sklearn 2D t-SNE, combined A|B (`fig1b_*_dims12_panels_AB.png`)
+- **Fig 1** — sklearn 2D t-SNE, combined panels 1A|1B (`fig1_*_dims12_panels_AB.png`)
 - **Fig 2** (tcga-matrix) + **Fig 2B** at ``figures/fig2b_stage_E_L_combined.png``
 - **Fig 3A–3B–3C** (TCGA-matrix) + **Fig 3D** (Tr MPs)
 - **Fig 4A**
@@ -59,8 +59,8 @@ def main() -> None:
         if code != 0:
             failures.append((tag, script, code))
 
-    code = run_ms("plot_figure1b_tsne_stage_lncrna.py", ["--embedding", "sklearn2_pca34"])
-    record("fig1b", "plot_figure1b_tsne_stage_lncrna.py", code)
+    code = run_ms("plot_figure1_tsne_stage_lncrna.py", ["--embedding", "sklearn2_pca34"])
+    record("fig1", "plot_figure1_tsne_stage_lncrna.py", code)
 
     for script, extra in (
         ("plot_tr_de_peptide_fractions_by_transition.py", ["--peptide-gene-set", "tcga_matrix"]),

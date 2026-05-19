@@ -6,25 +6,29 @@ Structured notes for selected manuscript-style figures: what they show, how they
 
 **Script layout in this repository:** canonical figure code is under **`manuscript/`** (outputs default to **`figures/`** at repo root; catalog **mode-specific** tables and PNGs default to **`figures/supplementary/<mode>/`**). Supplement / sensitivity / legacy wide cohort code is under **`supplement/`**. Shared NetMHC merge + SB logic is under **`scripts/`** (`merge_netmhcpan_xls_with_iedb.py`, `netmhc_sb_core.py`). SmProt / TCGA prep utilities are under **`pipeline/`**. Orchestrators at repo root call into `manuscript/`. Table entries below list **basename** for readability; run as e.g. ``python manuscript/plot_tr_de_peptide_fractions_by_transition.py``.
 
-**Output root:** catalog scripts for **Fig 2** and **Fig 3A–3B** write under **`figures/supplementary/<peptide_mode>/`**, where **`peptide_mode`** is **`tcga_matrix`** or **`all_smprot_filtered`**, except **Figure 1B** (sample embedding) which writes directly under **`figures/`**. Canonical copies **`fig2b_stage_E_L_combined.png`**, **`fig3a.png`**, and **`fig3b.png`** (TCGA-matrix mode) are also written at **`figures/`** root.
+**Output root:** **Fig 2** and **Fig 3A–3B** mode-specific outputs write under **`figures/supplementary/<peptide_mode>/`**. **Figure 1** (combined panels 1A|1B) and canonical **`fig2b`**, **`fig3a`**, **`fig3b`**, **3C**, **3D**, **4A** live at **`figures/`** root.
 
-**Figure 1B** — sample embedding of TCGA primary samples on the lncRNA stage matrix (`plot_figure1b_tsne_stage_lncrna.py`; default **2D sklearn t-SNE only**, two PNGs under **`figures/`**). **Figure 2** — peptide-fraction bars (TCGA limma–z). **Figure 3** — composition vs `known_proteins.fasta` (**3A** 1-mer, **3B** volcano, **3C** log2FC dipeptide heatmaps: **TCGA-matrix** file at repo **`figures/`** root; **all-filtered** 3C under **`figures/supplementary/all_smprot_filtered/`** when that FASTA exists, **3D** Tr log2FC heatmap at repo root). **Figure 4A** — TIS vs Ribo-seq p-values for **501** analyzed MPs (`data/significant_lnc_peptides.tsv`; `plot_figure4a_tis_vs_ribo_tr_mps.py`, no flags). For **TCGA-matrix-only** 3C (omit all-filtered 3C), use ``plot_figure3cd_dipeptide_log2fc_heatmaps.py --only-tcga-matrix-3c`` (as in ``generate_canonical_manuscript_figures.py``).
-
----
-
-## Figure 1B — t-SNE panels (TCGA primary, lncRNA stage matrix)
-
-**Paths:** `figures/fig1b_tsne_stage_lncrna_samples_dims12_*.png` (**two** panels: cancer type, AJCC stage) with default `--embedding sklearn2_pca34`. With `--embedding opentsne4`, also `*_dims34_*.png` (four panels total). Alternate **OpenTSNE** supplement: `figures/supplementary/embedding/figS1b_opentsne4_tsne_stage_lncrna_samples_*.png` via `generate_supplementary_figures.py` (or `plot_figure1b_tsne_stage_lncrna.py` with `--embedding opentsne4` and `--out-dir figures/supplementary/embedding`).
-
-**Script:** `plot_figure1b_tsne_stage_lncrna.py` — input **`data/primary_exp_stage_lncRNA.csv`**. **Default** (`--embedding sklearn2_pca34`): **sklearn** `TSNE` **n_components=2** (Barnes–Hut) on `X_in` (after optional `--n-pca` gene-level truncation). **Four t-SNE panels:** `--embedding opentsne4` (requires **`pip install opentsne`**). Same matrix columns as the limma / peptide-fraction pipeline. Use **`--filename-prefix`** and **`--out-dir`** to write non-default embeddings without overwriting canonical basenames.
+**Figure 1** — t-SNE embedding of TCGA primary samples (`plot_figure1_tsne_stage_lncrna.py`; main text = combined **1A|1B** under **`figures/fig1_*_dims12_panels_AB.png`**). **Figure 2** — peptide-fraction bars. **Figure 3** — composition vs proteome. **Figure 4A** — TIS vs Ribo-seq for canonical Tr MPs.
 
 ---
 
-## Supplement — PCA PC1–PC2 and PC3–PC4 (same matrix as Fig 1B)
+## Figure 1 — t-SNE embedding (TCGA primary, lncRNA stage matrix)
+
+**Main text (GitHub):** `figures/fig1_tsne_stage_lncrna_samples_dims12_panels_AB.png` — combined **panel 1A** (cancer type) and **panel 1B** (AJCC stage).
+
+**Optional single panels** (local only; gitignored): `*_dims12_cancer_type.png` (1A), `*_dims12_stage.png` (1B).
+
+**OpenTSNE supplement:** `figures/supplementary/embedding/figS1_opentsne4_tsne_stage_lncrna_samples_*.png` via `generate_supplementary_figures.py`.
+
+**Script:** `plot_figure1_tsne_stage_lncrna.py` — input **`data/primary_exp_stage_lncRNA.csv`**. Default **`--embedding sklearn2_pca34`**: 2D sklearn t-SNE. **`--embedding opentsne4`**: 4D OpenTSNE (supplement tree). Orchestrator: **`generate_canonical_manuscript_figures.py`** (main text); **`generate_supplementary_figures.py`** (OpenTSNE + PCA + other supplement panels).
+
+---
+
+## Supplement — PCA PC1–PC2 and PC3–PC4 (same matrix as Fig 1)
 
 **Paths:** `figures/supplementary/pca/figS_pca_stage_lncrna_samples_pc*_*.png` (four panels; default output of `supplement/plot_supplement_pca_stage_samples.py`).
 
-**Script:** `supplement/plot_supplement_pca_stage_samples.py` — **sample PCA** on standardized expression (optional `--n-pca` gene truncation before PCA, default off). Independent of Fig 1B t-SNE; use for a straightforward linear low-dimensional view.
+**Script:** `supplement/plot_supplement_pca_stage_samples.py` — **sample PCA** on standardized expression (optional `--n-pca` gene truncation before PCA, default off). Independent of Fig 1 t-SNE; use for a straightforward linear low-dimensional view.
 
 ---
 
@@ -98,17 +102,16 @@ top **N** combined-significance MPs (`--top-extreme-labels`, default 28).
 
 | ID | Short name | Script |
 |----|--------------|--------|
-| 1B | t-SNE panels (stage lncRNA matrix) | `plot_figure1b_tsne_stage_lncrna.py` |
+| 1 | t-SNE embedding (panels 1A / 1B; combined AB) | `plot_figure1_tsne_stage_lncrna.py` |
 | S | PCA PC1–2 & PC3–4 (supplement) | `supplement/plot_supplement_pca_stage_samples.py` |
 | 2 | Peptide fraction by cancer × transition | `plot_tr_de_peptide_fractions_by_transition.py` |
 | 3A | 1-mer AA vs proteome | `plot_aa_frequency_tcga_vs_proteome.py` |
 | 3B | Dipeptide volcano vs proteome | `plot_dipeptide_volcano_lnc_vs_proteome.py` |
 | 3C–3D | Dipeptide log2FC heatmaps (3C split files / 3D Tr) | `plot_figure3cd_dipeptide_log2fc_heatmaps.py` |
 | 4A | TIS vs Ribo-seq p scatter (canonical Tr MPs) | `plot_figure4a_tis_vs_ribo_tr_mps.py` |
-| — | Main text Fig 1B–4A + NetMHC 5–6 instances | `generate_canonical_manuscript_figures.py` |
+| — | Main text Fig 1–4A + NetMHC 5–6 instances | `generate_canonical_manuscript_figures.py` |
 | — | All supplementary figures | `generate_supplementary_figures.py` |
 | — | Main + supplement + optional publication export | `regenerate_all_figures.py` |
-| — | Legacy combined catalog (main + supplement overlap) | `generate_catalog_figures.py` |
 | — | Fig 5–6 NetMHC supplement tree (5 subfolders under `figures/supplementary/netmhc_fig5_fig6_supplement/`) | `generate_netmhc_fig5_fig6_supplement.py` |
 | — | Fig 6 TTN merged IEDB 1D + LOO | `supplement/netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py` |
 | — | Fig 6 TTN merged IEDB Cartesian SB grid | `supplement/plot_fig6_ttn_merged_iedb_sb_combination_grid.py` |
@@ -261,7 +264,6 @@ lives in ``netmhc_sb_sensitivity_robustness.py`` (two-table design).
 | Regenerate **everything** (main → supplement → publication export) | `regenerate_all_figures.py` |
 | Regenerate **main text** only | `generate_canonical_manuscript_figures.py` |
 | Regenerate **supplement** only | `generate_supplementary_figures.py` |
-| Regenerate Fig 2–4A (legacy combined catalog) | `generate_catalog_figures.py` |
 | Regenerate Fig 5–6 NetMHC **canonical** | `generate_netmhc_figure_bundle.py` |
 | Fig 5–6 NetMHC **supplement folder** (Fig 5 1D+LOO, Fig 5 Cartesian, Fig 6 NetMHC sweeps, Fig 6 merged IEDB 1D+LOO, Fig 6 merged IEDB Cartesian) | `generate_netmhc_fig5_fig6_supplement.py` |
 | NetMHC **supplement** sensitivity bundle | `generate_netmhc_fig5_fig6_supplement.py` |

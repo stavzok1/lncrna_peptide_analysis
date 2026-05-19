@@ -1,7 +1,7 @@
 """
 TCGA primary-tumor cohort filters shared with tr_lncrna_de_analysis / tr_limma_de.R.
 
-Used by sample embedding scripts (Fig 1B t-SNE, supplement PCA) so plots use the same
+Used by sample embedding scripts (Fig 1 t-SNE, supplement PCA) so plots use the same
 cancer-type sample-size rule as DE / peptide-fraction bar charts (> N samples per type).
 """
 

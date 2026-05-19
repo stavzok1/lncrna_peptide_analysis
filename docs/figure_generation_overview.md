@@ -8,28 +8,24 @@ Entry map for orchestrators. Per-figure paths and thresholds: **`docs/figure_cat
 
 | Command | Scope |
 |---------|--------|
-| `python generate_canonical_manuscript_figures.py` | **Main text** → `figures/` (Fig 1B–4A, merged NetMHC 5–6 instances). **No** OpenTSNE / PCA / supplement trees. |
-| `python generate_supplementary_figures.py` | **All supplement** → `figures/supplementary/` (OpenTSNE, PCA, Fig 2–3 both modes, NetMHC random-fragment mirrors, NetMHC sensitivity tree; optional Fig 6 unique with `--include-fig6-unique`). |
-| `python regenerate_all_figures.py` | **Both** above + `export_publication_figures.py` (PDF/TIFF under `figures/publication/`, gitignored). Use `--skip-export` to omit step 3. |
+| `python generate_canonical_manuscript_figures.py` | **Main text** → `figures/` (Fig 1–4A, merged NetMHC 5–6 instances). |
+| `python generate_supplementary_figures.py` | **All supplement** → `figures/supplementary/` (OpenTSNE Fig 1, PCA, Fig 2–3 modes, NetMHC sensitivity, etc.). |
+| `python regenerate_all_figures.py` | **Both** above + `export_publication_figures.py` (PDF/TIFF under `figures/publication/`, gitignored). Use `--skip-export` to omit step 3; **`--include-fig6-unique`** for Fig 6 unique under `figures/supplementary/figure6_ttn_as1/`. |
 
-Add `--strict` to any of the above to exit non-zero on the first failure.
-
-**Prerequisites:** inputs under `data/` as in **`data/README.md`** and **`docs/figure_catalog.md`** (expression matrices, SmProt FASTAs, merged `*_with_iedb.tsv`, etc.). Large files may be gitignored — copy from Zenodo first.
+Add `--strict` to exit non-zero on the first failure.
 
 ---
 
 ## What `generate_supplementary_figures.py` runs
 
-| Step | Output | Underlying script(s) |
-|------|--------|----------------------|
-| OpenTSNE Fig 1B | `figures/supplementary/embedding/` | `manuscript/plot_figure1b_tsne_stage_lncrna.py` (`opentsne4`) |
+| Step | Output | Script(s) |
+|------|--------|-----------|
+| OpenTSNE Fig 1 supplement | `figures/supplementary/embedding/` | `manuscript/plot_figure1_tsne_stage_lncrna.py` (`opentsne4`, prefix `figS1_opentsne4_…`) |
 | PCA | `figures/supplementary/pca/` | `supplement/plot_supplement_pca_stage_samples.py` |
-| Fig 2–3 (both peptide modes) | `tcga_matrix/`, `all_smprot_filtered/` | `generate_catalog_figures.py --supplement-only` |
+| Fig 2–3 (both peptide modes) | `tcga_matrix/`, `all_smprot_filtered/` | Inlined: `plot_tr_de_peptide_fractions_by_transition.py`, `plot_aa_frequency_tcga_vs_proteome.py`, `plot_dipeptide_volcano_lnc_vs_proteome.py`, `plot_figure3cd` (`--only-all-smprot-filtered-3c`) |
 | NetMHC random-fragment mirrors | `netmhc/coding_fragments_random_sample/` | `generate_netmhc_figure_bundle.py --supplement-mirrors-only` |
 | NetMHC sensitivity / grids | `netmhc_fig5_fig6_supplement/` | `generate_netmhc_fig5_fig6_supplement.py` |
-| Fig 6 unique (optional) | `figure6_ttn_as1/` | `manuscript/plot_figure6_ttn_as1_allele_coverage.py` |
-
-Skip flags: `--skip-netmhc-fig5-fig6-supplement`, `--skip-netmhc-random-fragments`.
+| Fig 6 unique (optional) | `figure6_ttn_as1/` | `plot_figure6_ttn_as1_allele_coverage.py` (`--include-fig6-unique`) |
 
 ---
 
@@ -37,30 +33,23 @@ Skip flags: `--skip-netmhc-fig5-fig6-supplement`, `--skip-netmhc-random-fragment
 
 | Command | Role |
 |---------|------|
-| `python generate_netmhc_figure_bundle.py` | Main-text NetMHC 5–6 + random-fragment mirrors (full bundle). `--canonical-main-text-only` = main text only; `--supplement-mirrors-only` = random-fragment mirrors only. |
-| `python generate_netmhc_fig5_fig6_supplement.py` | NetMHC sensitivity tree only (`netmhc_fig5_fig6_supplement/`). |
-| `python generate_catalog_figures.py` | Legacy **combined** catalog (main + supplement overlap). Prefer canonical + supplementary drivers. `--supplement-only` = supplement Fig 2–3 trees only. |
-| `python generate_netmhc_supplement.py` | **Deprecated** — legacy wide-XLS Fig 5A–5E with `--include-wide-xls-fig5`; otherwise forwards to `generate_netmhc_fig5_fig6_supplement.py`. |
-| `python export_publication_figures.py` | Re-runs plotting + PDF/TIFF export (local; gitignored). |
+| `python generate_netmhc_figure_bundle.py` | Main-text NetMHC 5–6 + random-fragment mirrors (full bundle). `--canonical-main-text-only` or `--supplement-mirrors-only` for subsets. |
+| `python generate_netmhc_fig5_fig6_supplement.py` | NetMHC sensitivity tree only. |
+| `python generate_netmhc_supplement.py` | **Deprecated** — legacy wide-XLS Fig 5A–5E with `--include-wide-xls-fig5`. |
+| `python export_publication_figures.py` | PDF + TIFF export (local; gitignored). |
 | `python rebuild_netmhc_merged_tsvs.py` | Merge wide `*.xls` + IEDB → `*_with_iedb.tsv`. |
 | `python supplement/regenerate_manuscript_netmhc_figures.py` | Archival tree under `figures/manuscript_netmhc/`. |
-
-NetMHC Fig 5–6 supplement subfolders (1D+LOO, Cartesian grids, TTN sweeps) are documented in **`docs/figure_catalog.md`** § Figure 5–6 supplement.
 
 ---
 
 ## Suggested workflows
 
-**Main text only:**  
-`python generate_canonical_manuscript_figures.py --strict`
+**Main text only:** `python generate_canonical_manuscript_figures.py --strict`
 
-**Supplement only:**  
-`python generate_supplementary_figures.py --strict`
+**Supplement only:** `python generate_supplementary_figures.py --strict`
 
-**Everything (PNG + optional publication export):**  
-`python regenerate_all_figures.py --strict`  
-Add `--include-fig6-unique` for Fig 6 unique supplement panels and publication mirrors.
+**Everything:** `python regenerate_all_figures.py --strict`
 
-**NetMHC sensitivity tree only:**  
-`python generate_netmhc_fig5_fig6_supplement.py --strict`  
-(requires merged TSVs; run after main-text NetMHC or `rebuild_netmhc_merged_tsvs.py`)
+**Everything + Fig 6 unique supplement:** `python regenerate_all_figures.py --strict --include-fig6-unique`
+
+**NetMHC sensitivity only:** `python generate_netmhc_fig5_fig6_supplement.py --strict`

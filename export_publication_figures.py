@@ -19,15 +19,16 @@ Each panel is saved as:
   same supplementary NetMHC folder (5D is identical to the canonical sig-lnc panel; 5E uses the
   fragment merged coding TSV).
 
-**Catalog** (Fig 1B, 2, 3, 4A): same orchestration as ``generate_catalog_figures.py`` (both
+**Main text Fig 1–4A** (and supplement peptide modes for Fig 2–3): same orchestration as
+``generate_canonical_manuscript_figures.py`` + ``generate_supplementary_figures.py`` (both
 ``tcga_matrix`` and ``all_smprot_filtered`` when the all-filtered FASTA exists). Mode-specific
 tables and PNGs default to ``figures/supplementary/<mode>/``; canonical ``fig2b`` / ``fig3a`` /
 ``fig3b`` / Fig 3C (TCGA) / 3D / 4A remain under ``figures/`` as applicable.
 
-**Supplement PCA** (same expression matrix as Fig 1B): ``supplement/plot_supplement_pca_stage_samples.py``
+**Supplement PCA** (same expression matrix as Fig 1): ``supplement/plot_supplement_pca_stage_samples.py``
 writes four panels under ``figures/supplementary/pca/`` unless ``--skip-supplement-pca``.
 
-**Fig 1B:** default ``sklearn2_pca34`` writes **two** PNGs (2D t-SNE dims 1–2 only) under ``figures/``.
+**Fig 1:** default ``sklearn2_pca34`` writes panel 1A, panel 1B, and combined ``*_panels_AB`` under ``figures/``.
 ``--embedding opentsne4`` writes four t-SNE panels. The **PCA supplement** (``figS_pca_*``) is a
 separate script under ``figures/supplementary/pca/``.
 
@@ -93,12 +94,12 @@ def main() -> None:
         "--only",
         choices=("tcga_matrix", "all_smprot_filtered", "both"),
         default="both",
-        help="Which peptide mode(s) for catalog figures (default: both).",
+        help="Which peptide mode(s) for Fig 2–3 supplement exports (default: both).",
     )
     ap.add_argument(
         "--skip-netmhc",
         action="store_true",
-        help="Skip Fig 5–6 NetMHC steps (only catalog 1B–4A).",
+        help="Skip Fig 5–6 NetMHC steps (only Fig 1–4A and supplement peptide-mode panels).",
     )
     ap.add_argument(
         "--skip-supplement-pca",
@@ -130,9 +131,9 @@ def main() -> None:
     else:
         modes = [args.only]
 
-    code_1b = run_script("plot_figure1b_tsne_stage_lncrna.py", pub_flags)
-    if code_1b != 0:
-        failures.append(("catalog", "plot_figure1b_tsne_stage_lncrna.py", code_1b))
+    code_1 = run_script("plot_figure1_tsne_stage_lncrna.py", pub_flags)
+    if code_1 != 0:
+        failures.append(("manuscript", "plot_figure1_tsne_stage_lncrna.py", code_1))
 
     if not args.skip_supplement_pca:
         code_pca = run_supplement_script(
@@ -169,11 +170,11 @@ def main() -> None:
 
     code_3cd = run_script("plot_figure3cd_dipeptide_log2fc_heatmaps.py", pub_flags)
     if code_3cd != 0:
-        failures.append(("catalog", "plot_figure3cd_dipeptide_log2fc_heatmaps.py", code_3cd))
+        failures.append(("manuscript", "plot_figure3cd_dipeptide_log2fc_heatmaps.py", code_3cd))
 
     code_4a = run_script("plot_figure4a_tis_vs_ribo_tr_mps.py", pub_flags)
     if code_4a != 0:
-        failures.append(("catalog", "plot_figure4a_tis_vs_ribo_tr_mps.py", code_4a))
+        failures.append(("manuscript", "plot_figure4a_tis_vs_ribo_tr_mps.py", code_4a))
 
     if not args.skip_netmhc:
         code = run_script("plot_fig5abc_netmhc_sb_triple.py", pub_flags)

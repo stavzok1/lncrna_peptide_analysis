@@ -21,14 +21,20 @@ figures/external/
 figures/paper_tifs/
 figures/publication/
 figures/combined_figure_manifest.yaml
-# Fig 1B: commit combined A|B panel only (not separate cancer_type / stage PNGs)
-figures/fig1b_tsne_stage_lncrna_samples_dims12_cancer_type.png
-figures/fig1b_tsne_stage_lncrna_samples_dims12_stage.png
+# Fig 1: commit combined 1A|1B panel only (not separate panel-1A / panel-1B PNGs)
+figures/fig1_tsne_stage_lncrna_samples_dims12_cancer_type.png
+figures/fig1_tsne_stage_lncrna_samples_dims12_stage.png
 
-# Large raw / expression tables — ship on Zenodo only (see docs/ZENODO.md)
+# Maintainer-only docs / tests (keep locally; not on GitHub)
+docs/CODE_REVIEW.md
+docs/ZENODO.md
+tests/
+zenodo_dataset_bundle/
+
+# Large raw / expression tables — obtain from Zenodo dataset (see README)
 data/SmProt2.txt
 data/primary_exp_*_final.csv
-# TCGA lncRNA matrices used for Fig 1B / DE (often > GitHub 100 MiB per file)
+# TCGA lncRNA matrices used for Fig 1 / DE (often > GitHub 100 MiB per file)
 data/primary_exp_stage_lncRNA.csv
 data/primary_exp_metastasis_lncRNA.csv
 

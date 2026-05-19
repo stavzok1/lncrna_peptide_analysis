@@ -1,10 +1,10 @@
 """
-Figure 1B — sample embedding on TCGA primary tumor lncRNA expression (same matrix as DE pipeline).
+Figure 1 — sample embedding on TCGA primary tumor lncRNA expression (same matrix as DE pipeline).
 
 Default (**``--embedding sklearn2_pca34``**): **sklearn t-SNE** in **2D** only (Barnes–Hut on ``X_in``;
-``X_in`` may be gene-level PCA–truncated first via ``--n-pca``). Writes separate PNGs coloured by
-**cancer_type** and **AJCC stage**, plus a **two-panel** figure (**A** = cancer type, **B** = stage).
-There are **no** PC3/PC4 or ``_dims34_`` files in this mode.
+``X_in`` may be gene-level PCA–truncated first via ``--n-pca``). Writes separate PNGs for
+**panel 1A** (cancer type) and **panel 1B** (AJCC stage), plus a **combined** two-panel Figure 1
+(``*_dims12_panels_AB.png``). There are **no** PC3/PC4 or ``_dims34_`` files in sklearn mode.
 
 Optional **``--embedding opentsne4``**: **4D OpenTSNE** — separate and combined panels for dims 1–2 and 3–4.
 OpenTSNE may emit a **FutureWarning** about Barnes–Hut in >3 dimensions; that path filters it.
@@ -14,7 +14,7 @@ metastasis matrix). By default keeps samples from cancer types with **>100** sam
 matrix (same rule as ``tr_lncrna_de_analysis`` / Fig 2 bars; ``--min-samples-per-cancer 0`` for all types).
 Standardizes genes across samples, optionally PCA-prelimits dimensionality, then fits the chosen embedding.
 
-Basenames use ``--filename-prefix`` (default ``fig1b_tsne_stage_lncrna_samples``) and ``--out-dir``
+Basenames use ``--filename-prefix`` (default ``fig1_tsne_stage_lncrna_samples``) and ``--out-dir``
 (default ``figures/``) so alternate embeddings can live under ``figures/supplementary/embedding/``
 without clobbering canonical files.
 """
@@ -147,14 +147,14 @@ def _scatter_panel(
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Figure 1B: sample embedding on stage lncRNA matrix → two PNGs (sklearn default) or four (opentsne4)."
+        description="Figure 1: sample embedding on stage lncRNA matrix (panels 1A/1B; sklearn default or OpenTSNE supplement)."
     )
     ap.add_argument("--matrix-csv", type=Path, default=DEFAULT_CSV)
     ap.add_argument("--out-dir", type=Path, default=FIGURES)
     ap.add_argument(
         "--filename-prefix",
         type=str,
-        default="fig1b_tsne_stage_lncrna_samples",
+        default="fig1_tsne_stage_lncrna_samples",
         metavar="STEM",
         help="Basename prefix for PNGs (before _dims12_* and, with opentsne4, _dims34_*).",
     )
@@ -273,7 +273,7 @@ def main() -> None:
     cancer = df["cancer_type"].astype(str).to_numpy()
     stage = df["stage"].astype(str).to_numpy()
 
-    base = args.filename_prefix.strip() or "fig1b_tsne_stage_lncrna_samples"
+    base = args.filename_prefix.strip() or "fig1_tsne_stage_lncrna_samples"
 
     def save_pair(
         dim_i: int,
@@ -343,7 +343,7 @@ def main() -> None:
             "",
             "cancer_type",
             stage_mode=False,
-            panel_label="A",
+            panel_label="1A",
         )
         _scatter_panel(
             ax_b,
@@ -354,7 +354,7 @@ def main() -> None:
             "",
             "stage",
             stage_mode=True,
-            panel_label="B",
+            panel_label="1B",
         )
         ax_b.set_ylabel("")
         _style_embedding_figure(fig, [ax_a, ax_b])

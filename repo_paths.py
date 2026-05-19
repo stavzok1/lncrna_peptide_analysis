@@ -17,7 +17,7 @@ FIGURES_SUPPLEMENTARY = FIGURES / "supplementary"
 FIGURES_SUPPLEMENTARY_PCA = FIGURES_SUPPLEMENTARY / "pca"
 FIGURES_SUPPLEMENTARY_NETMHC = FIGURES_SUPPLEMENTARY / "netmhc"
 FIGURES_SUPPLEMENTARY_NETMHC_CODING_FRAGMENTS = FIGURES_SUPPLEMENTARY_NETMHC / "coding_fragments_random_sample"
-# Fig 1B OpenTSNE (dims 1–2 and 3–4) and other alternate embeddings live here.
+# Fig 1 OpenTSNE supplement (dims 1–2 and 3–4) and other alternate embeddings live here.
 FIGURES_SUPPLEMENTARY_EMBEDDING = FIGURES_SUPPLEMENTARY / "embedding"
 # Fig 6 TTN-AS1 split panels (e.g. unique coverage) when not part of main-text bundle.
 FIGURES_SUPPLEMENTARY_FIG6_TTN = FIGURES_SUPPLEMENTARY / "figure6_ttn_as1"

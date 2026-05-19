@@ -14,7 +14,7 @@ random-fragment mirrors).
 Supplement jobs (wide 5A–5E legacy, cohort sensitivity, SB combination grid, Fig 6 SB sweeps) live
 under ``supplement/`` and are run via ``generate_netmhc_fig5_fig6_supplement.py`` (or the deprecated ``generate_netmhc_supplement.py`` wrapper).
 
-Does **not** replace ``generate_catalog_figures.py`` (Figures 2–4A).
+Does **not** replace ``generate_canonical_manuscript_figures.py`` (Figures 1–4A).
 
 Usage::
 

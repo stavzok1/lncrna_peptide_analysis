@@ -8,7 +8,7 @@ There is **no single markdown** that lists every argparse flag for every panel. 
 
 | Figure | Narrative (what it shows, paths, key thresholds) | Extra “parameter” notes | Full CLI |
 |--------|--------------------------------------------------|---------------------------|----------|
-| **1B** | `docs/figure_catalog.md` § Figure 1B | openTSNE / perplexity etc. only in script | `manuscript/plot_figure1b_tsne_stage_lncrna.py --help` |
+| **1** | `docs/figure_catalog.md` § Figure 1 | openTSNE / perplexity etc. only in script | `manuscript/plot_figure1_tsne_stage_lncrna.py --help` |
 | **2** (bars) | `docs/figure_catalog.md` § Figure 2 | **This file** — *Peptide fraction bar charts* (denominator/numerator, dashed lines, `MIN_SAMPLES_CANCER`) | `manuscript/plot_tr_de_peptide_fractions_by_transition.py --help` |
 | **3A–3B** | `docs/figure_catalog.md` § Figure 3A–3B | Heatmap percentile note in catalog for 3C | `manuscript/plot_aa_frequency_tcga_vs_proteome.py --help`, `plot_dipeptide_volcano_lnc_vs_proteome.py --help` |
 | **3C–3D** | `docs/figure_catalog.md` § Figure 3C–3D | **This file** — *Dipeptide Fig. 2* (`plot_dipeptide_mp_figure2.py`) for supplement dipeptide math | `manuscript/plot_figure3cd_dipeptide_log2fc_heatmaps.py --help` |
@@ -16,7 +16,7 @@ There is **no single markdown** that lists every argparse flag for every panel. 
 | **5** (merged SB) | `docs/figure_catalog.md` § Figure 5 | **`scripts/netmhc_sb_core.py`** (`FIG5_IEDB_*`); local wide XLS flags in **`docs/iedb_tools_api.md`** appendix; **`data/netmhc/README_netmhc.md`** §5 | `manuscript/plot_fig5abc_netmhc_sb_triple.py --help`, `plot_fig5de_merged_iedb_sb_per_allele.py --help` |
 | **5** (supplement / sensitivity) | `docs/figure_catalog.md` (sensitivity, combo grid) | **`docs/netmhc_figure_commands.md`**, **`docs/figure_generation_overview.md`** | `supplement/netmhc_sb_sensitivity_robustness.py --help`, `supplement/netmhc_ttn_merged_iedb_sb_sensitivity_robustness.py --help`, etc. |
 | **6** | `docs/figure_catalog.md` § Figure 6 | **`docs/figure6_ttn_as1_parameters.md`** (API vs local XLS, SB flags) | `manuscript/plot_figure6_ttn_as1_allele_coverage.py --help` |
-| **Orchestrators** | — | **`docs/netmhc_figure_commands.md`**, root **`README.md`** | `generate_catalog_figures.py --help`, `generate_netmhc_figure_bundle.py --help`, `generate_netmhc_supplement.py --help` |
+| **Orchestrators** | — | **`docs/netmhc_figure_commands.md`**, root **`README.md`** | `generate_canonical_manuscript_figures.py --help`, `generate_supplementary_figures.py --help`, `generate_netmhc_figure_bundle.py --help` |
 
 **SmProt / export geometry:** **`docs/smprot_peptide_pipeline_stages.md`** and **This file** — *Transcript slice for MP FASTA*. **Artifact paths:** **`docs/pipeline_outputs_reference.md`**.
 

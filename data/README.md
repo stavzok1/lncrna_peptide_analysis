@@ -1,6 +1,6 @@
 # Data layout
 
-Small **SmProt / TCGA** tables, **NetMHC helper** FASTAs/metadata, **`netmhcpan_ttn_as1_108065.xls`** (TTN-AS1 wide run), and **canonical merged** CSV sidecars under `data/netmhc/figures/` (`fig5_merged_*`, `fig5de_merged_whole_*`, supplement stems) ship in this repository. **All PNGs** under `data/netmhc/figures/` stay on GitHub; **legacy wide-XLS / Cartesian-grid / alternate-stem CSVs** are gitignored (see root `.gitignore`). **Large** cohort wide `*.xls`, merged `*_with_iedb.tsv`, and **IEDB peptide_table** exports are gitignored: copy them from your full analysis tree or from an archive (e.g. Zenodo) into `data/netmhc/` as listed below. **Which tables go to Zenodo vs GitHub** is summarized in **`docs/ZENODO.md`** (*What goes where*).
+Small **SmProt / TCGA** tables, **NetMHC helper** FASTAs/metadata, **`netmhcpan_ttn_as1_108065.xls`** (TTN-AS1 wide run), and **canonical merged** CSV sidecars under `data/netmhc/figures/` (`fig5_merged_*`, `fig5de_merged_whole_*`, supplement stems) ship in this repository. **All PNGs** under `data/netmhc/figures/` stay on GitHub; **legacy wide-XLS / Cartesian-grid / alternate-stem CSVs** are gitignored (see root `.gitignore`). **Large** cohort wide `*.xls`, merged `*_with_iedb.tsv`, and **IEDB peptide_table** exports are gitignored: copy them from your full analysis tree or from the [Zenodo dataset](https://doi.org/10.5281/zenodo.20167452) into `data/netmhc/` as listed below.
 
 A one-time copy log from the parent analysis tree (if you used it) may exist locally as **`data/MANIFEST_COPIED.txt`** (not tracked on GitHub).
 
@@ -8,7 +8,7 @@ A one-time copy log from the parent analysis tree (if you used it) may exist loc
 
 ## Expression tables (TCGA lncRNA matrices)
 
-These drive **Fig 1B**, **Fig 2**, and **`generate_tr_lncrna_identification.py`** (Python z-screen + R limma). Values are **log2(expected count + 1)** per gene column (same scale as `pipeline/tr_lncrna_de_analysis.py`: prevalence filter **log2 ≥ 1** in ≥ **40%** of union samples per stratum).
+These drive **Fig 1**, **Fig 2**, and **`generate_tr_lncrna_identification.py`** (Python z-screen + R limma). Values are **log2(expected count + 1)** per gene column (same scale as `pipeline/tr_lncrna_de_analysis.py`: prevalence filter **log2 ≥ 1** in ≥ **40%** of union samples per stratum).
 
 | File | Meta columns (first columns) | Notes |
 |------|------------------------------|--------|
@@ -23,13 +23,13 @@ Remaining columns are **lncRNA gene symbols** (GENCODE-style IDs). Cohort sizes 
 
 ---
 
-## Required for `python generate_catalog_figures.py`
+## Required for figure orchestrators
 
-Orchestrator: Fig **1B** (t-SNE) + **2–4A**. Run from repo root; paths are under `data/` and `tr_lncrna_output/` unless overridden. **Limma / z tables for Fig 2:** run **`python generate_tr_lncrna_identification.py`** first if `tr_lncrna_output/limma/` is empty (see Tr-lncRNA identification section below).
+**Main text:** `python generate_canonical_manuscript_figures.py` — Fig **1** (t-SNE) + **2–4A**. **Supplement:** `python generate_supplementary_figures.py`. Run from repo root. **Limma / z tables for Fig 2:** run **`python generate_tr_lncrna_identification.py`** first if `tr_lncrna_output/limma/` is empty.
 
 | Path | Role |
 |------|------|
-| **`data/primary_exp_stage_lncRNA.csv`** | Fig **1B** t-SNE + same sample set as DE pipeline |
+| **`data/primary_exp_stage_lncRNA.csv`** | Fig **1** t-SNE + same sample set as DE pipeline |
 | **`data/primary_exp_metastasis_lncRNA.csv`** | Metastasis panels in Fig **2** (peptide fractions) |
 | **`data/smprot_filtered_tcga_expr_genes.tsv`** | Peptide gene table (**tcga_matrix** mode; Fig 2 / 3A–3B) |
 | **`data/significant_lnc_peptides.tsv`** | **Fig. 4A** default (~501 exportable MPs; NetMHC cohort) |
@@ -53,7 +53,7 @@ Run from repo root:
 python generate_tr_lncrna_identification.py
 ```
 
-**Inputs:** same **`data/primary_exp_stage_lncRNA.csv`** and **`data/primary_exp_metastasis_lncRNA.csv`** as Fig 1B / Fig 2.
+**Inputs:** same **`data/primary_exp_stage_lncRNA.csv`** and **`data/primary_exp_metastasis_lncRNA.csv`** as Fig 1 / Fig 2.
 
 **Step 1 — Python z-screen** (`pipeline/tr_lncrna_de_analysis.py`): per cancer and transition, expression prevalence filter (log2(expr+1) ≥ 1 in ≥ 40% of union samples), mean log2FC early vs late, **z-score across genes** in that stratum, keep **|z| ≥ 3**. Writes:
 
@@ -73,7 +73,7 @@ python generate_tr_lncrna_identification.py
 
 **R packages:** `limma` (Bioconductor), `jsonlite` (CRAN). From repo root: **`Rscript install_r_dependencies.R`** (see root **`requirements.txt`** comments).
 
-**Next (SmProt / MPs, not in the orchestrator):** `python pipeline/build_significant_lncs_smprot.py` — needs **`data/SmProt2.txt`**, `data/lncrna_genes_small.csv`, etc. **`SmProt2.txt`** and **`primary_exp_*_final.csv`** are **not** tracked on GitHub (see `.gitignore`); download them from the **Zenodo dataset** (see **`docs/ZENODO.md`**) into your local `data/` before running that pipeline.
+**Next (SmProt / MPs, not in the orchestrator):** `python pipeline/build_significant_lncs_smprot.py` — needs **`data/SmProt2.txt`**, `data/lncrna_genes_small.csv`, etc. **`SmProt2.txt`** and **`primary_exp_*_final.csv`** are **not** tracked on GitHub (see `.gitignore`); download them from the [Zenodo dataset](https://doi.org/10.5281/zenodo.20167452) into your local `data/` before running that pipeline.
 
 ---
 

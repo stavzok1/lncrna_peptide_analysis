@@ -1,5 +1,5 @@
 """
-Deprecated: use ``manuscript/plot_figure1b_tsne_stage_lncrna.py`` (Figure 1B).
+Deprecated: use ``manuscript/plot_figure1_tsne_stage_lncrna.py`` (Figure 1).
 
 This shim forwards argv unchanged so old commands keep working.
 """
@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parent.parent
-_MS = _REPO / "manuscript" / "plot_figure1b_tsne_stage_lncrna.py"
+_MS = _REPO / "manuscript" / "plot_figure1_tsne_stage_lncrna.py"
 
 
 def main() -> None:
